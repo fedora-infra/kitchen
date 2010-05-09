@@ -1,0 +1,27 @@
+===================
+Kitchen.core Module
+===================
+
+:Author: Toshio Kuratomi
+:Date: 9 May 2010
+:Version: 0.1.x
+
+The Kitchen module provides a python API for all sorts of little useful
+snippets of code that everybody ends up writing for their projects but never
+seem big enough to build an independent release.  Use kitchen and stop cutting
+and pasting that code over and over.
+
+
+.. contents::
+
+-------
+License
+-------
+
+This python module is distributed under the terms of the GNU General
+Public License Version 2 or later.
+
+.. note:: Currently working on relicensing some of this code to the LGPLv2+.
+    Once that is done, the library will be licensed in whole as the GNU
+    Lesser General Public License Version 2 or later.  New contributions to the
+    library should be contributed under the LGPLv2+
