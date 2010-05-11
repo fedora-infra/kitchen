@@ -11,7 +11,6 @@ snippets of code that everybody ends up writing for their projects but never
 seem big enough to build an independent release.  Use kitchen and stop cutting
 and pasting that code over and over.
 
-
 .. contents::
 
 -------
@@ -25,3 +24,13 @@ Public License Version 2 or later.
     Once that is done, the library will be licensed in whole as the GNU
     Lesser General Public License Version 2 or later.  New contributions to the
     library should be contributed under the LGPLv2+
+
+------------
+Requirements
+------------
+
+kitchen.core requires
+
+:python: 2.3.1 or later
+
+
