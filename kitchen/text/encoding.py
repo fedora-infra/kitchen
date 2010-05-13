@@ -17,6 +17,48 @@ Utility functions to handle conversion of byte strings and unicode strings.
 '''
 from kitchen import _
 
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
+# Define a threshold for chardet confidence.  If we fall below this we decode
+# byte strings we're guessing about as latin1
+_chardet_threshhold = 0.6
+
+def guess_encoding(byte_string, disable_chardet=False):
+    '''Try to guess the encoding of a byte_string
+
+    :arg byte_string: byte_string to guess the encoding of
+    :kwarg disable_chardet: If this is True, we never attempt to use the
+        chardet module to guess the encoding.  This is useful if you need to
+        have reproducability whether chardet is installed or not.  Default:
+        False.
+    :raises ValueError: if byte_string is not a byte string (str) type
+    :returns: string containing a guess at the encoding of byte_string
+
+    If the chardet library is installed on the system and diable_chardet is
+    False this function will use it to try detecting the encoding of the
+    byte_string.  If it is not installed or chardet cannot determine the
+    encoding with a high enough confidence then we fallback to trying utf8
+    and finally latin1
+    '''
+    if not isinstance(byte_string, str):
+        raise ValueError(_('byte_string must be a byte string (str)'))
+    input_encoding = None
+    if chardet and not disable_chardet:
+        detection_info = chardet.detect(byte_string)
+        if detection_info['confidence'] >= _chardet_threshhold:
+            input_encoding = detection_info['encoding']
+
+    if not input_encoding:
+        input_encoding = 'utf8'
+        try:
+            unicode(byte_string, input_encoding, 'strict')
+        except UnicodeDecodeError:
+            input_encoding = 'latin1'
+
+    return input_encoding
 
 # This is ported from ustr_utf8_* which I got from:
 #     http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
