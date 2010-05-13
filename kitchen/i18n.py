@@ -77,33 +77,4 @@ def setup_gettext(catalog, use_unicode=True):
 
     return (_, P_)
 
-### This looks somewhat yum specific
-def setup_locale(override_codecs=True, override_time=False):
-    # This test needs to be before locale.getpreferredencoding() as that
-    # does setlocale(LC_CTYPE, "")
-    try:
-        locale.setlocale(locale.LC_ALL, '')
-        # set time to C so that we output sane things in the logs (#433091)
-        if override_time:
-            locale.setlocale(locale.LC_TIME, 'C')
-    except locale.Error, e:
-        # default to C locale if we get a failure.
-        print >> sys.stderr, 'Failed to set locale, defaulting to C'
-        os.environ['LC_ALL'] = 'C'
-        locale.setlocale(locale.LC_ALL, 'C')
-
-    if override_codecs:
-        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
-        sys.stdout.errors = 'replace'
-
-### What is this supposed to do?  I think it's not doing it but I'm not sure
-def get_my_lang_code():
-    mylang = locale.getlocale(locale.LC_MESSAGES)
-    if mylang == (None, None): # odd :)
-        mylang = 'C'
-    else:
-        mylang = '.'.join(mylang)
-
-    return mylang
-
 __all__ = (dummy_wrapper, dummyP_wrapper, setup_gettext)
