@@ -33,4 +33,13 @@ kitchen.core requires
 
 :python: 2.3.1 or later
 
+Soft Requirements
+=================
 
+If found, these libraries will be used to make the implementation of soemthing
+better in some way.  If they are not present, the API that they enable will
+still exist but may function in a different manner.
+
+:chardet: Used in kitchen.text.xml.guess_encoding__to_xml() to help guess encoding of
+    byte strings being converted.  If not present, unknown encodings will be
+    converted as if they were latin1.
