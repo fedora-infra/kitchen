@@ -29,13 +29,10 @@ import base64
 import warnings
 import xml.sax.saxutils
 
-from kitchen.text.encoding import to_bytes
+from kitchen import _
 from kitchen.pycompat24 import sets
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+from kitchen.text.exceptions import XmlEncodeError
+from kitchen.text.encoding import  guess_encoding
 
 # ASCII control codes that are illegal in xml 1.0
 _control_codes = frozenset(range(0, 8) + [11, 12] + range(14, 32))
@@ -144,19 +141,21 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         # Small optimization
         return ''
     if not isinstance(string, unicode):
-        raise XmlEncodeError('unicode_to_xml must have a unicode type as the'
-                ' first argument.  Use bytes_string_to_xml for byte strings.')
+        raise XmlEncodeError(_('unicode_to_xml must have a unicode type as'
+                ' the first argument.  Use bytes_string_to_xml for byte'
+                ' strings.'))
 
     if control_chars == 'ignore':
-        control_table = dict(zip(_control_codes, [None] * len(control_codes)))
+        control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
     elif control_chars == 'replace':
-        control_table = dict(zip(_control_codes, [u'?'] * len(control_codes)))
+        control_table = dict(zip(_control_codes, [u'?'] * len(_control_codes)))
     else:
         control_table = None
         # Test that there are no control codes present
         data = frozenset(string)
         if [c for c in _control_chars if c in data]:
-            raise XmlEncodeError('ASCII control code present in string input')
+            raise XmlEncodeError(_('ASCII control code present in string'
+                    ' input'))
 
     if control_table:
         string = string.translate(control_table)
@@ -219,9 +218,9 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
         this function
     '''
     if not isinstance(byte_string, str):
-        raise XmlEncodeError('byte_string_to_xml can only take a byte string'
-                ' as its first argument.  Use unicode_to_xml for unicode'
-                ' strings')
+        raise XmlEncodeError(_('byte_string_to_xml can only take a byte'
+                ' string as its first argument.  Use unicode_to_xml for'
+                ' unicode strings'))
 
     # Decode the string into unicode
     u_string = unicode(byte_string, input_encoding, errors)
@@ -292,15 +291,15 @@ def validate_byte_string(byte_string, encoding):
     # The byte string is compatible with this xml file
     return True
 
-def guess_encoding_to_xml(string, encoding='utf8', attrib=False,
+def guess_encoding_to_xml(string, output_encoding='utf8', attrib=False,
         control_chars='replace'):
     '''Return a byte string suitable for inclusion in xml
 
     :arg string: unicode or byte string to be transformed into a byte string
         suitable for inclusion in xml.  If string is a byte string we attempt
         to guess the encoding.  If we cannot guess, we fallback to latin1.
-    :kwarg encoding: Output encoding for the byte string.  This should match
-        the encoding of your xml file.
+    :kwarg output_encoding: Output encoding for the byte string.  This should
+        match the encoding of your xml file.
     :kwarg attrib: If True, escape the item for use in an attribute.  If False
          default) escape the item for use in a text node.
     :returns: utf8 encoded byte string
@@ -308,27 +307,22 @@ def guess_encoding_to_xml(string, encoding='utf8', attrib=False,
     '''
     # Unicode strings can just be run through unicode_to_xml()
     if isinstance(string, unicode):
-        return unicode_to_xml(string, encoding=encoding, attrib=attrib,
-                control_chars=control_chars)
+        return unicode_to_xml(string, encoding=output_encoding,
+                attrib=attrib, control_chars=control_chars)
 
     # Guess the encoding of the byte strings
-    input_encoding = 'latin1'
-    if chardet:
-        detection_info = chardet.detect(string)
-        if detection_info['confidence'] >= threshhold:
-            input_encoding = detection_info['encoding']
+    input_encoding = guess_encoding(string)
 
     # Return the new byte string
     return byte_string_to_xml(string, input_encoding=input_encoding,
-            errors='replace', output_encoding=encoding, attrib=attrib,
-            control_chars=control_chars)
+            errors='replace', output_encoding=output_encoding,
+            attrib=attrib, control_chars=control_chars)
 
 def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
-    '''Deprecated
-    guess_encoding_to_xml() instead
+    '''Deprecated guess_encoding_to_xml() instead
     '''
     warnings.warn(_('kitchen.text.xml.to_xml is deprecated.  Use'
             ' kitchen.text.xml.guess_encoding_to_xml instead.'),
             DeprecationWarning, stacklevel=2)
-    return guess_encoding_to_xml(string, encoding=encoding, attrib=attrib,
-            control_chars=control_characters)
+    return guess_encoding_to_xml(string, output_encoding=encoding,
+            attrib=attrib, control_chars=control_chars)
