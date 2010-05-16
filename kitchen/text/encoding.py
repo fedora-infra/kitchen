@@ -451,6 +451,7 @@ def utf8_text_fill(text, *args, **kwargs):
     """ Works like we want textwrap.fill() to work, uses utf-8 data and
         doesn't screw up lists/blocks/etc. """
     return '\n'.join(utf8_text_wrap(text, *args, **kwargs))
+
 # ----------------------------- END utf8 -----------------------------
 
 def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
@@ -481,11 +482,16 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
             :empty: Return an empty string
             :strict: Raise a TypeError
             :passthru: Return the object unchanged
+            :simplerepr: Attempt to call the object's "simple representation"
+                method and return that value.  Python-2.3+ has two methods
+                that try to return a simple representation: __unicode__() and
+                __str__().  We first try to get a usable value from
+                __unicode__().  If that fails we try the same with __str__().
             :repr: Attempt to return a unicode string of the repr of the
                 object
         The Default is 'empty'
-    :raises TypeError: if non_string is strict and a non-basestring object is
-        passed in or if :param:`non_string` is set to an unknown value
+    :raises TypeError: if :attr:`non_string` is 'strict' and a non-basestring
+        object is passed in or if :attr:`non_string` is set to an unknown value
     :returns: unicode string or the original object depending on the value of
         non_string.
     '''
@@ -497,6 +503,18 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
         return u''
     elif non_string == 'passthru':
         return obj
+    elif non_string == 'simplerepr':
+        try:
+            simple = obj.__unicode__()
+        except AttributeError:
+            simple = None
+        if not simple:
+            try:
+                simple = obj.__str__()
+            except (UnicodeError, AttributeError):
+                simple = u''
+        if not isinstance(simple, unicode):
+            return to_unicode(simple, 'utf8', 'replace')
     elif non_string in ('repr', 'strict'):
         obj_repr = repr(obj)
         if not isinstance(obj_repr, unicode):
@@ -513,7 +531,7 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
     '''Convert an object into a byte string
 
     Usually, this should be used on a unicode string but it can take byte
-    strigs and unicode strings intelligently.  non_string objects are handled
+    strings and unicode strings intelligently.  non_string objects are handled
     in different ways depending on the setting of the non_string parameter.
 
     The default values of this function are set so as to always return
@@ -523,25 +541,35 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
     don't expect.  Be sure you understand the requirements of your data, not
     just ignore errors by passing it through this function.
 
-    :arg obj: Object to convert to a byte string.  this should normally be
+    :arg obj: Object to convert to a byte string.  This should normally be
         a unicode string.
-    :kwarg encoding: What encoding to try using to convert the unicode string
-        into bytes.  Defaults to utf8
-    :kwarg errors: If errors are given, perform this action.  Defaults to
-        'replace' which replaces the error with a '?' character to show
-        a character was wunable to be decoded.  Other values are those that
-        can be given to the :function:`str.encode()` method.  For instance
+    :kwarg encoding: Encoding to use to convert the unicode string into
+        bytes.  **Warning**: if you pass a byte string into this function the
+        byte string is returned unmodified.  It is not re-encoded with this
+        encoding.  Defaults to utf8.
+    :kwarg errors: If errors are found when encoding, perform this action.
+        Defaults to 'replace' which replaces the error with a '?' character to
+        show a character was unable to be encoded.  Other values are those
+        that can be given to the :func:`str.encode`.  For instance
         'strict' which raises an exception and 'ignore' which simply omits the
         non-encodable characters.
     :kwargs non_string: How to treat non_string values.  Possible values are:
             :empty: Return an empty byte string
             :strict: Raise a TypeError
             :passthru: Return the object unchanged
+            :simplerepr: Attempt to call the object's "simple representation"
+                method and return that value.  Python-2.3+ has two methods
+                that try to return a simple representation: __unicode__() and
+                __str__().  We first try to get a usable value from
+                __str__().  If that fails we try the same with __unicode__().
             :repr: Attempt to return a byte string of the repr of the
                 object
         The Default is 'empty'
-    :raises TypeError: if non_string is strict and a non-basestring object is
-        passed in or if :param:`non_string` is set to an unknown value
+    :raises TypeError: if :attr:`non_string` is strict and a non-basestring
+        object is passed in or if :attr:`non_string` is set to an unknown
+        value.
+    :raises UnicodeEncodeError: if :attr:`errors` is strict and all of the
+        bytes of obj are unable to be encoded using :attr:`encoding`.
     :returns: byte string or the original object depending on the value of
         non_string.
     '''
@@ -553,6 +581,19 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         return ''
     elif non_string == 'passthru':
         return obj
+    elif non_string == 'simplerepr':
+        try:
+            simple = obj.__str__()
+        except (AttributeError, UnicodeError):
+            simple = None
+        if not simple:
+            try:
+                simple = obj.__unicode__()
+                if isinstance(simple, unicode):
+                    simple = simple.encode(encoding, 'replace')
+            except AttributeError:
+                simple = ''
+        return simple
     elif non_string in ('repr', 'strict'):
         obj_repr = repr(obj)
         if isinstance(obj_repr, unicode):
