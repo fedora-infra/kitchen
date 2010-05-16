@@ -23,9 +23,9 @@ Kitchen
 
 Aggregate of a bunch of unrelated but helpful python modules.
 '''
-import kitchen.i18n
+from kitchen import i18n
 
-(_, P_) = kitchen.i18n.setup_gettext('kitchen.core')
+(_, P_) = i18n.setup_gettext('kitchen.core')
 
 __version__ = '0.1'
 
