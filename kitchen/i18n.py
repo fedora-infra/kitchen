@@ -26,55 +26,221 @@
 #   Luke Macken <lmacken@redhat.com>
 #   Seth Vidal <skvidal@fedoraproject.org>
 
-import codecs
+__version__ = '0.1'
+
+import gettext
 import locale
 import os
 import sys
 
-from kitchen.text.encoding import to_unicode
+class DummyTranslations(gettext.NullTranslations):
+    def __init__(self, fp=None):
+        '''Safer version of NullTranslations
 
-def dummy_wrapper(str):
-    '''
-    Dummy Translation wrapper, just returning the same string.
-    '''
-    return to_unicode(str)
+        This Translations class doesn't translate the strings and is mostly
+        meant for times when there were errors setting up a real Translations
+        object.  It's safer than gettext.NullTranslations in its
+        handling of byte strings vs unicode strings.  Unlike NullTranslations,
+        this Translation class will never throw a UnicodeError.  Also, like
+        GNUTranslations, all of this Translation object's methods guarantee to
+        return byte strings except for ugettext and ungettext which guarantee
+        to return unicode strings.
 
-def dummyP_wrapper(str1, str2, n):
-    '''
-    Dummy Plural Translation wrapper, just returning the singular or plural
-    string.
-    '''
-    if n == 1:
-        return str1
-    else:
-        return str2
+        When byte strings are returned, the strings will be encoded according
+        to this algorithm:
 
-def setup_gettext(catalog, use_unicode=True):
+        1) If a fallback has been added, the fallback will be called first.
+            You'll need to consult the fallback to see whether it performs any
+            encoding changes.
+        2) If a byte string was given, the same byte string will be returned.
+        3) If a unicode string was given and :meth:`set_output_charset` has 
+            been called then we encode the string using the
+            :attr:`output_charset`, otherwise we encode it using 'utf8'.
+
+        For :meth:`ugettext` and :meth:`ungettext`, we go through the same
+        set of steps with the following differences:
+
+        * We transform byte strings into unicode strings for these methods.
+        * The encoding used to decode the byte strings is taken from
+            :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
+
+        .. seealso::
+            :class:`gettext.NullTranslation`
+                for information about what each of these methods do
+
+        '''
+        # Import this here to avoid circular deps with kitchen.text
+        from kitchen.text import to_unicode, to_bytes
+        gettext.NullTranslations.__init__(self, fp)
+
+    def gettext(self, message):
+        try:
+            message = gettext.NullTranslations.gettext(self, message)
+        except UnicodeError:
+            # Ignore UnicodeErrors: We'll do our own encoding next
+            pass
+        if self._output_charset:
+            return to_bytes(message, encoding=self._output_charset)
+        return to_bytes(message)
+
+    def lgettext(self, message):
+        try:
+            message = gettext.NullTranslations.lgettext(self, message)
+        except UnicodeError:
+            # Ignore UnicodeErrors: we'll do our own encoding next
+            pass
+        if self._output_charset:
+            return to_bytes(message, encoding=self._output_charset)
+        return to_bytes(message, encoding=locale.getprefferedencoding())
+
+    def ngettext(self, msgid1, msgid2, n):
+        try:
+            message = gettext.NullTranslations.ngettext(self, msgid1, msgid2, n)
+        except UnicodeError:
+            pass
+        if self._output_charset:
+            return to_bytes(message, encoding=self._output_charset)
+        return to_bytes(message)
+
+    def lngettext(self, msgid1, msgid2, n):
+        try:
+            message = gettext.NullTranslations.lngettext(self, msgid1, msgid2, n)
+        except UnicodeError:
+            pass
+        if self._output_charset:
+            return to_bytes(message, encoding=self._output_charset)
+        return to_bytes(message)
+
+    def ugettext(self, message):
+        try:
+            message = gettext.NullTranslations.ugettext(self, message)
+        except UnicodeError:
+            # Ignore UnicodeErrors: We'll do our own decoding later
+            pass
+        if self._charset:
+            return to_unicode(message, encoding=self._charset)
+        return to_unicode(message)
+
+    def ungettext(self, msgid1, msgid2, n):
+        try:
+            message = gettext.NullTranslations.ungettext(self, msgid1, msgid2, n)
+        except UnicodeError:
+            pass
+        if self._charset:
+            return to_unicode(message, encoding=self._charset)
+        return to_unicode(message)
+
+
+def get_translation_object(domain, localedirs=tuple()):
+    '''Get a translation object bound to the message catalogs
+
+    :arg domain: Name of the message domain
+    :kwarg localedirs: Iterator of directories to look for message catalogs
+        under.  The first directory to exist is used regardless of messages
+        for this domain are present.  If none of the directories exist,
+        fallback on sys.prefix + '/share/locale'  Default: No directories to
+        search.
+    :return: Translation object to get gettext methods from
+
+    If you need more flexibility than :func:`easy_gettext_setup`, use this
+    function.  It sets up a gettext Translation object and returns it to you.
+    Then you can access any of the methods of the object that you need
+    directly.  For instance, if you specifically need to access lgettext::
+
+        translations = get_translation_object('foo')
+        translations.lgettext('My Message')
+
+    Setting up gettext in a portable manner can be a little tricky due to not
+    having a common directory for translations across operating systems.
+    :func:`get_translation_object` is able to handle that by giving it a list
+    of directories::
+
+        translations = get_translation_object('foo', localedirs=(
+                os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
+                os.path.join(sys.prefix, 'lib', 'locale')))
+
+    This will search for several different directories:
+
+    1) A directory named 'locale' in the same directory as the module that
+        called :func:`get_translation_object`,
+    2) In :file:`/usr/lib/locale`
+    3) In :file:`/usr/share/locale` (the fallback directory)
+
+    The first of these that are a directory we can access will be used
+    (regardless of whether any locale files are present in the directory.)
+    This allows gettext to work on Windows and in development (where the
+    locale files are typically in the toplevel module directory) and also when
+    installed under Linux (where the message catalogs are installed in
+    /usr/share/locale).  You (or the Linux packager) just need to place the
+    locale files in /usr/share/locale and remove the locale directory from the
+    module to make this work.  ie::
+
+        In development:
+            ~/foo   # Toplevel module directory
+            ~/foo__init__.py
+            ~/foo/locale    # With message catalogs below here:
+            ~/foo/locale/es/LC_MESSAGES/foo.mo
+
+        Installed on Linux:
+            /usr/lib/python2.6/site-packages/foo
+            /usr/lib/python2.6/site-packages/foo/__init__.py
+            /usr/share/locale/  # With message catalogs below here:
+            /usr/share/locale/es/LC_MESSAGES/foo.mo
+    '''
+    # Look for the message catalogs in several places.  This allows for use
+    # with uninstalled modules, installed modules on Linux, and modules
+    # installed on platforms where the module locales are in the module dir
+
+    found = False
+    for localedir in localedirs:
+        if os.access(localedir, os.R_OK | os.X_OK) and os.path.isdir(localedir):
+            found = True
+            break
+    if not found:
+        localedir = os.path.join(sys.prefix, 'share', 'locale')
+    try:
+        translations = gettext.translation(domain, localedir=localedir, fallback=True)
+    except:
+        translations = DummyTranslations()
+    return translations
+
+def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     ''' Setup translation domain for this app.
 
-    :arg catalog: Name of the message catalog
+    :arg domain: Name of the message domain
+    :kwarg localedirs: Iterator of directories to look for message catalogs
+        under.  The first directory to exist is used regardless of messages
+        for this domain are present.  If none of the directories exist,
+        fallback on sys.prefix + '/share/locale'  Default: No directories to
+        search.
     :kwarg use_unicode: If True return unicode strings else return byte
-        strings.  Default is True
+        strings for the translations.  Default is True
     :return: tuple of the gettext function and gettext function for plurals
+
+    Setting up gettext can be a little tricky because of lack of documentation.
+    This function will setup gettext for you and hopefully supplement the docs
+    so you can understand how to do things sensibly.  For the simple case, you
+    can use the default arguments and call us like this::
+
+        _, N_ = setup_gettext()
+
+    This will get you two functions, _() and N_() that you can use to mark
+    strings in your code for translation.
+
+    .. seealso::
+        :func:`get_translation_object`
+            for information on how to use :attr:`localedirs` to get the
+            proper message catalogs both when in development or when installed
+            to FHS compliant directories on Linux.
     '''
-    try:
-        # Setup the translation domain and make _() and P_() translation wrappers
-        # available.
-        # using ugettext to make sure translated strings are in Unicode.
-        import gettext
-        t = gettext.translation(catalog, fallback=True)
-        if use_unicode:
-            _ = t.ugettext
-            P_ = t.ungettext
-        else:
-            _ = t.gettext
-            P_ = t.ngettext
-    except:
-        # Something went wrong so we make a dummy _() wrapper there is just
-        # returning the same text
-        _ = dummy_wrapper
-        P_ = dummyP_wrapper
+    translations = get_translation_object(domain, localedirs=localedirs)
+    if use_unicode:
+        _ = translations.ugettext
+        N_ = translations.ungettext
+    else:
+        _ = translations.gettext
+        N_ = translations.ngettext
 
-    return (_, P_)
+    return (_, N_)
 
-__all__ = (dummy_wrapper, dummyP_wrapper, setup_gettext)
+__all__ = (DummyTranslations, easy_gettext_setup, get_translation_object)
