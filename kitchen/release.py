@@ -19,10 +19,10 @@ little bittybit of code proved so useful to you, it's highly likely that it
 proved useful to someone else as well.  Useful enough that they've written it
 and copy and pasted it over and over into each of their new projects.
 
-Well, no longer!  Kitchen aims to pull these small snippets of code into one
-python module which you can import and use within your project.  No more copy
+Well, no longer!  Kitchen aims to pull these small snippets of code into a few
+python modules which you can import and use within your project.  No more copy
 and paste!  Now you can let someone else maintain and release these small
-snippets so that you can get on with yyour life.
+snippets so that you can get on with your life.
 ''')
 AUTHOR = 'Toshio Kuratomi, Seth Vidal, others'
 EMAIL = 'tkuratom@redhat.com'
