@@ -25,6 +25,8 @@
 #   Tim Lauridsen
 #   Luke Macken <lmacken@redhat.com>
 #   Seth Vidal <skvidal@fedoraproject.org>
+#
+# Portions of code taken from yum/i18n.py
 
 __version__ = '0.1'
 
@@ -198,6 +200,7 @@ def get_translation_object(domain, localedirs=tuple()):
             break
     if not found:
         localedir = os.path.join(sys.prefix, 'share', 'locale')
+
     try:
         translations = gettext.translation(domain, localedir=localedir, fallback=True)
     except:

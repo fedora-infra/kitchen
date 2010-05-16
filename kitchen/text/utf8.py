@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2010 Red Hat, Inc.
+# Copyright (c) 2010 Ville Skyttä
+# Copyright (c) 2009 Tim Lauridsen
+# Copyright (c) 2007 Marcus Kuhn
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -11,6 +18,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Authors:
+#   James Antill <james@fedoraproject.org>
+#   Marcus Kuhn
+#   Toshio Kuratomi <toshio@fedoraproject.org>
+#   Tim Lauridsen
+#   Ville Skyttä
+#
+# Portions of this are from yum/i18n.py
+'''
+Functions for operating on byte strings encoded as utf8
+
+.. note:: In many cases, it is better to convert to unicode, operate on the
+    strings, then convert back to utf8.  unicode type can handle many of these
+    functions itself.  For those that it doesn't (removing control characters
+    from length calculations, for instance) the code to do so with a unicode
+    type is much simpler.
+
+    It is unlikely that 
+'''
 
 from kitchen.text.encoding import to_unicode, to_bytes
 
@@ -48,7 +75,7 @@ from kitchen.text.encoding import to_unicode, to_bytes
 # Latest version: http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
 
 def _utf8_bisearch(ucs, table):
-    """ auxiliary function for binary search in interval table. """
+    '''Search the  auxiliary function for binary search in interval table. '''
 
     min = 0
     max = len(table) - 1
