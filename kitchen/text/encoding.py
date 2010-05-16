@@ -32,18 +32,18 @@ def guess_encoding(byte_string, disable_chardet=False):
     '''Try to guess the encoding of a byte_string
 
     :arg byte_string: byte_string to guess the encoding of
-    :kwarg disable_chardet: If this is True, we never attempt to use the
-        chardet module to guess the encoding.  This is useful if you need to
+    :kwarg disable_chardet: If this is True, we never attempt to use
+        :mod:`chardet` to guess the encoding.  This is useful if you need to
         have reproducability whether chardet is installed or not.  Default:
         False.
     :raises ValueError: if byte_string is not a byte string (str) type
     :returns: string containing a guess at the encoding of byte_string
 
-    If the chardet library is installed on the system and diable_chardet is
-    False this function will use it to try detecting the encoding of the
+    If :mod:`chardet` is installed on the system and :attr:`disable_chardet`
+    is False this function will use it to try detecting the encoding of the
     byte_string.  If it is not installed or chardet cannot determine the
-    encoding with a high enough confidence then we fallback to trying utf8
-    and finally latin1
+    encoding with a high enough confidence then we fallback to trying utf8 and
+    finally latin1.
     '''
     if not isinstance(byte_string, str):
         raise ValueError(_('byte_string must be a byte string (str)'))
@@ -235,11 +235,15 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
     return to_bytes(obj, encoding='utf8', errors='replace',
             non_string=non_string)
 
-def string_representation(obj):
+### str is also the type name for byte strings so it's not a good name for
+### something that can return unicode strings
+def to_str(obj):
     '''Deprecated.
 
-    This function converts something to a unicode string if it isn't one.  You
-    should use :func:`to_unicode` or :func:`to_bytes` explicitly
+    This function converts something to a byte string if it isn't one.
+    It's used to call str() or unicode() on the object to get its simple
+    representation without danger of getting a UnicodeError.  You
+    should be using :func:`to_unicode` or :func:`to_bytes` explicitly
     instead.  If you need unicode strings::
 
         to_unicode(obj, non_string='simplerepr')
@@ -247,26 +251,12 @@ def string_representation(obj):
     If you need byte strings::
 
         to_bytes(obj, non_string='simplerepr')
-
-    '''
-    warnings.warn(_('string_representation is deprecated.  Use to_unicode or'
-        ' to_bytes instead.  See the string_representation docstring for'
-        ' more information.'),
-        DeprecationWarning, stacklevel=2)
-    return to_unicode(obj, non_string='simplerepr')
-
-### str is also the type name for byte strings so it's not a good name for
-### something that can return unicode strings
-def to_str(obj):
-    '''Deprecated.
-
-    Convert something to a string.  See :func:`string_representation` and
-    :func:`to_unicode` for information on how to replace this.
     '''
     warnings.warn(_('to_str is deprecated.  Use to_unicode or to_bytes'
-        ' instead.  See the call_str docstring for information.'),
+        ' instead.  See the string_representation docstring for'
+        ' porting information.'),
         DeprecationWarning, stacklevel=2)
-    return string_representation(obj)
+    return to_bytes(obj, non_string='simplerepr')
 
 def str_eq(str1, str2, encoding='utf8', errors='replace'):
     """Compare two strings even if one is a byte string and one is unicode
@@ -298,6 +288,6 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
 
     return False
 
-__all__ = ( 'guess_encoding', 'string_representation', 'str_eq', 'to_bytes',
-        'to_str', 'to_unicode', 'to_utf8', 'utf8_text_fill', 'utf8_text_wrap',
-        'utf8_valid', 'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
+__all__ = ('guess_encoding', 'str_eq', 'to_bytes', 'to_str', 'to_unicode',
+        'to_utf8', 'utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
+        'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
