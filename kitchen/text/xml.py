@@ -84,8 +84,9 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     reference which represents the character at unicode codepoint 12392, the
     "と" character.
 
-    When you want to reverse this, use xml_to_unicode() which will turn a byte
-    string to unicode and replace the xmlcharrefs with the unicode characters.
+    When you want to reverse this, use :func:`xml_to_unicode` which will turn
+    a byte string to unicode and replace the xmlcharrefs with the unicode
+    characters.
 
     XML also has the quirk of not allowing ASCII control characters in its
     output.  The control_chars parameter allows us to specify what to do with
@@ -214,8 +215,10 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
 
         cleaned_string = byte_string_to_xml(string, input_encoding='utf8', output_encoding='utf8')
 
-    .. seealso:: :function:`unicode_to_xml` for other ideas on using
-        this function
+    .. seealso::
+
+        :func:`unicode_to_xml`
+            for other ideas on using this function
     '''
     if not isinstance(byte_string, str):
         raise XmlEncodeError(_('byte_string_to_xml can only take a byte'
@@ -319,10 +322,13 @@ def guess_encoding_to_xml(string, output_encoding='utf8', attrib=False,
             attrib=attrib, control_chars=control_chars)
 
 def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
-    '''Deprecated guess_encoding_to_xml() instead
+    '''Deprecated: Use guess_encoding_to_xml() instead
     '''
     warnings.warn(_('kitchen.text.xml.to_xml is deprecated.  Use'
             ' kitchen.text.xml.guess_encoding_to_xml instead.'),
             DeprecationWarning, stacklevel=2)
     return guess_encoding_to_xml(string, output_encoding=encoding,
             attrib=attrib, control_chars=control_chars)
+
+__all__ = ('byte_string_to_xml', 'bytes_to_xml', 'guess_encoding_to_xml',
+        'to_xml', 'unicode_to_xml', 'validate_byte_string')
