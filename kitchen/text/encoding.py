@@ -15,6 +15,8 @@
 '''
 Utility functions to handle conversion of byte strings and unicode strings.
 '''
+import warnings
+
 from kitchen import _
 
 try:
@@ -617,53 +619,79 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
 #    return obj
 
 def to_utf8(obj, errors='replace', non_string='passthru'):
-    '''Compat with yum to_utf8 function.
+    '''Deprecated.  Use to_bytes(obj, encoding='utf8', non_string='passthru')
 
-    convert 'unicode' to an encoded utf-8 byte string
-
-    deprecate: use to_bytes with appropriate arguments
+    Convert 'unicode' to an encoded utf-8 byte string
     '''
-    return to_bytes('utf8', errors='replace', non_string=non_string)
+    warnings.warn(_('kitchen.text.to_utf8 is deprecated.  Use'
+        ' kitchen.text.to_bytes(obj, encoding="utf8", non_string="passthru")'
+        ' instead.'), DeprecationWarning, stacklevel=2)
+    return to_bytes(obj, encoding='utf8', errors='replace',
+            non_string=non_string)
 
-# Don't use this, to_unicode should just work now
-def to_unicode_maybe(obj, encoding='utf-8', errors='replace'):
-    ''' Don't ask don't tell, only use when you must
-    deprecated: just use to_unicode with appropriate arguments
+def string_representation(obj):
+    '''Deprecated.
 
-    Convert a string to unicode without raising an error
+    This function converts something to a unicode string if it isn't one.  You
+    should use :func:`to_unicode` or :func:`to_bytes` explicitly
+    instead.  If you need unicode strings::
+
+        to_unicode(obj, non_string='simplerepr')
+
+    If you need byte strings::
+
+        to_bytes(obj, non_string='simplerepr')
+
     '''
-    return to_unicode(obj, encoding, errors, non_string='passthru')
+    warnings.warn(_('string_representation is deprecated.  Use to_unicode or'
+        ' to_bytes instead.  See the string_representation docstring for'
+        ' more information.'),
+        DeprecationWarning, stacklevel=2)
+    return to_unicode(obj, non_string='simplerepr')
 
-def to_string(obj):
-    '''Convert something to a string, if it isn't one
-    
-    This may return either a unicode string or a byte string.  Its main
-    purpose is just to get a representation for an object.
-    '''
-    # NOTE: unicode counts as a string just fine. We just want objects to call
-    # their __str__ methods.
-    if not isinstance(obj, basestring):
-        try:
-            obj = str(obj)
-        except (UnicodeEncodeError, UnicodeDecodeError):
-            obj = repr(obj)
-    return obj
-
-### str is also the constructor for byte strings so it's not a good name for
-### something that can also return unicode strings
+### str is also the type name for byte strings so it's not a good name for
+### something that can return unicode strings
 def to_str(obj):
-    '''Convert something to a string.
-    
-    deprecated: Use to_string to do the same thing
-    '''
-    return to_string(obj)
+    '''Deprecated.
 
-def str_eq(a, b):
-    """ convert between unicode and not and compare them, w/o warning or being annoying"""
-    if isinstance(a, unicode) == isinstance(b, unicode):
-        if a == b: # stupid python...
+    Convert something to a string.  See :func:`string_representation` and
+    :func:`to_unicode` for information on how to replace this.
+    '''
+    warnings.warn(_('to_str is deprecated.  Use to_unicode or to_bytes'
+        ' instead.  See the call_str docstring for information.'),
+        DeprecationWarning, stacklevel=2)
+    return string_representation(obj)
+
+def str_eq(str1, str2, encoding='utf8', errors='replace'):
+    """Compare two strings even if one is a byte string and one is unicode
+
+    :arg str1: first string to compare
+    :arg str2: second string to compare
+    :kwarg encoding: If we need to convert one string into a byte string to
+        compare, the encoding to use.  Default is utf8.
+    :kwarg errors: If we encounter errors when encoding the string, what to
+        do.  See the :func:`to_bytes` documentation for possible values.
+        The default is 'replace'
+
+    This function prevents UnicodeErrors when we compare a unicode string to
+    a byte string.  The errors normally arise because the conversion is done
+    to ASCII.  This function lets you convert to utf8 or another encoding
+    instead.
+
+    Note that when we need to convert one of the strings from unicode in order
+    to compare them we convert the unicode string into a byte string.  That
+    means that strings can compare differently if you use different encodings
+    for each.
+    """
+    if isinstance(str1, unicode) == isinstance(str2, unicode):
+        if str1 == str2:
             return True
-    elif to_utf8(a) == to_utf8(b):
+    elif to_bytes(str1, encoding=encoding, errors=errors)\
+            == to_bytes(str2, encoding=encoding, errors=errors):
         return True
 
     return False
+
+__all__ = ( 'guess_encoding', 'string_representation', 'str_eq', 'to_bytes',
+        'to_str', 'to_unicode', 'to_utf8', 'utf8_text_fill', 'utf8_text_wrap',
+        'utf8_valid', 'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
