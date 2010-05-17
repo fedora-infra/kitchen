@@ -19,7 +19,8 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 #   Seth Vidal
 #
-# Portions of code taken from yum/i18n.py
+# Portions of code taken from yum/i18n.py and
+# python-fedora: fedora/textutils.py
 
 '''
 Utility functions to handle conversion of byte strings and unicode strings.
@@ -298,5 +299,4 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
     return False
 
 __all__ = ('guess_encoding', 'str_eq', 'to_bytes', 'to_str', 'to_unicode',
-        'to_utf8', 'utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
-        'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
+        'to_utf8',)

@@ -435,3 +435,6 @@ def utf8_text_fill(text, *args, **kwargs):
     return '\n'.join(utf8_text_wrap(text, *args, **kwargs))
 
 # ----------------------------- END utf8 -----------------------------
+
+__all__ = ('utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
+        'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
