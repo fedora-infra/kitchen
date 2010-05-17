@@ -193,12 +193,10 @@ def get_translation_object(domain, localedirs=tuple()):
     # with uninstalled modules, installed modules on Linux, and modules
     # installed on platforms where the module locales are in the module dir
 
-    found = False
     for localedir in localedirs:
         if os.access(localedir, os.R_OK | os.X_OK) and os.path.isdir(localedir):
-            found = True
             break
-    if not found:
+    else:  # Note: yes, this else is intended to go with the for
         localedir = os.path.join(sys.prefix, 'share', 'locale')
 
     try:
