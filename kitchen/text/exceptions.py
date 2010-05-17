@@ -24,3 +24,8 @@ class XmlEncodeError(exceptions.KitchenException):
     '''Exception thrown by error conditions when encoding an xml string.
     '''
     pass
+
+class ControlCharError(exceptions.KitchenException):
+    '''Exception thrown when an ascii control character is encountered.
+    '''
+    pass
