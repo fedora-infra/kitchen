@@ -22,6 +22,17 @@ class TestI18N(unittest.TestCase):
         _, N_ = i18n.easy_gettext_setup('foo')
         tools.ok_(isinstance(_, types.MethodType))
         tools.ok_(isinstance(N_, types.MethodType))
+        tools.ok_(_.im_func.func_name == 'ugettext')
+        tools.ok_(N_.im_func.func_name == 'ungettext')
+
+    def test_easy_gettext_setup_non_unicode(self):
+        '''Test that the eay_gettext_setup function works
+        '''
+        _, N_ = i18n.easy_gettext_setup('foo', use_unicode=False)
+        tools.ok_(isinstance(_, types.MethodType))
+        tools.ok_(isinstance(N_, types.MethodType))
+        tools.ok_(_.im_func.func_name == 'gettext')
+        tools.ok_(N_.im_func.func_name == 'ngettext')
 
     def test_get_translation_object(self):
         '''Test that the get_translation_object function works
