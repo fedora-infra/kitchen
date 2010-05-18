@@ -30,4 +30,4 @@ if not hasattr(__builtin__, 'set'):
     
 if not hasattr(__builtin__, 'frozenset'):
     import sets
-    __builtin__.frozenset = sets.ImmutableSets
+    __builtin__.frozenset = sets.ImmutableSet
