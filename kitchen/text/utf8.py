@@ -187,45 +187,68 @@ def _utf8_iter_ucs(msg):
         if byte0 < 0x80:             # 0xxxxxxx
             yield (byte0, 1)
         elif (byte0 & 0xe0) == 0xc0: # 110XXXXx 10xxxxxx
-            byte1 = uiter.next()
+            try:
+                byte1 = uiter.next()
+            except StopIteration:
+                # Too short
+                yield(None, 1)
+                return
             if (((byte1 & 0xc0) != 0x80) or
                 ((byte0 & 0xfe) == 0xc0)):                          # overlong?
                 yield (None, 2)
                 return
             yield ((((byte0 & 0x1f) << 6) | (byte1 & 0x3f)), 2)
         elif (byte0 & 0xf0) == 0xe0: # 1110XXXX 10Xxxxxx 10xxxxxx
-            byte1 = uiter.next()
-            byte2 = uiter.next()
-            if (((byte1 & 0xc0) != 0x80) or ((byte2 & 0xc0) != 0x80) or
-                ((byte0 == 0xe0) and ((byte1 & 0xe0) == 0x80)) or   # overlong?
-                ((byte0 == 0xed) and ((byte1 & 0xe0) == 0xa0)) or   # surrogate?
-                ((byte0 == 0xef) and  (byte1 == 0xbf) and
-                 ((byte2 & 0xfe) == 0xbe))): # U+FFFE or U+FFFF?
+            bytes = [byte0]
+            for byte_count in range(1,3):
+                try:
+                    bytes.append(uiter.next())
+                except StopIteration:
+                    # If this is triggered, the byte sequence is too short
+                    yield (None, byte_count)
+                    return
+            if (((bytes[1] & 0xc0) != 0x80) or ((bytes[2] & 0xc0) != 0x80) or
+                ((bytes[0] == 0xe0) and ((bytes[1] & 0xe0) == 0x80)) or   # overlong?
+                ((bytes[0] == 0xed) and ((bytes[1] & 0xe0) == 0xa0)) or   # surrogate?
+                ((bytes[0] == 0xef) and  (bytes[1] == 0xbf) and
+                 ((bytes[2] & 0xfe) == 0xbe))): # U+FFFE or U+FFFF?
                 yield (None, 3)
                 return
-            yield ((((byte0 & 0x0f) << 12) | ((byte1 & 0x3f) << 6) |
-                   (byte2 & 0x3f)), 3)
+            yield ((((bytes[0] & 0x0f) << 12) | ((bytes[1] & 0x3f) << 6) |
+                   (bytes[2] & 0x3f)), 3)
         elif (byte0 & 0xf8) == 0xf0: # 11110XXX 10XXxxxx 10xxxxxx 10xxxxxx
-            byte1 = uiter.next()
-            byte2 = uiter.next()
-            byte3 = uiter.next()
-            if (((byte1 & 0xc0) != 0x80) or
-                ((byte2 & 0xc0) != 0x80) or
-                ((byte3 & 0xc0) != 0x80) or
-                ((byte0 == 0xf0) and ((byte1 & 0xf0) == 0x80)) or # overlong?
-                ((byte0 == 0xf4) and (byte1 > 0x8f)) or           # > U+10FFFF?
-                (byte0 > 0xf4)):                                  # > U+10FFFF?
+            bytes = [byte0]
+            for byte_count in range(1,4):
+                try:
+                    bytes.append(uiter.next())
+                except StopIteration:
+                    # If this is triggered, the byte sequence is too short
+                    yield (None, byte_count)
+                    return
+            if (((bytes[1] & 0xc0) != 0x80) or
+                ((bytes[2] & 0xc0) != 0x80) or
+                ((bytes[3] & 0xc0) != 0x80) or
+                ((bytes[0] == 0xf0) and ((bytes[1] & 0xf0) == 0x80)) or # overlong?
+                ((bytes[0] == 0xf4) and (bytes[1] > 0x8f)) or           # > U+10FFFF?
+                (bytes[0] > 0xf4)):                                  # > U+10FFFF?
                 yield (None, 4)
                 return
 
-            yield ((((byte0 & 0x07) << 18) | ((byte1 & 0x3f) << 12) |
-                    ((byte2 & 0x3f) <<  6) |  (byte3 & 0x3f)), 4)
+            yield ((((bytes[0] & 0x07) << 18) | ((bytes[1] & 0x3f) << 12) |
+                    ((bytes[2] & 0x3f) <<  6) |  (bytes[3] & 0x3f)), 4)
         else:
             yield (None, 1)
             return
 
 def utf8_width(msg):
-    """ Get the textual width of a utf8 string. """
+    '''Get the textual width of a utf8 string.
+
+    :arg msg: utf8 encoded byte string to get the width of
+    :returns: Textual width.  This is the amount of space that the string will
+        consume on a monospace display.  It's measured in the number of ASCII
+        characters it would take to fill the equivalent amount of space.  This
+        is **not** the number of glyphs that are in the string.
+    '''
     ret = 0
     for (ucs, bytes) in _utf8_iter_ucs(msg):
         if ucs is None:
@@ -239,7 +262,6 @@ def utf8_width_chop(msg, chop=None):
         value. This is what you want to use instead of %.*s, as it does the
         "right" thing with regard to utf-8 sequences. Eg.
         "%.*s" % (10, msg)   <= becomes => "%s" % (utf8_width_chop(msg, 10)) """
-
     if chop is None or utf8_width(msg) <= chop:
         return utf8_width(msg), msg
 
