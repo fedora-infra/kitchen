@@ -1,2 +1,2 @@
-include COPYING COPYING.LESSER
+include COPYING COPYING.LESSER NEWS
 recursive-include tests *.py
