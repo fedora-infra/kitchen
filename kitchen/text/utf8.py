@@ -75,7 +75,7 @@ from kitchen.text.encoding import to_unicode, to_bytes
 # Latest version: http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
 
 def _utf8_bisearch(ucs, table):
-    '''Search the  auxiliary function for binary search in interval table. '''
+    '''Search the auxiliary function for binary search in interval table. '''
 
     min = 0
     max = len(table) - 1
@@ -147,9 +147,17 @@ _combining = (
     ( 0xE0100, 0xE01EF ))
 
 def _utf8_ucp_width(ucs):
-    """ Get the textual width of a ucs character. """
+    '''Get the textual width of a ucs character.
 
-    # test for 8-bit control characters
+    :arg ucs: a single unicode code point
+    :returns: textual width of the character
+
+    .. note:: textual width is the amount of horizontal space a character
+        takes up on a monospaced screen.he units are number of ASCII
+        characters that it takes the place of.  
+    '''
+
+    # test for 8-bit control charactersT
     if ucs == 0:
         return 0
 
@@ -178,10 +186,27 @@ def _utf8_ucp_width(ucs):
 
 
 def _utf8_iter_ints(msg):
+    '''Iterate through the byte string, returning bytes as ints
+
+    :arg msg: Byte string to iterate through
+    :rtype: int
+    :returns: integer representation of the next byte
+    '''
     for byte in to_bytes(msg):
         yield ord(byte)
 
 def _utf8_iter_ucs(msg):
+    '''Iterate through the string, returning codepoint and number of bytes
+
+    :arg msg: Byte string to take code points from
+    :rtype: tuple
+    :returns: Unicode code point and number of bytes consumed to make that
+        code point
+
+    On error, this function returns None as the first entry in the tuple.  The
+    second entry contains the number of bytes that were read from the string
+    before determining this sequence of bytes did not form a character.
+    '''
     uiter = _utf8_iter_ints(msg)
     for byte0 in uiter:
         if byte0 < 0x80:             # 0xxxxxxx
@@ -258,10 +283,25 @@ def utf8_width(msg):
     return ret
 
 def utf8_width_chop(msg, chop=None):
-    """ Return the textual width of a utf8 string, chopping it to a specified
-        value. This is what you want to use instead of %.*s, as it does the
-        "right" thing with regard to utf-8 sequences. Eg.
-        "%.*s" % (10, msg)   <= becomes => "%s" % (utf8_width_chop(msg, 10)) """
+    '''Return the textual width of a utf8 string, chopping it to a specified
+    value.
+
+    :arg msg: String to chop
+    :kwarg chop: Chop the string if it exceeds this textual width.
+    :returns: string of the requested length
+
+    This is what you want to use instead of %.*s, as it does the "right" thing
+    with regard to utf-8 sequences. Eg::
+
+        %.*s" % (10, msg)
+            <= becomes =>
+        %s" % (utf8_width_chop(msg, 10))
+
+
+    .. note:: If you pass a unicode string into this function, you will get
+        a unicode string back.  But the string will have bee formatted with
+        utf8 encoding in mind.
+    '''
     if chop is None or utf8_width(msg) <= chop:
         return utf8_width(msg), msg
 
@@ -271,7 +311,7 @@ def utf8_width_chop(msg, chop=None):
     msg = to_bytes(msg)
     for (ucs, bytes) in _utf8_iter_ucs(msg):
         if ucs is None:
-            width = bytes # Ugly ... should not feed bad utf8
+            width = bytes # Ugly ... should not feed non-utf8 bytes
         else:
             width = _utf8_ucp_width(ucs)
 
@@ -287,25 +327,39 @@ def utf8_width_chop(msg, chop=None):
     return ret, msg
 
 def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    """ Expand a utf8 msg to a specified "width" or chop to same.
-        Expansion can be left or right. This is what you want to use instead of
-        %*.*s, as it does the "right" thing with regard to utf-8 sequences.
-        prefix and suffix should be used for "invisible" bytes, like
-        highlighting.
-        Eg.
-        "%-*.*s" % (10, 20, msg)
-           <= becomes =>
-        "%s" % (utf8_width_fill(msg, 10, 20)).
+    '''Expand a utf8 msg to a specified "width" or chop to same.
 
-        "%20.10s" % (msg)
-           <= becomes =>
-        "%s" % (utf8_width_fill(msg, 20, 10, left=False)).
+    :arg msg: byte string to format
+    :arg fill: pad string until the textual width is this long
+    :kwarg chop: before doing anything else, chop the string to this length.
+        Default: Don't chop the string at all
+    :kwarg left: If True (default) left justify the string and put the padding
+        on the right.  If False, pad on the left side.
+    :kwarg prefix: Attach this string before the field we're filling
+    :kwarg suffix: Append this string to the end of the field we're filling
 
-        "%s%.10s%s" % (prefix, msg, suffix)
-           <= becomes =>
-        "%s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
-        """
-    passed_msg = msg
+    Expansion can be left or right. This is what you want to use instead of
+    %*.*s, as it does the "right" thing with regard to utf-8 sequences.
+    prefix and suffix should be used for "invisible" bytes, like
+    highlighting.  Eg::
+
+
+        %-*.*s" % (10, 20, msg)
+            <= becomes =>
+        %s" % (utf8_width_fill(msg, 10, 20)).
+
+        %20.10s" % (msg)
+            <= becomes =>
+        %s" % (utf8_width_fill(msg, 20, 10, left=False)).
+
+        %s%.10s%s" % (prefix, msg, suffix)
+            <= becomes =>
+        %s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
+    '''
+    passed_unicode = isinstance(msg, unicode)
+    msg = to_bytes(msg)
+    prefix = to_bytes(prefix)
+    suffix = to_bytes(suffix)
     width, msg = utf8_width_chop(msg, chop)
 
     if width >= fill:
@@ -318,22 +372,27 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         else:
             msg = ''.join([extra, prefix, msg, suffix])
 
-    if isinstance(passed_msg, unicode):
+    if passed_unicode:
         return to_unicode(msg)
 
     return msg
 
 def utf8_valid(msg):
-    """ Return True/False is the text is valid utf8. """
+    '''Detect if a byte string is valid utf8.
+
+    :arg msg: Byte string to test for non-utf8 bytes
+    :returns: True if there are no invalid utf8 characters.  False if an
+        invalid character is detected.
+    '''
     for (ucs, bytes) in _utf8_iter_ucs(msg):
         if ucs is None:
             return False
     return True
 
 def _utf8_width_le(width, *args):
-    """ Minor speed hack, we often want to know "does X fit in Y". It takes
-        "a while" to work out a utf8_width() (see above), and we know that a
-        utf8 character is always <= byte. So given:
+    '''Minor speed hack, we often want to know "does X fit in Y". It takes
+    "a while" to work out a utf8_width() (see above), and we know that a utf8
+    character is always <= byte. So given::
 
         assert bytes >= characters
         characters <= width?
@@ -342,7 +401,8 @@ def _utf8_width_le(width, *args):
 
         bytes <= width or characters <= width
 
-        ...and bytes are much faster. """
+        ...and bytes are much faster.
+    '''
     # This assumes that all args. are utf8.
     ret = 0
     for arg in args:
@@ -355,8 +415,17 @@ def _utf8_width_le(width, *args):
     return ret <= width
 
 def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
-    """ Works like we want textwrap.wrap() to work, uses utf-8 data and
-        doesn't screw up lists/blocks/etc. """
+    '''Works like we want textwrap.wrap() to work, uses utf-8 data and
+    doesn't screw up lists/blocks/etc.
+
+    :arg text: string to wrap
+    :kwarg width: width at which to wrap.  Default 70
+    :kwarg initial_indent: string to use to indent the first line.  Default,
+        do not indent.
+    :kwarg subsequent_indent: string to use to wrap subsequent lines.  Default
+        do not indent
+    :returns: list of lines that have been text wrapped and indented.
+    '''
     # Tested with:
     # yum info robodoc gpicview php-pear-Net-Socket wmctrl ustr moreutils
     #          mediawiki-HNP ocspd insight yum mousepad
@@ -395,7 +464,7 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     subsequent_indent = to_bytes(subsequent_indent)
 
     text = to_bytes(text).rstrip('\n')
-    lines = to_bytes(text).replace('\t', ' ' * 8).split('\n')
+    lines = text.replace('\t', ' ' * 8).split('\n')
 
     ret = []
     indent = initial_indent
@@ -452,8 +521,20 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     return ret
 
 def utf8_text_fill(text, *args, **kwargs):
-    """ Works like we want textwrap.fill() to work, uses utf-8 data and
-        doesn't screw up lists/blocks/etc. """
+    '''Works like we want textwrap.fill() to work, uses utf-8 data and
+        doesn't screw up lists/blocks/etc.
+
+    :arg text: string to process
+    :returns: string with each line separated by a newline.
+
+    .. seealso::
+        :func:`utf8_text_wrap`
+            for other options that you can give this command.
+
+    This function is a light wrapper around :func:`utf8_text_wrap`.  Where
+    that function returns a list of lines, this function returns one string
+    with each line separated by a newline.
+    '''
     return '\n'.join(utf8_text_wrap(text, *args, **kwargs))
 
 # ----------------------------- END utf8 -----------------------------
