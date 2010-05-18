@@ -57,7 +57,12 @@ class DummyTranslations(gettext.NullTranslations):
         2) If a byte string was given, the same byte string will be returned.
         3) If a unicode string was given and :meth:`set_output_charset` has 
             been called then we encode the string using the
-            :attr:`output_charset`, otherwise we encode it using 'utf8'.
+            :attr:`output_charset`
+        4) If a unicode string was given and this is :meth:`gettext` or
+            :meth:`ngettext` we encode it using 'utf8'.
+        5) If a unicode string was given and this is :meth:`lgettext` or
+            :meth:`lngettext` and we encode using the value of
+            :func:`locale.getpreferredencoding`
 
         For :meth:`ugettext` and :meth:`ungettext`, we go through the same
         set of steps with the following differences:
@@ -72,7 +77,9 @@ class DummyTranslations(gettext.NullTranslations):
 
         '''
         # Import this here to avoid circular deps with kitchen.text
-        from kitchen.text import to_unicode, to_bytes
+        from kitchen.text.encoding import to_unicode, to_bytes
+        self.to_unicode = to_unicode
+        self.to_bytes = to_bytes
         gettext.NullTranslations.__init__(self, fp)
 
     def gettext(self, message):
@@ -82,8 +89,17 @@ class DummyTranslations(gettext.NullTranslations):
             # Ignore UnicodeErrors: We'll do our own encoding next
             pass
         if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        return to_bytes(message)
+            return self.to_bytes(message, encoding=self._output_charset)
+        return self.to_bytes(message)
+
+    def ngettext(self, msgid1, msgid2, n):
+        try:
+            message = gettext.NullTranslations.ngettext(self, msgid1, msgid2, n)
+        except UnicodeError:
+            pass
+        if self._output_charset:
+            return self.to_bytes(message, encoding=self._output_charset)
+        return self.to_bytes(message)
 
     def lgettext(self, message):
         try:
@@ -92,17 +108,8 @@ class DummyTranslations(gettext.NullTranslations):
             # Ignore UnicodeErrors: we'll do our own encoding next
             pass
         if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        return to_bytes(message, encoding=locale.getprefferedencoding())
-
-    def ngettext(self, msgid1, msgid2, n):
-        try:
-            message = gettext.NullTranslations.ngettext(self, msgid1, msgid2, n)
-        except UnicodeError:
-            pass
-        if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        return to_bytes(message)
+            return self.to_bytes(message, encoding=self._output_charset)
+        return self.to_bytes(message, encoding=locale.getpreferredencoding())
 
     def lngettext(self, msgid1, msgid2, n):
         try:
@@ -110,8 +117,8 @@ class DummyTranslations(gettext.NullTranslations):
         except UnicodeError:
             pass
         if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        return to_bytes(message)
+            return self.to_bytes(message, encoding=self._output_charset)
+        return self.to_bytes(message, encoding=locale.getpreferredencoding())
 
     def ugettext(self, message):
         try:
@@ -120,17 +127,20 @@ class DummyTranslations(gettext.NullTranslations):
             # Ignore UnicodeErrors: We'll do our own decoding later
             pass
         if self._charset:
-            return to_unicode(message, encoding=self._charset)
-        return to_unicode(message)
+            return self.to_unicode(message, encoding=self._charset)
+        return self.to_unicode(message)
 
     def ungettext(self, msgid1, msgid2, n):
         try:
             message = gettext.NullTranslations.ungettext(self, msgid1, msgid2, n)
         except UnicodeError:
-            pass
+            if n == 1:
+                message = msgid1
+            else:
+                message = msgid2
         if self._charset:
-            return to_unicode(message, encoding=self._charset)
-        return to_unicode(message)
+            return self.to_unicode(message, encoding=self._charset)
+        return self.to_unicode(message)
 
 
 def get_translation_object(domain, localedirs=tuple()):
