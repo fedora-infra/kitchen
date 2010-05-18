@@ -20,17 +20,16 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 #   Seth Vidal
 #
-# Portions of this code taken from yum/misc.py, yum/i18n.py, and
-# python-fedora: fedora/textutils.py
+# Portions of this code taken from yum/misc.py and yum/i18n.py
 
 import base64
 import warnings
 import xml.sax.saxutils
 
 from kitchen import _
-from kitchen.pycompat24 import sets
-from kitchen.text.exceptions import XmlEncodeError
-from kitchen.text.encoding import  guess_encoding
+from kitchen.pycompat24 import builtinsets
+from kitchen.text.exceptions import XmlEncodeError, ControlCharError
+from kitchen.text.encoding import guess_encoding, to_unicode, to_bytes
 
 # ASCII control codes that are illegal in xml 1.0
 _control_codes = frozenset(range(0, 8) + [11, 12] + range(14, 32))
@@ -53,8 +52,10 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         :ignore: Remove the characters altogether from the output
         :strict: Raise an error when we encounter a control character
     :raises XmlEncodeError: If control_chars is set to 'strict' and the string
-        to be made suitable for output to xml contains control characters then
-        we raise this exception
+        to be made suitable for output to xml contains control characters or if
+        :attr:`string` is not a unicode type then we raise this exception.
+    :raises ValueError: If control_chars is set o something other than
+        replace, ignore, or strict.
     :rtype: byte string
     :returns: representation of the unicode string with any bytes that aren't
         available in xml taken care of.
@@ -131,33 +132,28 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     default encoding and fallback to utf7 if there are control characters
     present.
 
-    You may also want to take a look at bytes_to_xml in case you're dealing
-    with unknown bytes that you must preserve or guess_encoding_to_xml if
-    you're dealing with strings in unknown encodings that you don't need to
-    save with char-for-char fidelity.
+    .. seealso::
+        :func:`bytes_to_xml`
+            if you're dealing with bytes that are non-text or of an unknown
+            encoding that you must preserve on a byte for byte level.
+        :func:`guess_encoding_to_xml`
+            if you're dealing with strings in unknown encodings that you don't
+            need to save with char-for-char fidelity.
     '''
     if not string:
         # Small optimization
         return ''
-    if not isinstance(string, unicode):
+    try:
+        process_control_chars(string, strategy=control_chars)
+    except TypeError:
         raise XmlEncodeError(_('unicode_to_xml must have a unicode type as'
                 ' the first argument.  Use bytes_string_to_xml for byte'
                 ' strings.'))
-
-    if control_chars == 'ignore':
-        control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
-    elif control_chars == 'replace':
-        control_table = dict(zip(_control_codes, [u'?'] * len(_control_codes)))
-    else:
-        control_table = None
-        # Test that there are no control codes present
-        data = frozenset(string)
-        if [c for c in _control_chars if c in data]:
-            raise XmlEncodeError(_('ASCII control code present in string'
-                    ' input'))
-
-    if control_table:
-        string = string.translate(control_table)
+    except ValueError:
+        raise ValueError(_('The control_chars argument to unicode_to_xml'
+                ' must be one of ignore, replace, or strict'))
+    except ControlCharError, e:
+        raise XmlEncodeError(e.args[0])
 
     string = string.encode(encoding, errors='xmlcharrefescape')
 
@@ -167,6 +163,105 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     else:
         string = xml.sax.saxutils.escape(string)
     return string
+
+def process_control_chars(string, strategy='replace'):
+    '''Look for and transform control characters in a string
+
+    :arg string: string to search for and transform control characters in
+    :kwarg strategy: XML does not allow ASCII control characters.  When
+        we encounter those we need to know what to do.  Valid options are:
+        :replace: (default) Replace the control characters with "?"
+        :ignore: Remove the characters altogether from the output
+        :strict: Raise an error when we encounter a control character
+    :raises TypeError: if :attr:`string` is not a unicode string.
+    :raises ValueError: if the strategy is not one of replace, ignore, or
+        strict.
+    :returns: unicode string with no control characters in it.
+    '''
+    if not isinstance(string, unicode):
+        raise TypeError(_('process_control_char must have a unicode type as'
+                ' the first argument.'))
+
+    if strategy == 'ignore':
+        control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
+    elif strategy == 'replace':
+        control_table = dict(zip(_control_codes, [u'?'] * len(_control_codes)))
+    elif strategy == 'strict':
+        control_table = None
+        # Test that there are no control codes present
+        data = frozenset(string)
+        if [c for c in _control_chars if c in data]:
+            raise ControlCharError(_('ASCII control code present in string'
+                    ' input'))
+    else:
+        raise ValueError(_('The strategy argument to process_control_chars'
+                ' must be one of ignore, replace, or strict'))
+
+    if control_table:
+        string = string.translate(control_table)
+
+    return string
+
+# Originally written by Fredrik Lundh (January 15, 2003) and placed in the
+# public domain::
+# 
+#   Unless otherwise noted, source code can be be used freely. Examples, test
+#   scripts and other short code fragments can be considered as being in the
+#   public domain.
+#
+# http://effbot.org/zone/re-sub.htm#unescape-html
+# http://effbot.org/zone/copyright.htm
+#
+import re
+_ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
+
+def html_entities_to_unicode(string):
+    '''Substitute unicode characters for HTML entities
+
+    :arg string: Unicode string to substitute out html entities
+ 
+  @param text The HTML source.
+  @return The plain text.  If the HTML source contains non-ASCII
+      entities or character references, this is a Unicode string.
+    '''
+    def fixup(m):
+        string = m.group(0)
+        if string[:1] == "<":
+            return "" # ignore tags
+        if string[:2] == "&#":
+            try:
+                if string[:3] == "&#x":
+                    return unichr(int(string[3:-1], 16))
+                else:
+                    return unichr(int(string[2:-1]))
+            except ValueError:
+                pass
+        elif string[:1] == "&":
+            import htmlentitydefs
+            entity = htmlentitydefs.entitydefs.get(string[1:-1])
+            if entity:
+                if entity[:2] == "&#":
+                    try:
+                        return unichr(int(entity[2:-1]))
+                    except ValueError:
+                        pass
+                else:
+                    return unicode(entity, "iso-8859-1")
+        return string # leave as is
+
+    if not isinstance(string, unicode):
+        return TypeError(_('html_entities_to_unicode must have a unicode type'
+                ' for its first argument'))
+    return re.sub(_ENTITY_RE, fixup, string)
+
+def xml_to_unicode(byte_string, encoding, errors):
+    string = to_unicode(byte_string, encoding=encoding, errors=errors)
+    string = html_entities_to_unicode(string)
+    return string
+
+def xml_to_byte_string(byte_string, input_encoding, errors, output_encoding):
+    string = xml_to_unicode(byte_string, input_encoding, errors)
+    return to_bytes(string, output_encoding, errors)
 
 def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
         output_encoding='utf8', attrib=False, control_chars='replace'):
@@ -239,10 +334,15 @@ def bytes_to_xml(byte_string):
     This function is made especially to put binary information into xml
     documents.
 
-    Use this function is intended for encoding things that must be preserved
+    This function is intended for encoding things that must be preserved
     byte-for-byte.  If you want to encode a byte string that's text and don't
     mind losing the actual bytes you probably want to try byte_string_to_xml()
     or guess_bytes_to_xml().
+
+    .. note:: Although the current implementation uses base64 and there's no
+        plans to change it, that isn't guaranteed.  If you want to make sure
+        that you can encode and decode these messages it's best to use
+        :func:`xml_to_bytes` if you use this function to encode.
     '''
     # Can you do this yourself?  Yes, you can.
     return base64.b64encode(byte_string)
@@ -251,6 +351,23 @@ def bytes_to_xml(byte_string):
 # defining this as a function so we can get a docstring.  Then we redefine it
 # as an attribute to save one useless function call.
 bytes_to_xml = base64.b64encode
+
+def xml_to_bytes(byte_string):
+    '''Decode as string encoded using :func:`bytes_to_xml`
+
+    :arg byte_string: byte string to transform.  This should be a base64
+        encoded sequence of bytes originally generated by :func:`bytes_to_xml`.
+    :rtype: byte string
+    :returns: byte string that's the decoded input.
+
+    If you've got fields in an xml document that were encoded with
+    :func:`bytes_to_xml` then you want to use this function to undecode them.
+    It converts a base64 encoded string into a byte string.
+    '''
+    return base64.b64decode(byte_string)
+
+# Same note here as for bytes_to_xml
+xml_to_bytes = base64.b64decode
 
 def validate_byte_string(byte_string, encoding):
     '''Check that a byte string would be valid in xml
