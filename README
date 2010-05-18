@@ -62,3 +62,13 @@ just mention them here:
     structures of lists nad dicts, transforming the dicts to Bunch's.
 
 .. _bunch:: http://pypi.python.org/pypi/bunch/
+
+---------------------
+Building, and testing
+---------------------
+
+Testing
+=======
+
+You can run the unittests with this command::
+    nosetests --with-coverage
