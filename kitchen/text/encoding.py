@@ -49,26 +49,30 @@ def guess_encoding(byte_string, disable_chardet=False):
     :raises ValueError: if byte_string is not a byte string (str) type
     :returns: string containing a guess at the encoding of byte_string
 
-    If :mod:`chardet` is installed on the system and :attr:`disable_chardet`
-    is False this function will use it to try detecting the encoding of the
-    byte_string.  If it is not installed or chardet cannot determine the
-    encoding with a high enough confidence then we fallback to trying utf8 and
-    finally latin1.
+    We start by attempting to decode the bytes as utf8.  If this succeeds we
+    tell the world it's utf8 text.  If it doesn't and :mod:`chardet` is
+    installed on the system and :attr:`disable_chardet` is False this function
+    will use it to try detecting the encoding of the byte_string.  If it is
+    not installed or chardet cannot determine the encoding with a high enough
+    confidence then we rather arbitrarily claim that it is latin1.  Since latin1
+    will encode to every byte, decoding from laint1 to unicode will not cause
+    UnicodeErrors even if the output is mangled.
     '''
     if not isinstance(byte_string, str):
         raise ValueError(_('byte_string must be a byte string (str)'))
-    input_encoding = None
-    if chardet and not disable_chardet:
+    input_encoding = 'utf8'
+    try:
+        unicode(byte_string, input_encoding, 'strict')
+    except UnicodeDecodeError:
+        input_encoding = None
+
+    if not input_encoding and chardet and not disable_chardet:
         detection_info = chardet.detect(byte_string)
         if detection_info['confidence'] >= _chardet_threshhold:
             input_encoding = detection_info['encoding']
 
     if not input_encoding:
-        input_encoding = 'utf8'
-        try:
-            unicode(byte_string, input_encoding, 'strict')
-        except UnicodeDecodeError:
-            input_encoding = 'latin1'
+        input_encoding = 'latin1'
 
     return input_encoding
 
@@ -110,6 +114,8 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
         The Default is 'empty'
     :raises TypeError: if :attr:`non_string` is 'strict' and a non-basestring
         object is passed in or if :attr:`non_string` is set to an unknown value
+    :raises UnicodeDecodeError: if :attr:`errors` is 'strict' and the obj is
+        not decodable using the given encoding
     :returns: unicode string or the original object depending on the value of
         non_string.
     '''
@@ -133,11 +139,12 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
                 simple = u''
         if not isinstance(simple, unicode):
             return to_unicode(simple, 'utf8', 'replace')
+        return simple
     elif non_string in ('repr', 'strict'):
         obj_repr = repr(obj)
         if not isinstance(obj_repr, unicode):
             unicode(obj_repr, encoding=encoding, errors=errors)
-        if non_string == 'strict':
+        if non_string == 'repr':
             return obj_repr
         raise TypeError(_('to_unicode was given "%(obj)s" which is neither'
             ' a byte string (str) or a unicode string') % {'obj': obj_repr})
@@ -207,10 +214,10 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         if not simple:
             try:
                 simple = obj.__unicode__()
-                if isinstance(simple, unicode):
-                    simple = simple.encode(encoding, 'replace')
             except AttributeError:
                 simple = ''
+        if isinstance(simple, unicode):
+            simple = simple.encode(encoding, 'replace')
         return simple
     elif non_string in ('repr', 'strict'):
         obj_repr = repr(obj)
