@@ -27,5 +27,7 @@ import __builtin__
 if not hasattr(__builtin__, 'set'):
     import sets
     __builtin__.set = sets.Set
-    __builtin__.frozenset = sets.ImmutableSets
     
+if not hasattr(__builtin__, 'frozenset'):
+    import sets
+    __builtin__.frozenset = sets.ImmutableSets
