@@ -4,7 +4,7 @@ import unittest
 from nose import tools
 
 from kitchen.text import utf8
-from kitchen.text.encoding import to_bytes
+from kitchen.text.converters import to_bytes
 
 class TestUTF8(unittest.TestCase):
     u_kana = u'くらとみ'

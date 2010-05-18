@@ -39,7 +39,7 @@ Functions for operating on byte strings encoded as utf8
     It is unlikely that 
 '''
 
-from kitchen.text.encoding import to_unicode, to_bytes
+from kitchen.text.converters import to_unicode, to_bytes
 
 # This is ported from ustr_utf8_* which I got from:
 #     http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c

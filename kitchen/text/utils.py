@@ -6,12 +6,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # kitchen is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with python-fedora; if not, see <http://www.gnu.org/licenses/>
 #
@@ -29,7 +29,7 @@ import xml.sax.saxutils
 from kitchen import _
 from kitchen.pycompat24 import builtinsets
 from kitchen.text.exceptions import XmlEncodeError, ControlCharError
-from kitchen.text.encoding import guess_encoding, to_unicode, to_bytes
+from kitchen.text.converters import guess_encoding, to_unicode, to_bytes
 
 # ASCII control codes that are illegal in xml 1.0
 _control_codes = frozenset(range(0, 8) + [11, 12] + range(14, 32))
@@ -204,7 +204,7 @@ def process_control_chars(string, strategy='replace'):
 
 # Originally written by Fredrik Lundh (January 15, 2003) and placed in the
 # public domain::
-# 
+#
 #   Unless otherwise noted, source code can be be used freely. Examples, test
 #   scripts and other short code fragments can be considered as being in the
 #   public domain.
@@ -219,7 +219,7 @@ def html_entities_to_unicode(string):
     '''Substitute unicode characters for HTML entities
 
     :arg string: Unicode string to substitute out html entities
- 
+
   @param text The HTML source.
   @return The plain text.  If the HTML source contains non-ASCII
       entities or character references, this is a Unicode string.
@@ -439,8 +439,8 @@ def guess_encoding_to_xml(string, output_encoding='utf8', attrib=False,
 def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
     '''Deprecated: Use guess_encoding_to_xml() instead
     '''
-    warnings.warn(_('kitchen.text.xml.to_xml is deprecated.  Use'
-            ' kitchen.text.xml.guess_encoding_to_xml instead.'),
+    warnings.warn(_('kitchen.text.converters.to_xml is deprecated.  Use'
+            ' kitchen.text.converters.guess_encoding_to_xml instead.'),
             DeprecationWarning, stacklevel=2)
     return guess_encoding_to_xml(string, output_encoding=encoding,
             attrib=attrib, control_chars=control_chars)

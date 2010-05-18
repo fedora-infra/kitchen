@@ -77,7 +77,7 @@ class DummyTranslations(gettext.NullTranslations):
 
         '''
         # Import this here to avoid circular deps with kitchen.text
-        from kitchen.text.encoding import to_unicode, to_bytes
+        from kitchen.text.converters import to_unicode, to_bytes
         self.to_unicode = to_unicode
         self.to_bytes = to_bytes
         gettext.NullTranslations.__init__(self, fp)
