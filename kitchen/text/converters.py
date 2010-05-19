@@ -31,7 +31,7 @@ import xml.sax.saxutils
 
 from kitchen import _
 from kitchen.text.exceptions import ControlCharError, XmlEncodeError
-from kitchen.text.utils import guess_encoding, html_entities_to_unicode, \
+from kitchen.text.utils import guess_encoding, html_entities_unescape, \
         process_control_chars
 
 def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
@@ -360,7 +360,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
 
 def xml_to_unicode(byte_string, encoding, errors):
     string = to_unicode(byte_string, encoding=encoding, errors=errors)
-    string = html_entities_to_unicode(string)
+    string = html_entities_unescape(string)
     return string
 
 def xml_to_byte_string(byte_string, input_encoding, errors, output_encoding):

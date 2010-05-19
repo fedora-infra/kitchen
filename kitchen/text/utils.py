@@ -132,7 +132,6 @@ def process_control_chars(string, strategy='replace'):
     if not isinstance(string, unicode):
         raise TypeError(_('process_control_char must have a unicode type as'
                 ' the first argument.'))
-
     if strategy == 'ignore':
         control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
     elif strategy == 'replace':
@@ -163,10 +162,11 @@ def process_control_chars(string, strategy='replace'):
 # http://effbot.org/zone/re-sub.htm#unescape-html
 # http://effbot.org/zone/copyright.htm
 #
-def html_entities_to_unicode(string):
+def html_entities_unescape(string):
     '''Substitute unicode characters for HTML entities
 
     :arg string: Unicode string to substitute out html entities
+    :raises TypeError: if something other than a unicode string is given
     :rtype: unicode string
     :returns: The plain text.  If the HTML source contains non-ASCII
       entities or character references, this is a Unicode string.
@@ -197,15 +197,15 @@ def html_entities_to_unicode(string):
         return string # leave as is
 
     if not isinstance(string, unicode):
-        return TypeError(_('html_entities_to_unicode must have a unicode type'
+        raise TypeError(_('html_entities_unescape must have a unicode type'
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 
-def validate_byte_string(byte_string, encoding):
+def byte_string_valid_xml(byte_string, encoding='utf8'):
     '''Check that a byte string would be valid in xml
 
     :arg byte_string: Byte string to check
-    :arg encoding: Encoding of the xml filename
+    :arg encoding: Encoding of the xml file.  Default: utf8
     :returns: True if the string is valid, False if it would be invalid in the
         xml file
 
@@ -217,7 +217,7 @@ def validate_byte_string(byte_string, encoding):
         ARRAY_OF_MOSTLY_UTF8_STRINGS = [...]
         processed_array = []
         for string in ARRAY_OF_MOSTLY_UTF8_STRINGS:
-            if validate_byte_string(string, 'utf8'):
+            if byte_string_valid_xml(string, 'utf8'):
                 processed_array.append(string)
             else:
                 processed_array.append(guess_bytes_to_xml(string, encoding='utf8'))
@@ -241,5 +241,5 @@ def validate_byte_string(byte_string, encoding):
     # The byte string is compatible with this xml file
     return True
 
-__all__ = ('guess_encoding',  'html_entities_to_unicode',
-        'process_control_chars', 'str_eq',  'validate_byte_string')
+__all__ = ('byte_string_valid_xml', 'guess_encoding',
+        'html_entities_unescape', 'process_control_chars', 'str_eq')
