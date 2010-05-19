@@ -20,12 +20,12 @@
 #
 from kitchen import exceptions
 
-class XmlEncodeError(exceptions.KitchenException):
+class XmlEncodeError(exceptions.KitchenError):
     '''Exception thrown by error conditions when encoding an xml string.
     '''
     pass
 
-class ControlCharError(exceptions.KitchenException):
+class ControlCharError(exceptions.KitchenError):
     '''Exception thrown when an ascii control character is encountered.
     '''
     pass

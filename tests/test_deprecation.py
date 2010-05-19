@@ -5,7 +5,6 @@ from nose import tools
 
 import warnings
 from kitchen.text import converters
-from kitchen.text import utils
 
 class TestDeprecated(unittest.TestCase):
     def setUp(self):
@@ -18,4 +17,4 @@ class TestDeprecated(unittest.TestCase):
         '''Test that all deprecated functions raise DeprecationWarning'''
         tools.assert_raises(DeprecationWarning, converters.to_utf8, u'café')
         tools.assert_raises(DeprecationWarning, converters.to_str, 5)
-        tools.assert_raises(DeprecationWarning, utils.to_xml, 'test')
+        tools.assert_raises(DeprecationWarning, converters.to_xml, 'test')

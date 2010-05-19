@@ -299,7 +299,7 @@ def utf8_width_chop(msg, chop=None):
 
 
     .. note:: If you pass a unicode string into this function, you will get
-        a unicode string back.  But the string will have bee formatted with
+        a unicode string back.  But the string will have been formatted with
         utf8 encoding in mind.
     '''
     if chop is None or utf8_width(msg) <= chop:
