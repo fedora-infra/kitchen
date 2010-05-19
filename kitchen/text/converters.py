@@ -178,7 +178,10 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
             simple = simple.encode(encoding, 'replace')
         return simple
     elif non_string in ('repr', 'strict'):
-        obj_repr = repr(obj)
+        try:
+            obj_repr = obj.__repr__()
+        except (AttributeError, UnicodeError):
+            obj_repr = ''
         if isinstance(obj_repr, unicode):
             obj_repr =  obj_repr.encode(encoding, errors)
         else:
@@ -349,7 +352,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     except ControlCharError, e:
         raise XmlEncodeError(e.args[0])
 
-    string = string.encode(encoding, errors='xmlcharrefescape')
+    string = string.encode(encoding, 'xmlcharrefreplace')
 
     # Escape characters that have special meaning in xml
     if attrib:
@@ -358,14 +361,27 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         string = xml.sax.saxutils.escape(string)
     return string
 
-def xml_to_unicode(byte_string, encoding, errors):
+def xml_to_unicode(byte_string, encoding='utf8', errors='replace'):
+    '''Transform a byte string from an xml file into unicode
+
+    :arg byte_string: byte string to decode
+    :kwarg encoding: encoding that the byte string is in
+    :kwarg errors: What to do if not every character is decodable using
+        :attr:`encoding`.  See the :func:`to_unicode` docstring for
+        legal values.
+    :returns: unicode string decoded from :attr:`byte_string`
+
+    This function attempts to reverse what :func:`unicode_to_xml` does.
+    It takes a byte string (presumably read in from an xml file) and expands
+    all the html entities into unicode characters and decodes the bytes into
+    a unicode string.  One thing it cannot do is restore any control
+    characters that were removed prior to inserting into the file.  If you
+    need to keep such characters you need to use func:`xml_to_bytes` and
+    :func:`bytes_to_xml` instead.
+    '''
     string = to_unicode(byte_string, encoding=encoding, errors=errors)
     string = html_entities_unescape(string)
     return string
-
-def xml_to_byte_string(byte_string, input_encoding, errors, output_encoding):
-    string = xml_to_unicode(byte_string, input_encoding, errors)
-    return to_bytes(string, output_encoding, errors)
 
 def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
         output_encoding='utf8', attrib=False, control_chars='replace'):
@@ -426,6 +442,28 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
     u_string = unicode(byte_string, input_encoding, errors)
     return unicode_to_xml(u_string, encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
+
+def xml_to_byte_string(byte_string, input_encoding='utf8', errors='replace', output_encoding='utf8'):
+    '''Transform a byte string from an xml file into unicode
+
+    :arg byte_string: byte string to decode
+    :kwarg input_encoding: encoding that the byte string is in
+    :kwarg errors: What to do if not every character is decodable using
+        :attr:`encoding`.  See the :func:`to_unicode` docstring for
+        legal values.
+    :kwarg output_encoding: Encoding for the output byte string
+    :returns: unicode string decoded from :attr:`byte_string`
+
+    This function attempts to reverse what :func:`unicode_to_xml` does.
+    It takes a byte string (presumably read in from an xml file) and expands
+    all the html entities into unicode characters and decodes the bytes into
+    a unicode string.  One thing it cannot do is restore any control
+    characters that were removed prior to inserting into the file.  If you
+    need to keep such characters you need to use func:`xml_to_bytes` and
+    :func:`bytes_to_xml` instead.
+    '''
+    string = xml_to_unicode(byte_string, input_encoding, errors)
+    return to_bytes(string, output_encoding, errors)
 
 def bytes_to_xml(byte_string):
     '''Return a byte string encoded so it is valid inside of any xml file
