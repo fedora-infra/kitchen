@@ -23,6 +23,7 @@
 # Portions of this code taken from yum/misc.py and yum/i18n.py
 '''Miscellaneous functions for manipulating text.
 '''
+import htmlentitydefs
 import re
 
 try:
@@ -53,7 +54,7 @@ def guess_encoding(byte_string, disable_chardet=False):
         :mod:`chardet` to guess the encoding.  This is useful if you need to
         have reproducability whether chardet is installed or not.  Default:
         False.
-    :raises ValueError: if byte_string is not a byte string (str) type
+    :raises TypeError: if byte_string is not a byte string (str) type
     :returns: string containing a guess at the encoding of byte_string
 
     We start by attempting to decode the bytes as utf8.  If this succeeds we
@@ -66,7 +67,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     UnicodeErrors even if the output is mangled.
     '''
     if not isinstance(byte_string, str):
-        raise ValueError(_('byte_string must be a byte string (str)'))
+        raise TypeError(_('byte_string must be a byte string (str)'))
     input_encoding = 'utf8'
     try:
         unicode(byte_string, input_encoding, 'strict')
@@ -184,7 +185,6 @@ def html_entities_unescape(string):
             except ValueError:
                 pass
         elif string[:1] == "&":
-            import htmlentitydefs
             entity = htmlentitydefs.entitydefs.get(string[1:-1])
             if entity:
                 if entity[:2] == "&#":
