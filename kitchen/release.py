@@ -25,7 +25,7 @@ and paste!  Now you can let someone else maintain and release these small
 snippets so that you can get on with your life.
 ''')
 AUTHOR = 'Toshio Kuratomi, Seth Vidal, others'
-EMAIL = 'tkuratom@redhat.com'
+EMAIL = 'toshio@fedoraproject.org'
 COPYRIGHT = '2010 Red Hat, Inc. and others'
 URL = 'https://fedorahosted.org/kitchen'
 DOWNLOAD_URL = 'https://fedorahosted.org/releases/k/i/kitchen'
