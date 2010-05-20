@@ -20,6 +20,8 @@
 
 __version_info__ = ((0, 1),)
 
+import itertools
+
 def version_tuple_to_string(version_info):
     '''Return a PEP-386 version string from a PEP-386 style version tuple
 
@@ -54,7 +56,7 @@ def version_tuple_to_string(version_info):
             v.append('.'.join(str(x) for x in values))
         elif values[0] in ('a', 'b', 'c', 'rc'):
             v.append('%s%s' %
-                    (values[0], '.'.join(str(x) for x in values[1:]) or str(0)))
+                    (values[0], '.'.join(itertools.imap(str, values[1:])) or str(0)))
         else:
             v.append('.%s%s' % (values[0], values[1]))
     return ''.join(v)
