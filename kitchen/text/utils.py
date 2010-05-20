@@ -36,6 +36,8 @@ from kitchen import _
 from kitchen.pycompat24 import builtinset
 from kitchen.text.exceptions import ControlCharError
 
+builtinset.add_builtin_set()
+
 # Define a threshold for chardet confidence.  If we fall below this we decode
 # byte strings we're guessing about as latin1
 _chardet_threshhold = 0.6

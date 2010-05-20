@@ -24,10 +24,21 @@
 Importing this module makes sure that a set and frozenset type have been defined
 '''
 import __builtin__
-if not hasattr(__builtin__, 'set'):
-    import sets
-    __builtin__.set = sets.Set
-    
-if not hasattr(__builtin__, 'frozenset'):
-    import sets
-    __builtin__.frozenset = sets.ImmutableSet
+
+def add_builtin_set():
+    '''If there's no set builtin, add the implementations from the sets module
+
+    This function makes sure that a set and frozenset type are available in
+    the __builtin__ namespace.  It does not overwrite any set or frozenset
+    that is already present so it's safe to use this as boilerplate in code
+    that needs to remain python-2.3 compatible but may also run on python-2.4+
+    '''
+    if not hasattr(__builtin__, 'set'):
+        import sets
+        __builtin__.set = sets.Set
+
+    if not hasattr(__builtin__, 'frozenset'):
+        import sets
+        __builtin__.frozenset = sets.ImmutableSet
+
+__all__ = (add_builtin_set,)
