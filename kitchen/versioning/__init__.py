@@ -53,7 +53,7 @@ def version_tuple_to_string(version_info):
     v = []
     for values in version_info:
         if isinstance(values[0], int):
-            v.append('.'.join(str(x) for x in values))
+            v.append('.'.join(itertools.imap(str, values)))
         elif values[0] in ('a', 'b', 'c', 'rc'):
             v.append('%s%s' %
                     (values[0], '.'.join(itertools.imap(str, values[1:])) or str(0)))
