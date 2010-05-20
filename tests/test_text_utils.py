@@ -66,12 +66,12 @@ class TestTextUtils(unittest.TestCase):
         tools.ok_(utils.html_entities_unescape(self.u_entity_escape) == self.u_entity)
 
     def test_byte_string_valid_xml(self):
-        tools.assert_false(utils.byte_string_valid_xml(u'unicode string'))
+        tools.ok_(utils.byte_string_valid_xml(u'unicode string') == False)
 
-        tools.assert_true(utils.byte_string_valid_xml(self.utf8_japanese))
-        tools.assert_true(utils.byte_string_valid_xml(self.euc_jp_japanese, 'euc_jp'))
+        tools.ok_(utils.byte_string_valid_xml(self.utf8_japanese))
+        tools.ok_(utils.byte_string_valid_xml(self.euc_jp_japanese, 'euc_jp'))
 
-        tools.assert_false(utils.byte_string_valid_xml(self.utf8_japanese, 'euc_jp'))
-        tools.assert_false(utils.byte_string_valid_xml(self.euc_jp_japanese, 'utf8'))
+        tools.ok_(utils.byte_string_valid_xml(self.utf8_japanese, 'euc_jp') == False)
+        tools.ok_(utils.byte_string_valid_xml(self.euc_jp_japanese, 'utf8') == False)
 
-        tools.assert_false(utils.byte_string_valid_xml(self.utf8_ascii_chars))
+        tools.ok_(utils.byte_string_valid_xml(self.utf8_ascii_chars) == False)

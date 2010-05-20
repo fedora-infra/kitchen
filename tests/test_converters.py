@@ -115,7 +115,7 @@ class TestConverters(unittest.TestCase):
     def _check_repr_bytes(self, repr_string, obj_name):
         tools.ok_(isinstance(repr_string, str))
         match = self.repr_re.match(repr_string)
-        tools.assert_false(match == None)
+        tools.ok_(match != None)
         tools.ok_(match.groups()[0] == obj_name)
 
     def test_to_bytes_non_string(self):
