@@ -83,7 +83,24 @@ class DummyTranslations(gettext.NullTranslations):
         from kitchen.text.converters import to_unicode, to_bytes
         self.to_unicode = to_unicode
         self.to_bytes = to_bytes
+            
         gettext.NullTranslations.__init__(self, fp)
+
+        # Python 2.3 compat
+        if not hasattr(self, '_output_charset'):
+            self._output_charset = None
+        if not hasattr(self, 'output_charset'):
+            self.output_charset = self.__output_charset
+        if not hasattr(self, 'set_output_charset'):
+            self.set_output_charset = self.__set_output_charset
+
+    def __set_output_charset(self, charset):
+        ''' Compatibility for python2.3 which doesn't have output_charset'''
+        self._output_charset = charset
+
+    def __output_charset(self, charset):
+        '''Compatibility for python2.3 which doesn't have output_charset'''
+        return self._output_charset
 
     def gettext(self, message):
         try:
@@ -91,6 +108,7 @@ class DummyTranslations(gettext.NullTranslations):
         except UnicodeError:
             # Ignore UnicodeErrors: We'll do our own encoding next
             pass
+
         if self._output_charset:
             return self.to_bytes(message, encoding=self._output_charset)
         return self.to_bytes(message)
@@ -99,7 +117,12 @@ class DummyTranslations(gettext.NullTranslations):
         try:
             message = gettext.NullTranslations.ngettext(self, msgid1, msgid2, n)
         except UnicodeError:
-            pass
+            # Ignore UnicodeErrors: We'll do our own encoding next
+            if n == 1:
+                message = msgid1
+            else:
+                message = msgid2
+
         if self._output_charset:
             return self.to_bytes(message, encoding=self._output_charset)
         return self.to_bytes(message)
@@ -107,9 +130,11 @@ class DummyTranslations(gettext.NullTranslations):
     def lgettext(self, message):
         try:
             message = gettext.NullTranslations.lgettext(self, message)
-        except UnicodeError:
+        except (AttributeError, UnicodeError):
             # Ignore UnicodeErrors: we'll do our own encoding next
+            # AttributeErrors happen on py2.3 where lgettext is not implemented
             pass
+
         if self._output_charset:
             return self.to_bytes(message, encoding=self._output_charset)
         return self.to_bytes(message, encoding=locale.getpreferredencoding())
@@ -117,8 +142,14 @@ class DummyTranslations(gettext.NullTranslations):
     def lngettext(self, msgid1, msgid2, n):
         try:
             message = gettext.NullTranslations.lngettext(self, msgid1, msgid2, n)
-        except UnicodeError:
-            pass
+        except (AttributeError, UnicodeError):
+            # Ignore UnicodeErrors: we'll do our own encoding next
+            # AttributeError happens on py2.3 where lngettext is not implemented
+            if n == 1:
+                message = msgid1
+            else:
+                message = msgid2
+
         if self._output_charset:
             return self.to_bytes(message, encoding=self._output_charset)
         return self.to_bytes(message, encoding=locale.getpreferredencoding())
@@ -129,6 +160,7 @@ class DummyTranslations(gettext.NullTranslations):
         except UnicodeError:
             # Ignore UnicodeErrors: We'll do our own decoding later
             pass
+
         if self._charset:
             return self.to_unicode(message, encoding=self._charset)
         return self.to_unicode(message)
@@ -141,6 +173,7 @@ class DummyTranslations(gettext.NullTranslations):
                 message = msgid1
             else:
                 message = msgid2
+
         if self._charset:
             return self.to_unicode(message, encoding=self._charset)
         return self.to_unicode(message)
