@@ -2,6 +2,12 @@
 #
 import unittest
 from nose import tools
+from nose.plugins.skip import SkipTest
+
+try:
+    import chardet
+except ImportError:
+    chardet = None
 
 from kitchen.text import utils
 from kitchen.text.exceptions import ControlCharError
@@ -14,6 +20,7 @@ class TestTextUtils(unittest.TestCase):
     u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
     utf8_japanese = u_japanese.encode('utf8')
     euc_jp_japanese = u_japanese.encode('euc_jp')
+    u_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1')
 
     u_ascii_chars = u' '.join(map(unichr, range(0, 256)))
     u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in utils._control_codes])
@@ -43,8 +50,21 @@ class TestTextUtils(unittest.TestCase):
             utils.guess_encoding(self.latin1_spanish)) == self.u_spanish)
         tools.ok_(to_unicode(self.utf8_japanese,
             utils.guess_encoding(self.utf8_japanese)) == self.u_japanese)
-        tools.ok_(to_unicode(self.euc_jp_japanese,
-            utils.guess_encoding(self.euc_jp_japanese)) == self.u_japanese)
+
+    def test_guess_encoding_with_chardet_installed(self):
+        if chardet:
+            tools.ok_(to_unicode(self.euc_jp_japanese,
+                utils.guess_encoding(self.euc_jp_japanese)) == self.u_japanese)
+        else:
+            raise SkipTest('chardet not installed, euc_jp will not be guessed correctly')
+
+    def test_guess_encoding_with_chardet_uninstalled(self):
+        if chardet:
+            raise SkipTest('chardet installed, euc_jp will not be mangled')
+        else:
+            tools.ok_(to_unicode(self.euc_jp_japanese,
+                utils.guess_encoding(self.euc_jp_japanese)) ==
+                self.u_mangled_euc_jp_as_latin1)
 
     def test_str_eq(self):
         tools.ok_(utils.str_eq(self.u_japanese, self.u_japanese) == True)

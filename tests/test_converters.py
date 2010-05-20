@@ -3,8 +3,14 @@
 
 import unittest
 from nose import tools
+from nose.plugins.skip import SkipTest
 
 import re
+
+try:
+    import chardet
+except:
+    chardet = None
 
 from kitchen.text import converters
 from kitchen.text.exceptions import XmlEncodeError
@@ -43,6 +49,7 @@ class TestConverters(unittest.TestCase):
     u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
     utf8_japanese = u_japanese.encode('utf8')
     euc_jp_japanese = u_japanese.encode('euc_jp')
+    utf8_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1').encode('utf8')
     u_accent = u'café'
     u_accent_replace = u'caf\ufffd'
     u_accent_ignore = u'caf'
@@ -191,9 +198,23 @@ class TestConverters(unittest.TestCase):
         tools.ok_(converters.guess_encoding_to_xml(self.utf8_spanish) == self.utf8_spanish)
         tools.ok_(converters.guess_encoding_to_xml(self.latin1_spanish) == self.utf8_spanish)
         tools.ok_(converters.guess_encoding_to_xml(self.utf8_japanese) == self.utf8_japanese)
-        tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese) == self.utf8_japanese)
 
+    def test_guess_encoding_to_xml_euc_japanese(self):
+        if chardet:
+            tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
+                    == self.utf8_japanese)
+        else:
+            raise SkipTest('chardet not installed, euc_japanese won\'t be detected')
+
+    def test_guess_encoding_to_xml_euc_japanese_mangled(self):
+        if chardet:
+            raise SkipTest('chardet installed, euc_japanese won\'t be mangled')
+        else:
+            tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
+                    == self.utf8_mangled_euc_jp_as_latin1)
 
     def test_to_xml(self):
-        tools.ok_(converters.to_xml(self.euc_jp_japanese) == self.utf8_japanese)
-
+        tools.ok_(converters.to_xml(self.u_entity) == self.utf8_entity_escape)
+        tools.ok_(converters.to_xml(self.utf8_spanish) == self.utf8_spanish)
+        tools.ok_(converters.to_xml(self.latin1_spanish) == self.utf8_spanish)
+        tools.ok_(converters.to_xml(self.utf8_japanese) == self.utf8_japanese)
