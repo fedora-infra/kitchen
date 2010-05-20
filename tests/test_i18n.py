@@ -10,12 +10,6 @@ import types
 from kitchen import i18n
 
 class TestI18N(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_easy_gettext_setup(self):
         '''Test that the eay_gettext_setup function works
         '''

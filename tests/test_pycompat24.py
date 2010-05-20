@@ -2,10 +2,13 @@
 #
 import unittest
 from nose import tools
+
 import __builtin__
 import sets
 
-class SetsNoOverwrite(unittest.TestCase):
+from kitchen.pycompat24 import builtinset
+
+class TestSetsNoOverwrite(unittest.TestCase):
     def setUp(self):
         self.set_val = None
         self.frozenset_val = None
@@ -27,12 +30,11 @@ class SetsNoOverwrite(unittest.TestCase):
     def test_sets_dont_overwrite(self):
         '''Test that importing sets when there's already a set and frozenset defined does not overwrite
         '''
-        from kitchen.pycompat24 import builtinset
-        builtinset = reload(builtinset)
+        builtinset.add_builtin_set()
         tools.ok_(__builtin__.set == self.set_val)
         tools.ok_(__builtin__.frozenset == self.frozenset_val)
 
-class DefineSets(unittest.TestCase):
+class TestDefineSets(unittest.TestCase):
     def setUp(self):
         self.set_val = None
         self.frozenset_val = None
@@ -56,7 +58,12 @@ class DefineSets(unittest.TestCase):
     def test_pycompat_defines_set(self):
         '''Test that importing pycompat24.sets adds set and frozenset to __builtin__
         '''
-        from kitchen.pycompat24 import builtinset
-        builtinset = reload(builtinset)
+        builtinset.add_builtin_set()
         tools.ok_(__builtin__.set == sets.Set)
         tools.ok_(__builtin__.frozenset == sets.ImmutableSet)
+
+class TestSubprocess(unittest.TestCase):
+    pass
+
+class TestBase64(unittest.TestCase):
+    pass
