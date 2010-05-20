@@ -24,6 +24,7 @@
 '''Miscellaneous functions for manipulating text.
 '''
 import htmlentitydefs
+import itertools
 import re
 
 try:
@@ -41,7 +42,7 @@ _chardet_threshhold = 0.6
 
 # ASCII control codes that are illegal in xml 1.0
 _control_codes = frozenset(range(0, 8) + [11, 12] + range(14, 32))
-_control_chars = frozenset(unichr(c) for c in _control_codes)
+_control_chars = frozenset(itertools.imap(unichr, _control_codes))
 
 # _ENTITY_RE
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
