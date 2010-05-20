@@ -3,10 +3,22 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 9 May 2010
+:Date: 20 May 2010
 :Version: 0.1.x
 
 -----
-0.1.0
+0.1a2
+-----
+* Fixes for python-2.3
+* versioning subpackage with version_tuple_to_string() function that creates
+  PEP-386 compatible version strings.
+* Changed pycompat24.builtinset -- now you need to call the add_builtin_set()
+  function to add set and frozenset to the __builtin__ namespace.
+* pycompat24.base64modern module that implements the modern interface to
+  encode and decode base64.  Note that it does't implement b32 or b16 at the
+  moment.
+
+-----
+0.1a1
 -----
 * Initial releae of kitchen.core
