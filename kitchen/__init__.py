@@ -24,29 +24,11 @@ Kitchen
 Aggregate of a bunch of unrelated but helpful python modules.
 '''
 from kitchen import i18n
+from kitchen import versioning
 
 (_, P_) = i18n.easy_gettext_setup('kitchen.core')
 
 __version_info__ = ((0, 1), ('a', 1))
-# just enough of PEP-386 to satisfy our needs
-# Here's the PEP386 format::
-#   N.N[.N]+[{a|b|c|rc}N[.N]+][.postN][.devN]
-#
-# __version_info__ takes the form that NormalizedVersion.from_parts() uses::
-# ((Major, Minor, [Micros]), [(Alpha/beta/rc marker, version)], [(post/dev marker, version)]
-#
-# We do even less error checking than the current PEP-386 imlementation
-# because we have control over __version_info__.  When PEP-386 is available
-# we'll use it by default.
-v = []
-for values in __version_info__:
-    if isinstance(values[0], int):
-        v.append('.'.join(str(x) for x in values))
-    elif values[0] in ('a', 'b', 'c', 'rc'):
-        v.append('%s%s' %
-                (values[0], '.'.join(str(x) for x in values[1:]) or str(0)))
-    else:
-        v.append('.%s%s' % (values[0], values[1]))
-__version__ = ''.join(v)
+__version__ = versioning.version_tuple_to_string(__version_info__)
 
 __all__ = tuple()
