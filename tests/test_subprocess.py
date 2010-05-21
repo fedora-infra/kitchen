@@ -24,6 +24,30 @@ if mswindows:
 else:
     SETBINARY = ''
 
+def reap_children():
+    """Use this function at the end of test_main() whenever sub-processes
+    are started.  This will help ensure that no extra children (zombies)
+    stick around to hog resources and create problems when looking
+    for refleaks.
+    """
+
+    # Reap all our dead child processes so we don't leave zombies around.
+    # These hog resources and might be causing some of the buildbots to die.
+    if hasattr(os, 'waitpid'):
+        any_process = -1
+        while True:
+            try:
+                # This will raise an exception on Windows.  That's ok.
+                pid, status = os.waitpid(any_process, os.WNOHANG)
+                if pid == 0:
+                    break
+            except:
+                break
+
+if not hasattr(test_support, 'reap_children'):
+    # No reap_children in python-2.3
+    test_support.reap_children = reap_children
+
 # In a debug build, stuff like "[6580 refs]" is printed to stderr at
 # shutdown time.  That frustrates tests trying to check stderr produced
 # from a spawned Python process.
@@ -50,7 +74,8 @@ class BaseTestCase(unittest.TestCase):
         for inst in subprocess._active:
             inst.wait()
         subprocess._cleanup()
-        self.assertFalse(subprocess._active, "subprocess._active not empty")
+        # assertFalse is not available in python-2.3
+        self.failIf(subprocess._active, "subprocess._active not empty")
 
     def assertStderrEqual(self, stderr, expected, msg=None):
         # In a debug build, stuff like "[6580 refs]" is printed to stderr at
@@ -550,7 +575,7 @@ class ProcessTestCase(BaseTestCase):
         # poll() never returned None.  It "should be" very rare that it
         # didn't go around at least twice.
         #self.assertGreaterEqual(count, 2)
-        self.assertTrue(count >= 2)
+        self.assert_(count >= 2)
         # Subsequent invocations should just return the returncode
         self.assertEqual(p.poll(), 0)
 
@@ -692,7 +717,9 @@ class POSIXProcessTestCase(BaseTestCase):
         os.write(f, "exec '%s' -c 'import sys; sys.exit(47)'\n" %
                     sys.executable)
         os.close(f)
-        os.chmod(fname, 0o700)
+        # 0o is not available in python2.5
+        #os.chmod(fname, 0o700)
+        os.chmod(fname, 0700)
         p = subprocess.Popen(fname)
         p.wait()
         os.remove(fname)
@@ -931,7 +958,10 @@ class HelperFunctionTests(unittest.TestCase):
             record_calls.append(args)
             if len(record_calls) == 2:
                 raise OSError(errno.EINTR, "fake interrupted system call")
-            return tuple(reversed(args))
+            # reversed() is not available in python-2.3
+            args = list(args)
+            args.reverse()
+            return tuple(args)
 
         self.assertEqual((999, 256),
                          subprocess._eintr_retry_call(fake_os_func, 256, 999))
