@@ -17,6 +17,9 @@ NEWS
 * pycompat24.base64modern module that implements the modern interface to
   encode and decode base64.  Note that it does't implement b32 or b16 at the
   moment.
+* pycompat27 with the 2.7 version of subprocess.
+* The 2.7 version of subprocess is also available at
+  kitchen.pycompat24.subprocess since subprocess first appeared in python2.4
 
 -----
 0.1a1
