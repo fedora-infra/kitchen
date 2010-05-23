@@ -273,6 +273,11 @@ def utf8_width(msg):
         consume on a monospace display.  It's measured in the number of ASCII
         characters it would take to fill the equivalent amount of space.  This
         is **not** the number of glyphs that are in the string.
+
+    .. note:: This function can be wrong sometimes because Unicode does not
+        specify a strict width value for all of the codepoints.  In particular,
+        we've found that some Tamil characters take up to 4 character cells
+        but are represented with a lesser amount.
     '''
     ret = 0
     for (ucs, bytes) in _utf8_iter_ucs(msg):

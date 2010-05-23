@@ -4,29 +4,75 @@
 # Copyright (c) 2009 Milos Komarcevic
 # Copyright (c) 2008 Tim Lauridsen
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Library General Public License for more details.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+# License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-# Authors:
-#   James Antill
-#   Milos Komarcevic
-#   Toshio Kuratomi <toshio@fedoraproject.org>
-#   Tim Lauridsen
-#   Luke Macken <lmacken@redhat.com>
-#   Seth Vidal <skvidal@fedoraproject.org>
+# Authors: James Antill Milos Komarcevic Toshio Kuratomi
+# <toshio@fedoraproject.org> Tim Lauridsen Luke Macken <lmacken@redhat.com>
+# Seth Vidal <skvidal@fedoraproject.org>
 #
 # Portions of code taken from yum/i18n.py
+'''
+:term:`I18N` is an important piece of any modern program.  Unfortunately,
+setting up :term:`i18n` in your program is often a confusing process.  The
+functions provided here aim to make the programming side of that a little
+easier.
+
+Most projects will be able to do something like this when they startup::
+
+    # myprogram/__init__.py:
+
+    import os
+    import sys
+
+    from kitchen.i18n import easy_gettext_setup
+
+    _, N_  = easy_gettext_setup('myprogram', localedirs=(
+            os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
+            os.path.join(sys.prefix, 'lib', 'locale')
+            ))
+
+Then, in other files that have strings that need translating::
+
+    # myprogram/commands.py:
+
+    from myprogram import _, N_
+
+    def print_usage():
+        print _(u"""available commands are:
+        --help              Display help
+        --version           Display version of this program
+        --bake-me-a-cake    as fast as you can
+            """)
+
+    def print_invitations(age):
+        print _('Please come to my party.')
+        print N_('I will be turning %(age)s year old',
+            'I will be turning %(age)s years old', age) % {'age': age}
+
+See the documentation of :func:`easy_gettext_setup` and
+:func:`get_translation_object` for more details.
+
+    .. seealso::
+
+        :mod:`gettext`
+            for more information on how the python gettext facilities work
+        `babel <http://babel.edgewall.org>`_
+            The babel module for in depth information on gettext, message
+            catalogs, and translating your app.  babel provides some nice
+            features for :term:`i18n` on top of gettext
+'''
 
 from kitchen.versioning import version_tuple_to_string
 
@@ -40,16 +86,20 @@ import sys
 
 class DummyTranslations(gettext.NullTranslations):
     def __init__(self, fp=None):
-        '''Safer version of NullTranslations
+        '''Safer version of :class:`~gettext.NullTranslations`
 
         This Translations class doesn't translate the strings and is mostly
         meant for times when there were errors setting up a real Translations
-        object.  It's safer than gettext.NullTranslations in its
-        handling of byte strings vs unicode strings.  Unlike NullTranslations,
-        this Translation class will never throw a UnicodeError.  Also, like
-        GNUTranslations, all of this Translation object's methods guarantee to
-        return byte strings except for ugettext and ungettext which guarantee
-        to return unicode strings.
+        object.  It's safer than :class:`gettext.NullTranslations` in its
+        handling of byte strings vs unicode strings.  Unlike
+        :class:`~gettext.NullTranslations`, this Translation class will never
+        throw a :exc:`~exceptions.UnicodeError`.  Note that the code that you
+        have around a call to :class:`DummyTranslations` might throw
+        a :exc:`~exceptions.UnicodeError` but at least that will be in code
+        you control and can fix.  Also, like
+        :class:`~gettext.GNUTranslations`, all of this Translation object's
+        methods guarantee to return byte strings except for :meth:`ugettext`
+        and :meth:`ungettext` which guarantee to return unicode strings.
 
         When byte strings are returned, the strings will be encoded according
         to this algorithm:
@@ -75,7 +125,7 @@ class DummyTranslations(gettext.NullTranslations):
             :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
 
         .. seealso::
-            :class:`gettext.NullTranslation`
+            :class:`gettext.NullTranslations`
                 for information about what each of these methods do
 
         '''
@@ -83,7 +133,7 @@ class DummyTranslations(gettext.NullTranslations):
         from kitchen.text.converters import to_unicode, to_bytes
         self.to_unicode = to_unicode
         self.to_bytes = to_bytes
-            
+
         gettext.NullTranslations.__init__(self, fp)
 
         # Python 2.3 compat
@@ -204,8 +254,8 @@ def get_translation_object(domain, localedirs=tuple()):
     of directories::
 
         translations = get_translation_object('foo', localedirs=(
-                os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
-                os.path.join(sys.prefix, 'lib', 'locale')))
+             os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
+             os.path.join(sys.prefix, 'lib', 'locale')))
 
     This will search for several different directories:
 
@@ -225,7 +275,7 @@ def get_translation_object(domain, localedirs=tuple()):
 
         In development:
             ~/foo   # Toplevel module directory
-            ~/foo__init__.py
+            ~/foo__/init__.py
             ~/foo/locale    # With message catalogs below here:
             ~/foo/locale/es/LC_MESSAGES/foo.mo
 
@@ -252,7 +302,7 @@ def get_translation_object(domain, localedirs=tuple()):
     return translations
 
 def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
-    ''' Setup translation domain for this app.
+    ''' Setup translation domain for an app.
 
     :arg domain: Name of the message domain
     :kwarg localedirs: Iterator of directories to look for message catalogs
@@ -269,12 +319,16 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     so you can understand how to do things sensibly.  For the simple case, you
     can use the default arguments and call us like this::
 
-        _, N_ = setup_gettext()
+        _, N_ = easy_gettext_setup()
 
-    This will get you two functions, _() and N_() that you can use to mark
-    strings in your code for translation.
+    This will get you two functions, :func:`_` and :func:`N_` that you can use
+    to mark strings in your code for translation.  :func:`_` is used to mark strings that 
+
 
     .. seealso::
+
+        :doc:`api-i18n`
+            The module documentation has examples of using :func:`_` and :func:`N_`
         :func:`get_translation_object`
             for information on how to use :attr:`localedirs` to get the
             proper message catalogs both when in development or when installed

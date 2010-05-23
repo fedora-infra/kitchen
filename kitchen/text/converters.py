@@ -23,7 +23,26 @@
 # python-fedora: fedora/textutils.py
 
 '''
+------------------
+Kitchen.converters
+------------------
+
 Functions to handle conversion of byte strings and unicode strings.
+
+One of the things about python that's both a boon and a curse is its
+separation of byte strings and unicode strings.  This is helpful to you, the
+programmer because it allows you to deal with abstract text functions when
+using the unicode type.  The frustrations come into the picture because we
+often are handed byte strings when we want unicode or vice-versa.  When that
+happens we often find ourselvs confronted with unexpected Unicode exceptions
+because python will convert from bytes to unicode for simple cases when all
+our characters are within the ascii character set but die when a user gives it
+unicode data.
+
+The functions here attempt to ease some of that frustration by making it easy
+to convert between types.  That will hopefully encourage you to always convert
+your strings to one type or the other when you receive them and not mix the
+two together without an explicit conversion.
 '''
 try:
     from base64 import b64encode, b64decode
@@ -63,17 +82,18 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
         exception and 'ignore' which simply omits the non-decodable
         characters.
     :kwargs non_string: How to treat non_string values.  Possible values are:
-            :empty: Return an empty string
-            :strict: Raise a TypeError
-            :passthru: Return the object unchanged
-            :simplerepr: Attempt to call the object's "simple representation"
-                method and return that value.  Python-2.3+ has two methods
-                that try to return a simple representation: __unicode__() and
-                __str__().  We first try to get a usable value from
-                __unicode__().  If that fails we try the same with __str__().
-            :repr: Attempt to return a unicode string of the repr of the
-                object
-        The Default is 'empty'
+
+        :empty: Return an empty string (default)
+        :strict: Raise a TypeError
+        :passthru: Return the object unchanged
+        :simplerepr: Attempt to call the object's "simple representation"
+            method and return that value.  Python-2.3+ has two methods
+            that try to return a simple representation: __unicode__() and
+            __str__().  We first try to get a usable value from
+            __unicode__().  If that fails we try the same with __str__().
+        :repr: Attempt to return a unicode string of the repr of the
+            object
+
     :raises TypeError: if :attr:`non_string` is 'strict' and a non-basestring
         object is passed in or if :attr:`non_string` is set to an unknown value
     :raises UnicodeDecodeError: if :attr:`errors` is 'strict' and the obj is
@@ -141,17 +161,18 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         'strict' which raises an exception and 'ignore' which simply omits the
         non-encodable characters.
     :kwargs non_string: How to treat non_string values.  Possible values are:
-            :empty: Return an empty byte string
-            :strict: Raise a TypeError
-            :passthru: Return the object unchanged
-            :simplerepr: Attempt to call the object's "simple representation"
-                method and return that value.  Python-2.3+ has two methods
-                that try to return a simple representation: __unicode__() and
-                __str__().  We first try to get a usable value from
-                __str__().  If that fails we try the same with __unicode__().
-            :repr: Attempt to return a byte string of the repr of the
-                object
-        The Default is 'empty'
+
+        :empty: Return an empty byte string (default)
+        :strict: Raise a TypeError
+        :passthru: Return the object unchanged
+        :simplerepr: Attempt to call the object's "simple representation"
+            method and return that value.  Python-2.3+ has two methods
+            that try to return a simple representation: __unicode__() and
+            __str__().  We first try to get a usable value from
+            __str__().  If that fails we try the same with __unicode__().
+        :repr: Attempt to return a byte string of the repr of the
+            object
+
     :raises TypeError: if :attr:`non_string` is strict and a non-basestring
         object is passed in or if :attr:`non_string` is set to an unknown
         value.
@@ -249,9 +270,9 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         If False (default), quote for use in an xml text field.
     :kwarg control_chars: XML does not allow ASCII control characters.  When
         we encounter those we need to know what to do.  Valid options are:
-        :replace: (default) Replace the control characters with "?"
-        :ignore: Remove the characters altogether from the output
-        :strict: Raise an error when we encounter a control character
+            :replace: (default) Replace the control characters with "?"
+            :ignore: Remove the characters altogether from the output
+            :strict: Raise an error when we encounter a control character
     :raises XmlEncodeError: If control_chars is set to 'strict' and the string
         to be made suitable for output to xml contains control characters or if
         :attr:`string` is not a unicode type then we raise this exception.
@@ -395,10 +416,12 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
     :kwarg input_encoding: Encoding of byte_string.  Default 'utf8'
     :kwarg errors: How to handle errors encountered while decoding the
         byte_string into unicode at the beginning of the process.  Values are:
+
         :replace: (default) Replace the invalid bytes with a '?'
         :ignore: Remove the characters altogether from the output
         :strict: Raise a UnicodeDecodeError when we encounter a non-decodable
             character
+
     :kwarg output_encoding: Encoding for the xml file that this string will go
         into.  Default is 'utf8'.  If all the characters in byte_string are
         not encodable in this encoding, the unknown characters will be
@@ -407,12 +430,14 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
         If False (default), quote for use in an xml text field.
     :kwarg control_chars: XML does not allow ASCII control characters.  When
         we encounter those we need to know what to do.  Valid options are:
+
         :replace: (default) Replace the control characters with "?"
         :ignore: Remove the characters altogether from the output
         :strict: Raise an error when we encounter a control character
+
     :raises XmlEncodeError: If control_chars is set to 'strict' and the string
         to be made suitable for output to xml contains control characters then
-        we raise this exception
+        we raise this exception.
     :raises UnicodeDecodeError: If errors is set to 'strict' and the
         byte_string contains bytes that are not decodable using input_encoding,
         this error is raised

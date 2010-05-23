@@ -25,6 +25,9 @@ import itertools
 def version_tuple_to_string(version_info):
     '''Return a PEP-386 version string from a PEP-386 style version tuple
 
+    :arg version_info: A nested set of tuples that describes the version
+    :returns: a version string
+
     This function implements just enough of PEP-386 to satisfy our needs.
     PEP-386 defines a standard format for version strings and refers to
     a function that will be merged into the stdlib that transforms a tuple of

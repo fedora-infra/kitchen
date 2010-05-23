@@ -21,7 +21,8 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 
 '''
-Importing this module makes sure that a set and frozenset type have been defined
+In python-2.4, a builtin set type was added to python.  This module provides
+a function to emulate that on python-2.3 by using the :mod:`sets` module.
 '''
 import __builtin__
 
@@ -29,9 +30,27 @@ def add_builtin_set():
     '''If there's no set builtin, add the implementations from the sets module
 
     This function makes sure that a set and frozenset type are available in
-    the __builtin__ namespace.  It does not overwrite any set or frozenset
-    that is already present so it's safe to use this as boilerplate in code
-    that needs to remain python-2.3 compatible but may also run on python-2.4+
+    the __builtin__ namespace.  Since the function checks whether set and
+    frozenset are already present in the :mod:`__builtin__` namespace and
+    refuses to overwrite those if found, it's safe to call this in multiple
+    places and in scripts run under python-2.4+, where a more efficient set
+    implementation is already present in the :mod:`__builtin__` namespace.
+
+    However, since this function modifies __builtin__ there's no need to call
+    it more than once  so you likely want to do something like this when your
+    program loads::
+
+        myprogram/__init__.py:
+
+        from kitchen.pycompat24 import builtinset
+        builtinset.add_builtin_set()
+
+    Then you can use set() and frosenset anywhere in your code::
+
+        myprogram/compute.py:
+
+        def math_students(algebra_student_list, geometry_student_list):
+            return set(algebra_student_list) union set(geometry_student_list)
     '''
     if not hasattr(__builtin__, 'set'):
         import sets
