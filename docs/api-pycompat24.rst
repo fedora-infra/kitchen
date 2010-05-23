@@ -10,9 +10,9 @@ Sets for python-2.3
 .. automodule:: kitchen.pycompat24.builtinset
 .. autofunction:: kitchen.pycompat24.builtinset.add_builtin_set
 
---------------------------
-New style base64 interface
---------------------------
+----------------------------------
+Partial new style base64 interface
+----------------------------------
 
 .. automodule:: kitchen.pycompat24.base64modern
     :members:
