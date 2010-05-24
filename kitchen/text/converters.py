@@ -29,20 +29,186 @@ Kitchen.converters
 
 Functions to handle conversion of byte strings and unicode strings.
 
-One of the things about python that's both a boon and a curse is its
-separation of byte strings and unicode strings.  This is helpful to you, the
-programmer because it allows you to deal with abstract text functions when
-using the unicode type.  The frustrations come into the picture because we
-often are handed byte strings when we want unicode or vice-versa.  When that
-happens we often find ourselvs confronted with unexpected Unicode exceptions
-because python will convert from bytes to unicode for simple cases when all
-our characters are within the ascii character set but die when a user gives it
-unicode data.
+Byte Strings and Unicode in Python2
+===================================
 
-The functions here attempt to ease some of that frustration by making it easy
-to convert between types.  That will hopefully encourage you to always convert
-your strings to one type or the other when you receive them and not mix the
-two together without an explicit conversion.
+Python2 has two string types, :class:`str` and :class:`unicode`.
+:class:`unicode` represents an abstract sequence of text characters.  It can
+hold any character that is present in the unicode standard.  :class:`str` can
+hold any byte of data.  The operating system and python work together to
+display these bytes as characters in many cases but you should always keep in
+mind that the information is really a sequence of bytes, not a sequence of
+characters.  In python2 these types are interchangable a large amount of the
+time.  They are one of the few pairs of types that automatically convert when
+used in equality::
+
+    >>> # string is converted to unicode and then compared
+    >>> "I am a string" == u"I am a string"
+    True
+    >>> # Other types, like int, don't have this special treatment
+    >>> 5 == "5"
+    False
+
+However, this automatic conversion tends to lull people into a false sense of
+security.  As long as you're dealing with :term:`ASCII` characters the
+automatic conversion will save you from seeing any differences.  Once you
+start using characters that are not in :term:`ASCII`, you will start getting
+:exc:`UnicodeError` and :exc:`UnicodeWarning` as the automatic conversions
+between the types fail::
+
+    >>> "I am an ñ" == u"I am an ñ"
+    __main__:1: UnicodeWarning: Unicode equal comparison failed to convert both arguments to Unicode - interpreting them as being unequal
+    False
+
+Why do these conversions fail?  The reason is that the python2
+:class:`unicode` represents an abstract sequence of text unicode codepoints.
+:class:`str`, on the other hand, really represents a sequence of bytes.  Those
+bytes are converted by your operating system to appear as characters on your
+screen using a particular encoding (usually defined by the operating system
+and customizable by the individual user.) Although :term:`ASCII` characters
+are fairly standard in what bytes represent each character, the bytes outside
+of the :term:`ASCII` range are not.  In general, each encoding will map
+a different character to a particular byte.  The newer and better encodings
+map individual characters to multiple bytes (which the older encodings will
+instead treat as multiple characters).  In the face of these differences,
+python refuses to guess at an encoding and instead issues a warning or
+exception and refuses to convert.
+
+Strategy for Explicit Conversion
+================================
+
+So what is the best method of dealing with this weltering babble on incoherent
+encodings?  The basic strategy is to explicitly turn everything into
+:class:`unicode` when it first enters your program.  Then, when you send it to
+output, you can transform the unicode back into bytes.  Doing this allows you
+to control the encodings that are used and avoid getting tracebacks due to
+:exc:`UnicodeError`. Using the functions defined in this module, that looks
+something like this:
+
+.. code-block:: pycon
+    :linenos:
+
+    >>> from kitchen.text.converters import to_unicode, to_bytes
+    >>> name = raw_input('Enter your name: ')
+    Enter your name: Toshio くらとみ
+    >>> name
+    'Toshio \xe3\x81\x8f\xe3\x82\x89\xe3\x81\xa8\xe3\x81\xbf'
+    >>> type(name)
+    <type 'str'>
+    >>> unicode_name = to_unicode(name)
+    >>> type(unicode_name)
+    <type 'unicode'>
+    >>> unicode_name
+    u'Toshio \u304f\u3089\u3068\u307f'
+    >>> # Do a lot of other things before needing to save/output again:
+    >>> output = open('datafile', 'w')
+    >>> output.write(to_bytes(u'Name: %s\\n' % unicode_name))
+
+A few notes:
+
+Looking at line 6, you'll notice that the input we took from the user was
+a :class:`str` (byte string).  In general, anytime we're getting a value from
+outside of python (The filesystem, reading data from the network, interacting
+with an external command, reading values from the environment) we are
+interacting with something that will want to give us byte strings.  Some
+librarirees and python stdlib modules will automatically attempt to convert
+those byte strings to unicode types for you.  This is both a boon and a curse.
+If the library can guess correctly about the encoding that the data is in, it
+will return :class:`unicode` objects to you without you having to convert.
+However, if it can't guess correctly, you may end up with one of several
+problems:
+
+1. A :exc:`UnicodeError`.  The library attempted to decode a byte string
+    into :class:`unicode`, failed, and raises an error.
+2. Garbled data.  If the library returns the data after decoding it with the
+    wrong encoding, the characters you see in the :exc:`unicode` string won't
+    be the ones that you expect.
+3. You may get a byte string instead of unicode.  Some libraries will return
+    :class:`unicode` when they're able to decode the data and bytes when they
+    can't.  This is generally the hardest problem to debug when it occurs.
+    Avoid it in your own code and try to avoid or open bugs against upstreams
+    that do this.
+
+On line 8, we convert from a :class:`str` to a :class:`unicode`.
+:func:`~kitchen.text.converters.to_unicode` does this for us.  It has some
+error handling and sane defaults that make this a nicer function to use than
+calling :meth:`str.decode`directly:
+
+1. Instead of defaulting to the :term:`ASCII` encoding which fails with all
+    but the simple American English characters, it defaults to :term:`UTF8`.
+2. Instead of raising an error if it cannot decode a value, it will replace
+    the value with the unicode "Replacemanet character" symbol (�).
+3. If you happen to call this method with something that is not a :class:`str`
+    or :class:`unicode`, it will return an empty unicode string.
+
+All three of these can be overriden using different keyword arguments to the
+function.  See the :func:`to_unicode` documentation for more information.
+
+On line 15 we push the data back out to a file.  Two things you should note here:
+
+1. We deal with the strings as :class:`unicode` until the last instant.  The
+    string format that we're using is :class:`unicode` and the variable also
+    holds :class:`unicode`.  People sometimes get into trouble when they mix
+    a byte string format with a variable that holds unicode (or vice versa) at
+    this stage.
+2. :func:`~kitchen.text.converters.to_bytes`, does the reverse of
+    :func:`to_unicode`.  In this case, we're using the default values which
+    turn :class:`unicode` into a byte :class:`str` using :term:`UTF8`.  Any
+    errors are replaced with a "?" and sending non-string objects yield empty
+    :class:`unicode` strings.  Just like :func:`to_unicode`, you can look at
+    the documentation for :func:`to_bytes` to find out how to override any of
+    these defaults.
+
+When to use an alternate strategy
+---------------------------------
+
+The default strategy of decoding to unicode types when you take data in and
+encoding to bytes when you send the data back out works great for most
+problems but there are a few times when you shouldn't:
+
+* The values aren't meant to be read as text
+* The values need to be byte-for-byte when you send them back out -- for
+    instance if they are database keys or filenames.
+* You are transferring the data between several libraries that all expect
+    bytes.
+
+In each of these instances, there is a reason to keep around the byte version
+of a value.  Here's a few hints to keep your sanity in these situations:
+
+1. Keep your :class:`unicode` and :class:`str` values separate.  Just like the
+    pain caused when you have to use someone else's library that returns both
+    :class:``unicode` and :class:`str` you can cause yourself pain if you have
+    functions that can return both types or variables that could hold either
+    type of value.
+2. Name your variables so that you can tell whether you're storing byte
+    :class:`str` or :class:`unicode`.  One of the first things you end up
+    having to do when debugging is determine what type of string you have in a
+    variable and what type of string you are expecting.  Naming your variables
+    consistently so that you can tell which type they are supposed to hold
+    will save you from at least one of those steps.
+3. When you get values initially, make sure that you're dealing with the type
+    of value that you expect as you save it.  You can use :func:`isinstance`
+    or :func:`to_bytes` since :func:`to_bytes` doesn't do any modifications of
+    the string if it's already a :class:`str`.  When using :func:`to_bytes`
+    for this purpose you might want to use::
+
+        try:
+            b_input = to_bytes(input_should_be_bytes_already, errors='strict', non_string='strict')
+        except:
+            handle_errors_somehow()
+
+    The reason is that the point of keeping this data as a byte :class:`str`
+    is to keep the exact same bytes when you send it outside of your code.
+    The default of :func:`to_bytes` will transform the input if it is not
+    a :class:`str` so you want to be told that and have the opportunity to 
+    fail gracefully.
+4. Sometimes you will want to print out the values that you have in your byte
+    strings.  When you do this you will need to make sure that you transform
+    :class:`unicode` to :class:`str` before combining them.  Also be sure that
+    any other function calls (including gettext) are going to give you strings
+    that are the same type.  For instance::
+
+        print to_bytes(_('Username: %(user)s'), 'utf8') % {'user': b_username}
 '''
 try:
     from base64 import b64encode, b64decode
@@ -276,7 +442,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     :raises XmlEncodeError: If control_chars is set to 'strict' and the string
         to be made suitable for output to xml contains control characters or if
         :attr:`string` is not a unicode type then we raise this exception.
-    :raises ValueError: If control_chars is set o something other than
+    :raises ValueError: If control_chars is set to something other than
         replace, ignore, or strict.
     :rtype: byte string
     :returns: representation of the unicode string with any bytes that aren't
