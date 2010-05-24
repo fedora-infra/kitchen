@@ -38,7 +38,7 @@ hold any character that is present in the unicode standard.  :class:`str` can
 hold any byte of data.  The operating system and python work together to
 display these bytes as characters in many cases but you should always keep in
 mind that the information is really a sequence of bytes, not a sequence of
-characters.  In python2 these types are interchangable a large amount of the
+characters.  In python2 these types are interchangeable a large amount of the
 time.  They are one of the few pairs of types that automatically convert when
 used in equality::
 
@@ -111,7 +111,7 @@ a :class:`str` (byte string).  In general, anytime we're getting a value from
 outside of python (The filesystem, reading data from the network, interacting
 with an external command, reading values from the environment) we are
 interacting with something that will want to give us byte strings.  Some
-librarirees and python stdlib modules will automatically attempt to convert
+libraries and python stdlib modules will automatically attempt to convert
 those byte strings to unicode types for you.  This is both a boon and a curse.
 If the library can guess correctly about the encoding that the data is in, it
 will return :class:`unicode` objects to you without you having to convert.
@@ -132,16 +132,16 @@ problems:
 On line 8, we convert from a :class:`str` to a :class:`unicode`.
 :func:`~kitchen.text.converters.to_unicode` does this for us.  It has some
 error handling and sane defaults that make this a nicer function to use than
-calling :meth:`str.decode`directly:
+calling :meth:`str.decode` directly:
 
 1. Instead of defaulting to the :term:`ASCII` encoding which fails with all
     but the simple American English characters, it defaults to :term:`UTF8`.
 2. Instead of raising an error if it cannot decode a value, it will replace
-    the value with the unicode "Replacemanet character" symbol (�).
+    the value with the unicode "Replacement character" symbol (�).
 3. If you happen to call this method with something that is not a :class:`str`
     or :class:`unicode`, it will return an empty unicode string.
 
-All three of these can be overriden using different keyword arguments to the
+All three of these can be overridden using different keyword arguments to the
 function.  See the :func:`to_unicode` documentation for more information.
 
 On line 15 we push the data back out to a file.  Two things you should note here:
@@ -177,7 +177,7 @@ of a value.  Here's a few hints to keep your sanity in these situations:
 
 1. Keep your :class:`unicode` and :class:`str` values separate.  Just like the
     pain caused when you have to use someone else's library that returns both
-    :class:``unicode` and :class:`str` you can cause yourself pain if you have
+    :class:`unicode` and :class:`str` you can cause yourself pain if you have
     functions that can return both types or variables that could hold either
     type of value.
 2. Name your variables so that you can tell whether you're storing byte
@@ -209,6 +209,110 @@ of a value.  Here's a few hints to keep your sanity in these situations:
     that are the same type.  For instance::
 
         print to_bytes(_('Username: %(user)s'), 'utf8') % {'user': b_username}
+
+Gotchas and how to avoid them
+=============================
+
+Even when you have a good conceptual understanding of how python2 treats
+:class:`unicode` and :class:`str` there are still some things that can
+surprise you.  In most cases this is because, as noted earlier, python or one
+of the python libraries you depend on is trying to convert a value
+automatically and failing.  Explicit conversion at the appropriate place
+usually solves that.
+
+str(obj)
+--------
+
+One common idiom for getting a simple, string representation of an object is to use::
+
+    str(obj)
+
+Unfortunately, this is not safe.  Sometimes str(obj) will return
+:class:`unicode`, sometimes it will  return a byte :class:`str`.  Sometimes,
+it will attempt to convert from a unicode string to a byte string, fail, and
+throw a :exc:`UnicodeError`.  To be safe from all of these, first decide
+whether you need :class:`unicode` or :class:`str` to be returned.  Then use
+:func:`to_unicode` or :func:`to_bytes` to get the simple representation like
+this::
+
+    u_representation = to_unicode(obj, non_string='simplerepr')
+    b_representation = to_bytes(obj, non_string='simplerepr')
+
+print
+-----
+
+python has a builting ``print`` statement that outputs strings to the
+terminal.  This originated in a time when python only dealt with byte
+:class:`str`.  When :class:`unicode` strings came about, some enhancements
+were made to the print statement so that it oculd print htose as well.  The
+enhancements make print work most of the time however, the times when it
+doesn't work tendto make for cryptic debugging.
+
+The basic issue is that print has to figure out what encoding to use when it
+prints a :class:`unicode` string to the terminal.  When python is attached to
+your terminal (ie, you're running the interpreter or running a script that
+prints to the screen) python is able to take the encoding value from your
+locale settings :envvar:`LC_ALL` or :envvar:`LC_CTYPE` and print the
+characters allowed by that encoding.  On most modern Unix systems, the
+encoding is 'utf8' which means that you can print any :class:`unicode`
+character without problem.
+
+There are two common cases of things going wrong:
+
+1. Someone has a locale set that does not accept all valid unicode characters.
+    For instance::
+
+        $ LC_ALL=C python
+        >>> print u'\ufffd'
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+        UnicodeEncodeError: 'ascii' codec can't encode character u'\ufffd' in position 0: ordinal not in range(128)
+
+    This often happens when a script that you've written and debugged from the
+    terminal is run from an automated environment like cron.  It also occurs
+    when you have written a script using a utf-8 aware locale and released it
+    for consumption by people all over the internet.  Inevitably, someone is
+    running with a locale that can't handle all unicode characters and you get
+    a traceback reported.
+2. You redirect output to a file.  Python isn't using the values in
+    :envvar:`LC_ALL` directly to decide what encoding to use.  Instead it is
+    using the encoding set for the terminal you are printing to which is set
+    to accept different encodings by the :envvar:`LC_ALL`.  If you redirect to
+    a file, you are no longer printing to the termina so :envvar:`LC_ALL`
+    won't have any effect.  At this point, python will decide it can't find an
+    encoding and fallback to :term:`ASCII` which will likely lead to
+    :exc:`UnicodeError` being raised.  You can see this in a short script::
+
+        #! /usr/bin/python -tt
+        print u'\ufffd'
+
+    And then look at the difference between running it and redirecting to a terminal:
+
+    .. code-block:: console
+
+        $ ./test.py
+        �
+        $ ./test.py > t
+        Traceback (most recent call last):
+          File "test.py", line 3, in <module>
+              print u'\ufffd'
+        UnicodeEncodeError: 'ascii' codec can't encode character u'\ufffd' in position 0: ordinal not in range(128)
+
+The short answer to dealing with this is to always use bytes when writing
+output.  You can do this by explicitly converting to bytes like this::
+
+    from kitchen.text.converters import to_bytes
+    u_string = u'\ufffd'
+    print to_bytes(u_string)
+
+or you can wrap stdout and stderr with a :class:`codecs.StreamWriter`.
+:class:`codecs.StreamWriter` is convenient in that you can assign it to encode
+for stdout of stderr and then have output automatically converted but it has
+the drawback of still being able to throw :exc:`UnicodeError` if the writer
+can't encode all possible unicode codepoints.  See the `PrintFails
+<http://wiki.python.org/moin/PrintFails>`_ page on the python.org wiki for
+information on using this and a more in-depth analysis.
+
 '''
 try:
     from base64 import b64encode, b64decode
