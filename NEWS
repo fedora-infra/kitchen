@@ -7,6 +7,12 @@ NEWS
 :Version: 0.1.x
 
 -----
+0.1a3
+-----
+* Add a defaultdict implementation for pycompat25
+* Add documentation
+
+-----
 0.1a2
 -----
 * Fixes for python-2.3
