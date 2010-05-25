@@ -118,12 +118,12 @@ will return :class:`unicode` objects to you without you having to convert.
 However, if it can't guess correctly, you may end up with one of several
 problems:
 
-1. A :exc:`UnicodeError`.  The library attempted to decode a byte string
+* A :exc:`UnicodeError`.  The library attempted to decode a byte string
     into :class:`unicode`, failed, and raises an error.
-2. Garbled data.  If the library returns the data after decoding it with the
+* Garbled data.  If the library returns the data after decoding it with the
     wrong encoding, the characters you see in the :exc:`unicode` string won't
     be the ones that you expect.
-3. You may get a byte string instead of unicode.  Some libraries will return
+* You may get a byte string instead of unicode.  Some libraries will return
     :class:`unicode` when they're able to decode the data and bytes when they
     can't.  This is generally the hardest problem to debug when it occurs.
     Avoid it in your own code and try to avoid or open bugs against upstreams
@@ -134,11 +134,11 @@ On line 8, we convert from a :class:`str` to a :class:`unicode`.
 error handling and sane defaults that make this a nicer function to use than
 calling :meth:`str.decode` directly:
 
-1. Instead of defaulting to the :term:`ASCII` encoding which fails with all
+* Instead of defaulting to the :term:`ASCII` encoding which fails with all
     but the simple American English characters, it defaults to :term:`UTF8`.
-2. Instead of raising an error if it cannot decode a value, it will replace
+* Instead of raising an error if it cannot decode a value, it will replace
     the value with the unicode "Replacement character" symbol (�).
-3. If you happen to call this method with something that is not a :class:`str`
+* If you happen to call this method with something that is not a :class:`str`
     or :class:`unicode`, it will return an empty unicode string.
 
 All three of these can be overridden using different keyword arguments to the
@@ -313,6 +313,72 @@ can't encode all possible unicode codepoints.  See the `PrintFails
 <http://wiki.python.org/moin/PrintFails>`_ page on the python.org wiki for
 information on using this and a more in-depth analysis.
 
+Unicode, str, and dict keys
+---------------------------
+
+The :func:`hash` of the :term:`ASCII` characters is the same for
+:class:`unicode` and byte :class`str`.  When you use them in dictionary keys,
+they evaluate to the same dictionary slot::
+
+    >>> u_string = u'a'
+    >>> b_string = 'a'
+    >>> hash(u_string), hash(b_string)
+    (12416037344, 12416037344)
+    >>> d = {}
+    >>> d[u_string] = 'unicode'
+    >>> d[b_string] = 'bytes'
+    >>> d
+    {u'a': 'bytes'}
+
+When you deal with key values outside of :TERM:`ASCII`, :class:`unicode` and
+byte :class:`str` evaluate unequally no matter what their character content or
+hash value::
+
+    >>> u_string = u'ñ'
+    >>> b_string = u_string.encode('utf8')
+    >>> print u_string
+    ñ
+    >>> print b_string
+    ñ
+    >>> d = {}
+    >>> d[u_string] = 'unicode'
+    >>> d[b_string] = 'bytes'
+    >>> d
+    {u'\\xf1': 'unicode', '\\xc3\\xb1': 'bytes'}
+    >>> b_string2 = '\\xf1'
+    >>> hash(u_string), hash(b_string2)
+    (30848092528, 30848092528)
+    >>> d = {}
+    >>> d[u_string] = 'unicode'
+    >>> d[b_string2] = 'bytes'
+    {u'\\xf1': 'unicode', '\\xf1': 'bytes'}
+
+How do you work with this one?  Remember rule #1:  Keep your :class:`unicode`
+and byte :class:`str` values separate.  That goes for keys in a dictionary
+just like anything else.
+
+* For any given dictionary, make sure that all your keys are either
+    :class:`unicode` or :class:`str`.  *Do not mix the two.*  If you're being
+    given both :class:`unicode` and :class:`str` but you don't need to
+    preserve separate keys for each, I recommend using :func:`to_unicode` or
+    :func:`to_bytes` to convert all keys to one type or the other.
+* If you absolutely need to store values in a dictionary where the keys could
+    be either :class:`unicode` or :class:`str` the only safe way is to use two
+    dictionaries like this::
+
+        _b_store = {}
+        _u_store = {}
+
+        def set_store(key, value):
+            if isinstance(key, str):
+                _b_store[key] = value
+            else:
+                _u_store[key] = value
+
+        def get_store(key):
+            if isinstance(key, str):
+                return _b_store[key]
+            return _u_store[key]
 '''
 try:
     from base64 import b64encode, b64decode
