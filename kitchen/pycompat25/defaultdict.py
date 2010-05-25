@@ -25,6 +25,8 @@
 # IN THE SOFTWARE.
 #
 
+import types
+
 from kitchen import _
 
 try:
@@ -33,37 +35,48 @@ try:
     # pylint: disable-msg=W0611
     from collections import defaultdict
 except ImportError:
-    class defaultdict(dict):
-        def __init__(self, default_factory=None, *args, **kwargs):
-            if (default_factory is not None and
-                not hasattr(default_factory, '__call__')):
-                raise TypeError(_('First argument must be callable'))
-            dict.__init__(self, *args, **kwargs)
-            self.default_factory = default_factory
-        def __getitem__(self, key):
-            try:
-                return dict.__getitem__(self, key)
-            except KeyError:
-                return self.__missing__(key)
-        def __missing__(self, key):
-            if self.default_factory is None:
-                raise KeyError(key)
-            self[key] = value = self.default_factory()
-            return value
-        def __reduce__(self):
-            if self.default_factory is None:
-                args = tuple()
-            else:
-                args = self.default_factory,
-            return type(self), args, None, None, self.iteritems()
-        def copy(self):
-            return self.__copy__()
-        def __copy__(self):
-            return type(self)(self.default_factory, self)
-        def __deepcopy__(self, memo):
-            import copy
-            return type(self)(self.default_factory,
-                              copy.deepcopy(self.items()))
-        def __repr__(self):
-            return 'defaultdict(%s, %s)' % (self.default_factory,
-                                            dict.__repr__(self))
+    defaultdict = _defaultdict
+
+class _defaultdict(dict):
+    def __init__(self, default_factory=None, *args, **kwargs):
+        if (default_factory is not None and
+            not hasattr(default_factory, '__call__')):
+            raise TypeError(_('First argument must be callable'))
+        dict.__init__(self, *args, **kwargs)
+        self.default_factory = default_factory
+    def __getitem__(self, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError:
+            return self.__missing__(key)
+    def __missing__(self, key):
+        if self.default_factory is None:
+            raise KeyError(key)
+        self[key] = value = self.default_factory()
+        return value
+    def __reduce__(self):
+        if self.default_factory is None:
+            args = tuple()
+        else:
+            args = self.default_factory,
+        return type(self), args, None, None, self.iteritems()
+    def copy(self):
+        return self.__copy__()
+    def __copy__(self):
+        return type(self)(self.default_factory, self)
+    def __deepcopy__(self, memo):
+        import copy
+        return type(self)(self.default_factory,
+                          copy.deepcopy(self.items()))
+    def __repr__(self):
+        # Note: Have to use "is not None"  otherwise we get an infinite
+        # recursion
+        if isinstance(self.default_factory, types.MethodType) \
+                and self.default_factory.im_self is not None \
+                and issubclass(self.default_factory.im_class, _defaultdict):
+            defrepr = '<bound method sub._factory of defaultdict(...'
+        else:
+            defrepr = repr(self.default_factory)
+        return 'defaultdict(%s, %s)' % (defrepr, dict.__repr__(self))
+
+__all__ = ('defaultdict',)
