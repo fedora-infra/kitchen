@@ -28,13 +28,17 @@
 #
 # Portions of this are from yum/i18n.py
 '''
-Functions for operating on byte strings encoded as utf8
+-----
+UTF-8
+-----
 
-.. note:: In many cases, it is better to convert to unicode, operate on the
-    strings, then convert back to utf8.  unicode type can handle many of these
-    functions itself.  For those that it doesn't (removing control characters
-    from length calculations, for instance) the code to do so with a unicode
-    type is much simpler.
+Functions for operating on byte :class:`str` encoded as :term:`utf8`
+
+.. note:: In many cases, it is better to convert to :class:`unicode`, operate
+    on the strings, then convert back to :term:`utf8`.  :class:`unicode` type
+    can handle many of these functions itself.  For those that it doesn't
+    (removing control characters from length calculations, for instance) the
+    code to do so with a :class:`unicode` type is often simpler.
 '''
 
 from kitchen.text.converters import to_unicode, to_bytes
@@ -148,11 +152,10 @@ def _utf8_ucp_width(ucs):
     '''Get the textual width of a ucs character.
 
     :arg ucs: a single unicode code point
-    :returns: textual width of the character
+    :returns: :term:`textual width` of the character
 
-    .. note:: textual width is the amount of horizontal space a character
-        takes up on a monospaced screen.he units are number of ASCII
-        characters that it takes the place of.  
+    .. note: It's important to remember this is :term:`textual width` and not
+        the number of characters or bytes.
     '''
 
     # test for 8-bit control charactersT
@@ -184,9 +187,9 @@ def _utf8_ucp_width(ucs):
 
 
 def _utf8_iter_ints(msg):
-    '''Iterate through the byte string, returning bytes as ints
+    '''Iterate through the byte :class:`str`, returning bytes as ints
 
-    :arg msg: Byte string to iterate through
+    :arg msg: byte :class:`str` to iterate through
     :rtype: int
     :returns: integer representation of the next byte
     '''
@@ -196,10 +199,10 @@ def _utf8_iter_ints(msg):
 def _utf8_iter_ucs(msg):
     '''Iterate through the string, returning codepoint and number of bytes
 
-    :arg msg: Byte string to take code points from
+    :arg msg: byte :class:`str` to take codepoints from
     :rtype: tuple
-    :returns: Unicode code point and number of bytes consumed to make that
-        code point
+    :returns: Unicode codepoint and number of bytes consumed to make that
+        codepoint
 
     On error, this function returns None as the first entry in the tuple.  The
     second entry contains the number of bytes that were read from the string
