@@ -11,8 +11,9 @@ that may drag in more dependencies can be found on the `project webpage
     :maxdepth: 2
 
     api-i18n
+    api-text
+    api-collections
+    api-versioning
     api-pycompat24
     api-pycompat27
-    api-text
-    api-versioning
 

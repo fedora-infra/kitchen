@@ -24,7 +24,17 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 #
+'''
+-----------
+defaultdict
+-----------
 
+This is a pure python implementation of defaultdict that is compatible with
+the defaultdict class provided by python-2.5 and above.
+
+.. seealso:: :class:`collections.defaultdict` for documentation on this module
+
+'''
 import types
 
 from kitchen import _
@@ -44,26 +54,32 @@ class _defaultdict(dict):
             raise TypeError(_('First argument must be callable'))
         dict.__init__(self, *args, **kwargs)
         self.default_factory = default_factory
+
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)
         except KeyError:
             return self.__missing__(key)
+
     def __missing__(self, key):
         if self.default_factory is None:
             raise KeyError(key)
         self[key] = value = self.default_factory()
         return value
+
     def __reduce__(self):
         if self.default_factory is None:
             args = tuple()
         else:
             args = self.default_factory,
         return type(self), args, None, None, self.iteritems()
+
     def copy(self):
         return self.__copy__()
+
     def __copy__(self):
         return type(self)(self.default_factory, self)
+
     def __deepcopy__(self, memo):
         import copy
         return type(self)(self.default_factory,

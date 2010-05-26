@@ -35,8 +35,6 @@ Functions for operating on byte strings encoded as utf8
     functions itself.  For those that it doesn't (removing control characters
     from length calculations, for instance) the code to do so with a unicode
     type is much simpler.
-
-    It is unlikely that 
 '''
 
 from kitchen.text.converters import to_unicode, to_bytes

@@ -1,6 +1,3 @@
-=============================================
-Kitchen.text: unicode and utf8 and xml oh my!
-=============================================
 
 .. automodule:: kitchen.text.converters
 
@@ -27,24 +24,3 @@ Transformation to XML
 .. autofunction:: kitchen.text.converters.guess_encoding_to_xml
 .. autofunction:: kitchen.text.converters.to_xml
 
-
------
-UTF-8
------
-
-.. automodule:: kitchen.text.utf8
-    :members:
-
-----
-Misc
-----
-
-.. automodule:: kitchen.text.utils
-    :members:
-
-----------
-Exceptions
-----------
-
- .. automodule:: kitchen.text.exceptions
-    :members:

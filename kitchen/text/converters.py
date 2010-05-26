@@ -23,9 +23,11 @@
 # python-fedora: fedora/textutils.py
 
 '''
-------------------
-Kitchen.converters
-------------------
+.. _kitchen.text.converters:
+
+-----------------------
+Kitchen.text.converters
+-----------------------
 
 Functions to handle conversion of byte strings and unicode strings.
 
@@ -313,6 +315,8 @@ can't encode all possible unicode codepoints.  See the `PrintFails
 <http://wiki.python.org/moin/PrintFails>`_ page on the python.org wiki for
 information on using this and a more in-depth analysis.
 
+.. _unicode-and-dict-keys:
+
 Unicode, str, and dict keys
 ---------------------------
 
@@ -361,24 +365,26 @@ just like anything else.
     :class:`unicode` or :class:`str`.  *Do not mix the two.*  If you're being
     given both :class:`unicode` and :class:`str` but you don't need to
     preserve separate keys for each, I recommend using :func:`to_unicode` or
-    :func:`to_bytes` to convert all keys to one type or the other.
+    :func:`to_bytes` to convert all keys to one type or the other like this::
+
+        >>> from kitchen.text.converters import to_unicode
+        >>> u_string = u'one'
+        >>> b_string = 'two'
+        >>> d = {}
+        >>> d[to_unicode(u_string)] = 1
+        >>> d[to_unicode(b_string)] = 2
+        >>> d
+        {u'two': 2, u'one': 1}
+
+* These issues also apply to using dicts with tuple keys that contain
+    a mixture of :class:`unicode` and :class:`str`.  Once again the best fix
+    is to standardise on either :class:`str` or :class:`unicode`.
+
 * If you absolutely need to store values in a dictionary where the keys could
-    be either :class:`unicode` or :class:`str` the only safe way is to use two
-    dictionaries like this::
-
-        _b_store = {}
-        _u_store = {}
-
-        def set_store(key, value):
-            if isinstance(key, str):
-                _b_store[key] = value
-            else:
-                _u_store[key] = value
-
-        def get_store(key):
-            if isinstance(key, str):
-                return _b_store[key]
-            return _u_store[key]
+    be either :class:`unicode` or :class:`str` you can use
+    :class:`kitchen.collections.StrictDict` which has separate entries for all
+    :class:`unicode` and byte :class:`str` and deals correctly with tuples
+    containing mixed :class:`unicode` and byte :class:`str`.
 '''
 try:
     from base64 import b64encode, b64decode
