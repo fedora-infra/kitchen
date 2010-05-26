@@ -11,7 +11,7 @@ NEWS
 -----
 * Add a defaultdict implementation for pycompat25
 * Add documentation
-
+* Add a StrictDict class that never has str and unicode keys collide.
 -----
 0.1a2
 -----
