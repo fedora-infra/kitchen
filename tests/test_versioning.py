@@ -26,5 +26,4 @@ class TestVersionTuple(object):
         '''Test that version_tuple_to_string outputs PEP-386 compliant strings
         '''
         for v_str, v_tuple in self.ver_to_tuple.items():
-            #tools.ok_(version_tuple_to_string(v_tuple) == v_str)
             yield self.check_ver_tuple_to_str, v_tuple, v_str
