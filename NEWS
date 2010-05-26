@@ -3,7 +3,7 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 20 May 2010
+:Date: 25 May 2010
 :Version: 0.1.x
 
 -----
@@ -12,6 +12,7 @@ NEWS
 * Add a defaultdict implementation for pycompat25
 * Add documentation
 * Add a StrictDict class that never has str and unicode keys collide.
+
 -----
 0.1a2
 -----
