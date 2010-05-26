@@ -31,10 +31,10 @@ def version_tuple_to_string(version_info):
 
     This function implements just enough of :pep:`386` to satisfy our needs.
     :pep:`386` defines a standard format for version strings and refers to
-    a function that will be merged into the stdlib that transforms a tuple of
-    version information into a standard version string.  This function is an
-    implementation of that function.  Once that function becomes available we
-    will start using it and deprecate this function.
+    a function that will be merged into the |stdlib|_ that transforms a tuple
+    of version information into a standard version string.  This function is
+    an implementation of that function.  Once that function becomes available
+    we will start using it and deprecate this function.
 
     __version_info__ takes the form that NormalizedVersion.from_parts() uses::
 

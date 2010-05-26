@@ -21,7 +21,7 @@ Translation Objects
 The :class:`DummyTranslation` object is an implementation detail that most people don't
 need to know about.  It is a fallback in case no real translation objects work
 on your system.  Unlike the :class:`NullTranslation` object included in the
-stdlibrary, :class:`DummyTranslation` makes sure that any given function will
+|stdlib|_, :class:`DummyTranslation` makes sure that any given function will
 only return byte strings or unicode strings.  No function will return both.
 
 .. autoclass:: kitchen.i18n.DummyTranslations

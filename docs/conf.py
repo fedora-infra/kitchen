@@ -207,3 +207,14 @@ autoclass_content = "both"
 intersphinx_mapping = {'http://docs.python.org/': None,
     'https://fedorahosted.org/releases/p/y/python-fedora/doc/': None,
     'https://fedorahosted.org/releases/p/a/packagedb/doc/': None}
+
+rst_epilog = '''
+.. |projpage| replace:: project webpage
+.. _projpage: %(url)s
+.. |docpage| replace:: documentation page
+.. _docpage: %(download)s/docs
+.. |downldpage| replace:: download page
+.. _downldpage: %(download)s
+.. |stdlib| replace:: python standard libray
+.. _stdlib: http://docs.python.org/libray
+''' % {'url': kitchen.release.URL, 'download': kitchen.release.DOWNLOAD_URL}

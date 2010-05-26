@@ -4,8 +4,7 @@ Kitchen API
 
 Kitchen is structured as a collection of modules.  In its current
 configuration, Kitchen ships with the following modules.  Other addon modules
-that may drag in more dependencies can be found on the `project webpage
-<https://fedorahosted.org/kitchen/>`_.
+that may drag in more dependencies can be found on the `project webpage`_
 
 .. toctree::
     :maxdepth: 2
@@ -17,3 +16,4 @@ that may drag in more dependencies can be found on the `project webpage
     api-pycompat24
     api-pycompat27
 
+.. _`project webpage`: https://fedorahosted.org/kitchen

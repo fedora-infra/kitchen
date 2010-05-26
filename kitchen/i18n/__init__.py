@@ -91,42 +91,45 @@ class DummyTranslations(gettext.NullTranslations):
         This Translations class doesn't translate the strings and is mostly
         meant for times when there were errors setting up a real Translations
         object.  It's safer than :class:`gettext.NullTranslations` in its
-        handling of byte strings vs unicode strings.  Unlike
+        handling of byte :class:`str` vs :class:`unicode` strings.  Unlike
         :class:`~gettext.NullTranslations`, this Translation class will never
         throw a :exc:`~exceptions.UnicodeError`.  Note that the code that you
         have around a call to :class:`DummyTranslations` might throw
         a :exc:`~exceptions.UnicodeError` but at least that will be in code
         you control and can fix.  Also, like
         :class:`~gettext.GNUTranslations`, all of this Translation object's
-        methods guarantee to return byte strings except for :meth:`ugettext`
-        and :meth:`ungettext` which guarantee to return unicode strings.
+        methods guarantee to return byte :class:`str` except for
+        :meth:`ugettext` and :meth:`ungettext` which guarantee to return
+        :class:`unicode` strings.
 
-        When byte strings are returned, the strings will be encoded according
-        to this algorithm:
+        When byte :class:`str` are returned, the strings will be encoded
+        according to this algorithm:
 
         1) If a fallback has been added, the fallback will be called first.
-            You'll need to consult the fallback to see whether it performs any
-            encoding changes.
-        2) If a byte string was given, the same byte string will be returned.
-        3) If a unicode string was given and :meth:`set_output_charset` has 
-            been called then we encode the string using the
-            :attr:`output_charset`
-        4) If a unicode string was given and this is :meth:`gettext` or
-            :meth:`ngettext` we encode it using 'utf8'.
-        5) If a unicode string was given and this is :meth:`lgettext` or
-            :meth:`lngettext` and we encode using the value of
-            :func:`locale.getpreferredencoding`
+           You'll need to consult the fallback to see whether it performs any
+           encoding changes.
+        2) If a byte :class:`str` was given, the same byte :class:`str` will
+           be returned.
+        3) If a :class:`unicode` string was given and
+           :meth:`set_output_charset` has been called then we encode the
+           string using the :attr:`output_charset`
+        4) If a :class:`unicode` string was given and this is :meth:`gettext`
+           or :meth:`ngettext` we encode it using 'utf8'.
+        5) If a :class:`unicode` string was given and this is :meth:`lgettext`
+           or :meth:`lngettext` and we encode using the value of
+           :func:`locale.getpreferredencoding`
 
         For :meth:`ugettext` and :meth:`ungettext`, we go through the same
         set of steps with the following differences:
 
-        * We transform byte strings into unicode strings for these methods.
-        * The encoding used to decode the byte strings is taken from
-            :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
+        * We transform byte :class:`str` into :class:`unicode` strings for
+          these methods.
+        * The encoding used to decode the byte :class:`str` is taken from
+          :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
 
         .. seealso::
             :class:`gettext.NullTranslations`
-                for information about what each of these methods do
+                For information about what each of these methods do
 
         '''
         # Import this here to avoid circular deps with kitchen.text
@@ -260,11 +263,11 @@ def get_translation_object(domain, localedirs=tuple()):
     This will search for several different directories:
 
     1) A directory named 'locale' in the same directory as the module that
-        called :func:`get_translation_object`,
+       called :func:`get_translation_object`,
     2) In :file:`/usr/lib/locale`
     3) In :file:`/usr/share/locale` (the fallback directory)
 
-    The first of these that are a directory we can access will be used
+    The first of these that is a directory we can access will be used
     (regardless of whether any locale files are present in the directory.)
     This allows gettext to work on Windows and in development (where the
     locale files are typically in the toplevel module directory) and also when
@@ -306,24 +309,25 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
 
     :arg domain: Name of the message domain
     :kwarg localedirs: Iterator of directories to look for message catalogs
-        under.  The first directory to exist is used regardless of messages
-        for this domain are present.  If none of the directories exist,
-        fallback on sys.prefix + '/share/locale'  Default: No directories to
-        search.
-    :kwarg use_unicode: If True return unicode strings else return byte
-        strings for the translations.  Default is True
+        under.  The first directory to exist is used regardless of whether
+        messages for this domain are present.  If none of the directories
+        exist, fallback on sys.prefix + '/share/locale'  Default: No
+        directories to search.
+    :kwarg use_unicode: If True return :class:`unicode` strings else return
+        byte strings for the translations.  Default is True
     :return: tuple of the gettext function and gettext function for plurals
 
     Setting up gettext can be a little tricky because of lack of documentation.
-    This function will setup gettext for you and hopefully supplement the docs
-    so you can understand how to do things sensibly.  For the simple case, you
-    can use the default arguments and call us like this::
+    This function will setup gettext for you.  For the simple case, you can
+    use the default arguments and call it like this::
 
         _, N_ = easy_gettext_setup()
 
     This will get you two functions, :func:`_` and :func:`N_` that you can use
-    to mark strings in your code for translation.  :func:`_` is used to mark strings that 
-
+    to mark strings in your code for translation.  :func:`_` is used to mark
+    strings that don't need a different string depending on an argument to the
+    string.  :func:`N_` is used to mark strings that do need to have
+    a different form if a variable in the string is plural.
 
     .. seealso::
 

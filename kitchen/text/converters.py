@@ -113,7 +113,7 @@ a :class:`str` (byte string).  In general, anytime we're getting a value from
 outside of python (The filesystem, reading data from the network, interacting
 with an external command, reading values from the environment) we are
 interacting with something that will want to give us byte strings.  Some
-libraries and python stdlib modules will automatically attempt to convert
+libraries and python |stdlib|_ modules will automatically attempt to convert
 those byte strings to unicode types for you.  This is both a boon and a curse.
 If the library can guess correctly about the encoding that the data is in, it
 will return :class:`unicode` objects to you without you having to convert.
@@ -121,15 +121,15 @@ However, if it can't guess correctly, you may end up with one of several
 problems:
 
 * A :exc:`UnicodeError`.  The library attempted to decode a byte string
-    into :class:`unicode`, failed, and raises an error.
+  into :class:`unicode`, failed, and raises an error.
 * Garbled data.  If the library returns the data after decoding it with the
-    wrong encoding, the characters you see in the :exc:`unicode` string won't
-    be the ones that you expect.
+  wrong encoding, the characters you see in the :exc:`unicode` string won't be
+  the ones that you expect.
 * You may get a byte string instead of unicode.  Some libraries will return
-    :class:`unicode` when they're able to decode the data and bytes when they
-    can't.  This is generally the hardest problem to debug when it occurs.
-    Avoid it in your own code and try to avoid or open bugs against upstreams
-    that do this.
+  :class:`unicode` when they're able to decode the data and bytes when they
+  can't.  This is generally the hardest problem to debug when it occurs.
+  Avoid it in your own code and try to avoid or open bugs against upstreams
+  that do this.
 
 On line 8, we convert from a :class:`str` to a :class:`unicode`.
 :func:`~kitchen.text.converters.to_unicode` does this for us.  It has some
@@ -137,11 +137,11 @@ error handling and sane defaults that make this a nicer function to use than
 calling :meth:`str.decode` directly:
 
 * Instead of defaulting to the :term:`ASCII` encoding which fails with all
-    but the simple American English characters, it defaults to :term:`UTF8`.
+  but the simple American English characters, it defaults to :term:`UTF8`.
 * Instead of raising an error if it cannot decode a value, it will replace
-    the value with the unicode "Replacement character" symbol (�).
+  the value with the unicode "Replacement character" symbol (�).
 * If you happen to call this method with something that is not a :class:`str`
-    or :class:`unicode`, it will return an empty unicode string.
+  or :class:`unicode`, it will return an empty unicode string.
 
 All three of these can be overridden using different keyword arguments to the
 function.  See the :func:`to_unicode` documentation for more information.

@@ -23,10 +23,10 @@ and paste!  Now you can let someone else maintain and release these small
 snippets so that you can get on with your life.
 
 This package forms the core of Kitchen.  It contains some useful modules for
-using newer stdlib modules on older python versions, text manipulation,
+using newer |stdlib| modules on older python versions, text manipulation,
 PEP-386 versioning, and gettext.  With this package we're trying to provide
 a few useful features that don't have too many dependencies outside of the
-stdlib.  We'll be releasing other modules that drop into the kitchen namespace
+|stdlib|.  We'll be releasing other modules that drop into the kitchen namespace
 to add other features (possibly with larger deps).
 
 ------------
@@ -94,11 +94,11 @@ Public License Version 2 or later.
     a list of the files that are known:
 
     `Python 2 license <http://www.python.org/download/releases/2.4/license/>`_
-        subprocess.py and test_subprocess.py
+        subprocess.py, test_subprocess.py, and test_defaultdict.py.
     `LGPLv2+ <http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>`_
-        tests/* other than test_subprocess.py, files directly contained in
-        kitchen/, kitchen/pycompat24/, kitchen/versioning/, and kitchen/text/
-        except for utf8.py
+        tests/* other than test_subprocess.py and test_defaultdict.py, files
+        directly contained in kitchen/, kitchen/pycompat24/,
+        kitchen/versioning/, and kitchen/text/ except for utf8.py
 
 --------
 Contents
@@ -117,3 +117,11 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+-------------
+Project Pages
+-------------
+
+More information about the project can be found on the |projpage|_
+
+The latest published version of this documentation can be found on the |docpage|_
