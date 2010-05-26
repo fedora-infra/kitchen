@@ -45,7 +45,7 @@ try:
     # pylint: disable-msg=W0611
     from collections import defaultdict
 except ImportError:
-    defaultdict = _defaultdict
+    defaultdict = None
 
 class _defaultdict(dict):
     def __init__(self, default_factory=None, *args, **kwargs):
@@ -94,5 +94,8 @@ class _defaultdict(dict):
         else:
             defrepr = repr(self.default_factory)
         return 'defaultdict(%s, %s)' % (defrepr, dict.__repr__(self))
+
+if not defaultdict:
+    defaultdict = _defaultdict
 
 __all__ = ('defaultdict',)
