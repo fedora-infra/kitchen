@@ -6,6 +6,7 @@ from nose import tools
 from nose.plugins.skip import SkipTest
 
 import re
+import warnings
 
 try:
     import chardet
@@ -214,7 +215,9 @@ class TestConverters(unittest.TestCase):
                     == self.utf8_mangled_euc_jp_as_latin1)
 
     def test_to_xml(self):
+        warnings.simplefilter('ignore', DeprecationWarning)
         tools.ok_(converters.to_xml(self.u_entity) == self.utf8_entity_escape)
         tools.ok_(converters.to_xml(self.utf8_spanish) == self.utf8_spanish)
         tools.ok_(converters.to_xml(self.latin1_spanish) == self.utf8_spanish)
         tools.ok_(converters.to_xml(self.utf8_japanese) == self.utf8_japanese)
+        warnings.simplefilter('default', DeprecationWarning)
