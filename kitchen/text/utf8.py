@@ -41,7 +41,11 @@ Functions for operating on byte :class:`str` encoded as :term:`utf8`
     code to do so with a :class:`unicode` type is often simpler.
 '''
 
+import warnings
+
+from kitchen import _
 from kitchen.text.converters import to_unicode, to_bytes
+from kitchen.text.utils import byte_string_valid_encoding
 
 # This is ported from ustr_utf8_* which I got from:
 #     http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
@@ -383,18 +387,6 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
 
     return msg
 
-def utf8_valid(msg):
-    '''Detect if a byte string is valid utf8.
-
-    :arg msg: Byte string to test for non-utf8 bytes
-    :returns: True if there are no invalid utf8 characters.  False if an
-        invalid character is detected.
-    '''
-    for (ucs, bytes) in _utf8_iter_ucs(msg):
-        if ucs is None:
-            return False
-    return True
-
 def _utf8_width_le(width, *args):
     '''Minor speed hack, we often want to know "does X fit in Y". It takes
     "a while" to work out a utf8_width() (see above), and we know that a utf8
@@ -419,6 +411,17 @@ def _utf8_width_le(width, *args):
     for arg in args:
         ret += utf8_width(arg)
     return ret <= width
+
+def utf8_valid(msg):
+    '''Deprecated.  Detect if a string is valid utf8.
+
+    Use :func:`kitchen.text.utils.byte_string_valid_encoding` instead.
+
+    '''
+    warnings.warn(_('Deprecated.  Use'
+            ' kitchen.text.utils.byte_string_valid_encoding(msg) instead'),
+            DeprecationWarning, stacklevel=2)
+    return byte_string_valid_encoding(msg)
 
 def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
