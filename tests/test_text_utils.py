@@ -95,3 +95,13 @@ class TestTextUtils(unittest.TestCase):
         tools.ok_(utils.byte_string_valid_xml(self.euc_jp_japanese, 'utf8') == False)
 
         tools.ok_(utils.byte_string_valid_xml(self.utf8_ascii_chars) == False)
+
+    def test_byte_string_valid_encoding(self):
+        '''Test that a byte sequence is validated'''
+        tools.ok_(utils.byte_string_valid_encoding(self.utf8_japanese) == True)
+        tools.ok_(utils.byte_string_valid_encoding(self.euc_jp_japanese, encoding='euc_jp') == True)
+
+    def test_byte_string_invalid_encoding(self):
+        '''Test that we return False with non-encoded chars'''
+        tools.ok_(utils.byte_string_valid_encoding('\xff') == False)
+        tools.ok_(utils.byte_string_valid_encoding(self.euc_jp_japanese) == False)

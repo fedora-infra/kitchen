@@ -3,8 +3,10 @@
 import unittest
 from nose import tools
 
-from kitchen.text import utf8
+import warnings
 from kitchen.text.converters import to_bytes
+
+from kitchen.text import utf8
 
 class TestUTF8(unittest.TestCase):
     u_kana = u'くらとみ'
@@ -106,13 +108,17 @@ It has lots of other features though:
 
     def test_utf8_valid(self):
         '''Test that a utf8 byte sequence is validated'''
+        warnings.simplefilter('ignore', DeprecationWarning)
         tools.ok_(utf8.utf8_valid(self.utf8_kana) == True)
         tools.ok_(utf8.utf8_valid(self.utf8_accent) == True)
+        warnings.simplefilter('default', DeprecationWarning)
 
     def test_utf8_invalid(self):
         '''Test that we return False with non-utf8 chars'''
+        warnings.simplefilter('ignore', DeprecationWarning)
         tools.ok_(utf8.utf8_valid('\xff') == False)
         tools.ok_(utf8.utf8_valid(self.latin1_accent) == False)
+        warnings.simplefilter('default', DeprecationWarning)
 
     def test_utf8_text_wrap(self):
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed) == [self.utf8_mixed])

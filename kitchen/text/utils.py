@@ -244,5 +244,28 @@ def byte_string_valid_xml(byte_string, encoding='utf8'):
     # The byte string is compatible with this xml file
     return True
 
-__all__ = ('byte_string_valid_xml', 'guess_encoding',
+def byte_string_valid_encoding(byte_string, encoding='utf8'):
+    '''Detect if a byte string is valid in this encoding
+
+    :arg byte_string: Byte string to test for bytes not valid in this encoding
+    :kwarg encoding: encoding to test against.  Defaults to 'utf8'.
+    :returns: True if there are no invalid utf8 characters.  False if an
+        invalid character is detected.
+
+    .. note:: This function checks whether the byte string is valid in the
+        specified encoding.  It **does not** detect whether the byte string
+        actually was encoded in that encoding.  If you want that sort of
+        functionality, you probably want to use
+        :func:`~kitchen.text.utils.guess_encoding` instead.
+    '''
+    try:
+        unicode(byte_string, encoding)
+    except UnicodeError:
+        # Not encoded with the xml file's encoding
+        return False
+
+    # byte string is valid in this encoding
+    return True
+
+__all__ = ('byte_string_valid_encoding', 'byte_string_valid_xml', 'guess_encoding',
         'html_entities_unescape', 'process_control_chars', 'str_eq')
