@@ -17,33 +17,20 @@ and pasting that code over and over.
 License
 -------
 
-This python module is distributed under the terms of the GNU General
-Public License Version 2 or later.
-
-.. note:: Currently working on relicensing some of this code to the LGPLv2+.
-    Once that is done, the library will be licensed in whole as the GNU
-    Lesser General Public License Version 2 or later.  New contributions to the
-    library should be contributed under the LGPLv2+
-
-    The files with GPLv2+ code are:
-
-    * kitchen/text/utf8.py
-    * i18n/__init__.py
+Since version 0.2a1, this python module has been distributed under the terms of
+the GNU Lesser General Public License Version 2 or later.
 
 .. note:: Some parts of this module are licensed under terms less restrictive
-    than the GPL.  If you separate these files from the work as a whole you are
-    allowed to use them under the less restrictive licenses.  The following is
-    a list of the files that are known:
+    than the LGPL.  If you separate these files from the work as a whole you
+    are allowed to use them under the less restrictive licenses.  The following
+    is a list of the files that are known:
 
     :subprocess.py: licensed under the Python 2 license by the PSF
         http://www.python.org/download/releases/2.4/license/
     :test_subprocess.py: Python Software Foundation License Version 2
         http://www.python.org/download/releases/2.7/license/
-    :tests/* other than test_subprocess.py: LGPLv2+
-    :files directly contained in kitchen/: LGPLv2+
-    :kitchen/pycompat24/*: LGPLv2+
-    :kitchen/versioning/*: LGPLv2+
-    :kitchen/text/* except for utf8.py: LGPLv2+
+    :kitchen/pycompat25/defaultdict.py: Python Software Foundation License Version 2
+        http://www.python.org/download/releases/2.6.2/license
 
 ------------
 Requirements

@@ -6,12 +6,13 @@ NEWS
 :Date: 25 May 2010
 :Version: 0.1.x
 
------
-0.1a4 (unreleased)
------
+------------------
+0.2a1 (unreleased)
+------------------
 * Deprecate kitchen.text.utf8.utf8_valid in favor of
   kitchen.text.utils.byte_string_valid_encoding
   - byte_string_valid_encoding is significantly faster and a bit more generic
+* Relicense to LGPLv2+
 
 -----
 0.1a3

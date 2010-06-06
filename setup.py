@@ -15,7 +15,7 @@ setup(name='kitchen',
       keywords='Useful Small Code Snippets',
       classifiers=[
             'Development Status :: 3 - Alpha',
-            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'License :: OSI Approved :: GNU Lesser General Public License (LGPL)',
             'Programming Language :: Python :: 2.3',
             'Programming Language :: Python :: 2.4',
             'Programming Language :: Python :: 2.5',

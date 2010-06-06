@@ -74,31 +74,17 @@ just mention them here:
 License
 -------
 
-This python module is distributed under the terms of the GNU General
+This python module is distributed under the terms of the GNU Lesser General
 Public License Version 2 or later.
 
-.. note:: I'm currently working on getting permission from some people to
-    relicense pieces this code to the LGPLv2+.  Once that is done, the library
-    will be licensed in whole as the GNU Lesser General Public License Version
-    2 or later.  New contributions to the library should be contributed under
-    the LGPLv2+.
-
-    The files with GPLv2+ code that still need to be relicensed are:
-
-    * kitchen/text/utf8.py
-    * i18n/__init__.py
-
 .. note:: Some parts of this module are licensed under terms less restrictive
-    than the GPL.  If you separate these files from the work as a whole you are
+    than the LGPL.  If you separate these files from the work as a whole you are
     allowed to use them under the less restrictive licenses.  The following is
     a list of the files that are known:
 
     `Python 2 license <http://www.python.org/download/releases/2.4/license/>`_
-        subprocess.py, test_subprocess.py, and test_defaultdict.py.
-    `LGPLv2+ <http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>`_
-        tests/* other than test_subprocess.py and test_defaultdict.py, files
-        directly contained in kitchen/, kitchen/pycompat24/,
-        kitchen/versioning/, and kitchen/text/ except for utf8.py
+        subprocess.py, test_subprocess.py, defaultdict.py, and
+        test_defaultdict.py.
 
 --------
 Contents
