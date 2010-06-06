@@ -458,9 +458,12 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
             simple = None
         if not simple:
             try:
-                simple = obj.__str__()
-            except (UnicodeError, AttributeError):
-                simple = u''
+                simple = str(obj)
+            except UnicodeError:
+                try:
+                    simple = obj.__str__()
+                except (UnicodeError, AttributeError):
+                    simple = u''
         if not isinstance(simple, unicode):
             return to_unicode(simple, 'utf8', 'replace')
         return simple
@@ -533,9 +536,12 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         return obj
     elif non_string == 'simplerepr':
         try:
-            simple = obj.__str__()
-        except (AttributeError, UnicodeError):
-            simple = None
+            simple = str(obj)
+        except UnicodeError:
+            try:
+                simple = obj.__str__()
+            except (AttributeError, UnicodeError):
+                simple = None
         if not simple:
             try:
                 simple = obj.__unicode__()
@@ -577,10 +583,10 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
 def to_str(obj):
     '''Deprecated.
 
-    This function converts something to a byte string if it isn't one.
-    It's used to call str() or unicode() on the object to get its simple
-    representation without danger of getting a UnicodeError.  You
-    should be using :func:`to_unicode` or :func:`to_bytes` explicitly
+    This function converts something to a byte :class:`str if it isn't one.
+    It's used to call :func:`str` or func:`unicode` on the object to get its
+    simple representation without danger of getting a :exc:`UnicodeError`.
+    You should be using :func:`to_unicode` or :func:`to_bytes` explicitly
     instead.  If you need unicode strings::
 
         to_unicode(obj, non_string='simplerepr')
