@@ -43,7 +43,7 @@ class ReprUnicode(object):
     def __repr__(self):
         return u'ReprUnicode(café)'
 
-class TestConverters(unittest.TestCase):
+class UnicodeTestData(object):
     u_spanish = u'El veloz murciélago saltó sobre el perro perezoso.'
     utf8_spanish = u_spanish.encode('utf8')
     latin1_spanish = u_spanish.encode('latin1')
@@ -71,6 +71,7 @@ class TestConverters(unittest.TestCase):
 
     repr_re = re.compile('^<[^ ]*\.([^.]+) object at .*>$')
 
+class TestConverters(unittest.TestCase, UnicodeTestData):
     def test_to_unicode(self):
         '''Test to_unicode when the user gives good values'''
         tools.ok_(converters.to_unicode(self.u_japanese, encoding='latin1') == self.u_japanese)
@@ -101,6 +102,9 @@ class TestConverters(unittest.TestCase):
         tools.ok_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr') == self.u_accent)
         tools.ok_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr') == self.u_accent)
         tools.ok_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr') == self.u_accent)
+
+        obj_repr = converters.to_unicode(object, non_string='simplerepr')
+        tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
 
     def test_to_bytes(self):
         '''Test to_bytes when the user gives good values'''
@@ -159,6 +163,9 @@ class TestConverters(unittest.TestCase):
         tools.ok_(converters.to_bytes(ReprUnicode(), non_string='repr') ==
                 u'ReprUnicode(café)'.encode('utf8'))
 
+        obj_repr = converters.to_bytes(object, non_string='simplerepr')
+        tools.ok_(obj_repr == "<type 'object'>" and isinstance(obj_repr, str))
+
     def test_unicode_to_xml(self):
         tools.ok_(converters.unicode_to_xml(None) == '')
         tools.assert_raises(XmlEncodeError, converters.unicode_to_xml, *['byte string'])
@@ -214,10 +221,25 @@ class TestConverters(unittest.TestCase):
             tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
                     == self.utf8_mangled_euc_jp_as_latin1)
 
-    def test_to_xml(self):
+
+class TestDeprecatedConverters(unittest.TestCase, UnicodeTestData):
+    def setUp(self):
         warnings.simplefilter('ignore', DeprecationWarning)
+
+    def tearDown(self):
+        warnings.simplefilter('default', DeprecationWarning)
+
+    def test_to_xml(self):
         tools.ok_(converters.to_xml(self.u_entity) == self.utf8_entity_escape)
         tools.ok_(converters.to_xml(self.utf8_spanish) == self.utf8_spanish)
         tools.ok_(converters.to_xml(self.latin1_spanish) == self.utf8_spanish)
         tools.ok_(converters.to_xml(self.utf8_japanese) == self.utf8_japanese)
-        warnings.simplefilter('default', DeprecationWarning)
+
+    def test_to_utf8(self):
+        tools.ok_(converters.to_utf8(self.u_japanese) == self.utf8_japanese)
+        tools.ok_(converters.to_utf8(self.utf8_spanish) == self.utf8_spanish)
+
+    def test_to_str(self):
+        tools.ok_(converters.to_str(self.u_japanese) == self.utf8_japanese)
+        tools.ok_(converters.to_str(self.utf8_spanish) == self.utf8_spanish)
+        tools.ok_(converters.to_str(object) == "<type 'object'>")
