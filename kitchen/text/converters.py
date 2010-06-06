@@ -566,9 +566,9 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
 
     Convert 'unicode' to an encoded utf-8 byte string
     '''
-    warnings.warn(_('kitchen.text.to_utf8 is deprecated.  Use'
-        ' kitchen.text.to_bytes(obj, encoding="utf8", non_string="passthru")'
-        ' instead.'), DeprecationWarning, stacklevel=2)
+    warnings.warn(_('kitchen.text.converters.to_utf8 is deprecated.  Use'
+        ' kitchen.text.converters.to_bytes(obj, encoding="utf8",'
+        ' non_string="passthru" instead.'), DeprecationWarning, stacklevel=2)
     return to_bytes(obj, encoding='utf8', errors='replace',
             non_string=non_string)
 
