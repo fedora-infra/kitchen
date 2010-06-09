@@ -44,6 +44,7 @@ import warnings
 
 from kitchen import _
 from kitchen.text.converters import to_unicode, to_bytes
+from kitchen.text.exceptions import ControlCharError
 from kitchen.text.utils import byte_string_valid_encoding
 
 # This is ported from ustr_utf8_* which I got from:
@@ -51,7 +52,11 @@ from kitchen.text.utils import byte_string_valid_encoding
 #  I've tried to leave it close to the original C (same names etc.) so that
 # it is easy to read/compare both versions... James Antilles
 
-# ----------------------------- BEG utf8 -----------------------------
+#
+# Reimplemented quite a bit of this for speed.  Use the bzr log or annotate
+# commands to see what I've changed since importing this file.-Toshio Kuratomi
+
+# ----------------------------- BEG utf8 ------------------to-----------
 # This is an implementation of wcwidth() and wcswidth() (defined in
 # IEEE Std 1002.1-2001) for Unicode.
 #
@@ -79,30 +84,31 @@ from kitchen.text.utils import byte_string_valid_encoding
 #
 # Latest version: http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
 
-def _interval_bisearch(ucs, table):
-    '''Search the auxiliary function for binary search in interval table.
+# Renamed but still pretty much JA's port of MK's code
+def _interval_bisearch(value, table):
+    '''Binary search in an interval table.
 
     This function checks whether a numeric value is present within a table
     of intervals.  It checks using a binary search algorithm, dividing the
     list of values in half and checking against the values until it determines
     whether the value is in the table.
 
-    :arg ucs: unicode codepoint
+    :arg value: numeric value to search for
     :arg table: Ordered list of intervals.  This is a list of two-tuples.  The
-        elements of the two-tuple define an interval.
-    :returns: If :attr:`ucs` is found within an interval in the :attr:`table`
-        then return True.  Otherwise, False
+        elements of the two-tuple define an interval's start and end points.
+    :returns: If :attr:`value` is found within an interval in the :attr:`table`
+        return True.  Otherwise, False
     '''
     minimum = 0
     maximum = len(table) - 1
-    if ucs < table[minimum][0] or ucs > table[maximum][1]:
+    if value < table[minimum][0] or value > table[maximum][1]:
         return False
 
     while maximum >= minimum:
         mid = (minimum + maximum) / 2
-        if ucs > table[mid][1]:
+        if value > table[mid][1]:
             minimum = mid + 1
-        elif ucs < table[mid][0]:
+        elif value < table[mid][0]:
             maximum = mid - 1
         else:
             return True
@@ -177,6 +183,7 @@ _COMBINING = (
         ( 0xe0020, 0xe007f ), ( 0xe0100, 0xe01ef ),
     )
 
+# New function from Toshio Kuratomi (LGPLv2+)
 def _generate_combining_table():
     '''Combine Markus Kuhn's data with unicodedata to make combining char list
 
@@ -275,24 +282,50 @@ def _generate_combining_table():
         combining.append(interval)
     return tuple(itertools.imap(tuple, combining))
 
-def _utf8_ucp_width(ucs):
+# Handling of control chars rewritten.  Rest is JA's port of MK's C code.
+# -Toshio Kuratomi
+def _ucp_width(ucs, control_chars='guess'):
     '''Get the textual width of a ucs character.
 
-    :arg ucs: a single unicode code point
-    :returns: :term:`textual width` of the character
+    :arg ucs: integer representing a single unicode :term:`code point`
+    :kwarg control_chars: specify how to deal with control chars.  Possible
+        values are:
+            :guess: (default) will take a guess for control code widths.  Most
+                codes will return 0 width.  backspace, delete, and clear
+                delete return -1.  escape currently returns -1 as well but
+                this is not guaranteed as it's not always correct
+            :strict: will raise
+                :exc:`~kitchen.text.exceptions.ControlCharError` if
+                a control code is encountered
+    :raises ControlCharError: if the :term:`code point` is a unicode
+        control character and :attr:`control_chars` is set to 'strict'
+    :returns: :term:`textual width` of the character.
 
     .. note: It's important to remember this is :term:`textual width` and not
         the number of characters or bytes.
     '''
-
-    # test for 8-bit control charactersT
-    if ucs == 0:
+    # test for 8-bit control characters
+    if ucs < 32 or (ucs >= 0x7f and ucs < 0xa0):
+        # Control characted detected
+        if control_chars == 'strict':
+            raise ControlCharError(_('_ucp_width does not understand how to'
+                ' assign a width value to control characters.'))
+        if ucs in (0x08, 0x07F, 0x94):
+            # Backspace, delete, and clear delete remove a single character
+            return -1
+        if ucs == 0x1b:
+            # Excape is tricky.  It removes some number of characters that
+            # come after it but the amount is dependent on what is
+            # interpreting the code.
+            # So this is going to often be wrong but other values will be
+            # wrong as well.
+            return -1
+        # All other control characters get 0 width
         return 0
 
-    if ucs < 32 or (ucs >= 0x7f and ucs < 0xa0):
-        return (-1)
-
     if _interval_bisearch(ucs, _COMBINING):
+        # Combining characters return 0 width as they will be combined with
+        # the width from other characters
         return 0
 
     # if we arrive here, ucs is not a combining or C0/C1 control character
@@ -312,8 +345,8 @@ def _utf8_ucp_width(ucs):
         (ucs >= 0x20000 and ucs <= 0x2fffd) or
         (ucs >= 0x30000 and ucs <= 0x3fffd))))
 
-
-def _utf8_iter_ints(msg):
+# JA's port of MK's code
+def _iter_bytes_as_ints(msg):
     '''Iterate through the byte :class:`str`, returning bytes as ints
 
     :arg msg: byte :class:`str` to iterate through
@@ -323,19 +356,20 @@ def _utf8_iter_ints(msg):
     for byte in to_bytes(msg):
         yield ord(byte)
 
-def _utf8_iter_ucs(msg):
+# JA's port of MK's C code
+def _iter_ucs(msg):
     '''Iterate through the string, returning codepoint and number of bytes
 
-    :arg msg: byte :class:`str` to take codepoints from
+    :arg msg: byte :class:`str` to take :term:`code point`s from
     :rtype: tuple
-    :returns: Unicode codepoint and number of bytes consumed to make that
-        codepoint
+    :returns: tuple of unicode :term:`code point` and number of bytes consumed
+        to make that :term:`code point`
 
     On error, this function returns None as the first entry in the tuple.  The
     second entry contains the number of bytes that were read from the string
     before determining this sequence of bytes did not form a character.
     '''
-    uiter = _utf8_iter_ints(msg)
+    uiter = _iter_bytes_as_ints(msg)
     for byte0 in uiter:
         if byte0 < 0x80:             # 0xxxxxxx
             yield (byte0, 1)
@@ -393,71 +427,201 @@ def _utf8_iter_ucs(msg):
             yield (None, 1)
             return
 
-def utf8_width(msg):
-    '''Get the textual width of a utf8 string.
+# Wholly rewritten by me (LGPLv2+) -Toshio Kuratomi
+def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace'):
+    '''Get the textual width of a string
 
-    :arg msg: utf8 encoded byte string to get the width of
-    :returns: Textual width.  This is the amount of space that the string will
-        consume on a monospace display.  It's measured in the number of ASCII
-        characters it would take to fill the equivalent amount of space.  This
-        is **not** the number of glyphs that are in the string.
+    :arg msg: :class:`unicode` or byte :class:`str` to get the width of
+    :kwarg control_chars: specify how to deal with control chars.  Possible
+        values are:
+            :guess: (default) will take a guess for control code widths.
+            :strict: will raise
+                a :exc:`~kitchen.text.exceptions.ControlCharError` if
+                a control code is encountered
+    :kwarg encoding: If we are given a byte `str`, this is used to decode it
+        into :class:`unicode`.  Any characters that are not decodable in this
+        encoding will be assigned a width of 1.
+    :raises ControlCharError: if :attr:`msg` contains a control character and
+        control_chars is 'strict'.
+    :returns: :term:`Textual width` of the :attr:`msg`.  This is the amount of
+        space that the string will consume on a monospace display.  It's
+        measured in the number of cell positions or columns it will take up on
+        a monospace display.  This is **not** the number of glyphs that are in
+        the string.
 
     .. note:: This function can be wrong sometimes because Unicode does not
-        specify a strict width value for all of the codepoints.  In particular,
-        we've found that some Tamil characters take up to 4 character cells
-        but are represented with a lesser amount.
+        specify a strict width value for all of the :term:`code points`.  In
+        particular, we've found that some Tamil characters take up to
+        4 character cells but are represented with a lesser amount.
     '''
-    ret = 0
-    for (ucs, bytes) in _utf8_iter_ucs(msg):
-        if ucs is None:
-            ret += bytes # Ugly ... should not feed bad utf8
-        else:
-            ret += _utf8_ucp_width(ucs)
-    return ret
+    # On python 2.6.4, x86_64, I've benchmarked a few alternate
+    # implementations::
+    #
+    #   timeit.repeat('utf8.textual_width(data)', 'from __main__ import utf8, data',
+    #       number=100)
+    # I varied data by size and content (1MB of ascii, a few words, 43K utf8, unicode type
+    #
+    # :this implementation: fastest across the board
+    #   
+    # :list comprehension: 6-16% slower
+    #   return sum([_ucp_width(ord(c), control_chars=control_chars) for c in msg])
+    #
+    # :generator expression: 9-18% slower
+    #   return sum((_ucp_width(ord(c), control_chars=control_chars) for c in
+    #           msg))
+    #
+    # :lambda: 10-19% slower
+    #   return sum(itertools.imap(lambda x: _ucp_width(ord(x), control_chars),
+    #           msg))
+    #
+    # :partial application: 13-22% slower
+    #   func = functools.partial(_ucp_width, control_chars=control_chars)
+    #   return sum(itertools.imap(func, itertools.imap(ord, msg)))
+    #
+    # :the original code: 4-38% slower
+    #   The 4% was for the short, ascii only string.  All the other pieces of
+    #   data yielded over 30% slower times.
 
-def utf8_width_chop(msg, chop=None):
-    '''Return the textual width of a utf8 string, chopping it to a specified
-    value.
+    # Non decodable data is just assigned a single cell width
+    msg = to_unicode(msg, encoding=encoding, errors=errors)
+    # Add the width of each char
+    return sum(
+            # calculate width of each char
+            itertools.starmap(_ucp_width,
+                # Setup the arguments to _ucp_width
+                itertools.izip(
+                    # int value of each char
+                    itertools.imap(ord, msg),
+                    # control_chars arg in a form that izip will deal with
+                    itertools.repeat(control_chars))))
 
-    :arg msg: String to chop
-    :kwarg chop: Chop the string if it exceeds this textual width.
-    :returns: string of the requested length
+# Wholly rewritten by me -Toshio Kuratomi
+def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
+    '''Return the textual width of a string, chopping it to a specified
+    length.
+
+    :arg msg: byte :class:`str` to chop
+    :kwarg chop: Chop the string if it exceeds this :term:`textual width`
+    :rtype: tuple
+    :returns: tuple of the :term:`textual width` of a string and the string,
+        chopped to that length
 
     This is what you want to use instead of %.*s, as it does the "right" thing
-    with regard to utf-8 sequences. Eg::
+    with regard to :term:`UTF8` sequences. Eg::
 
-        %.*s" % (10, msg)
-            <= becomes =>
-        %s" % (utf8_width_chop(msg, 10))
-
+        >>> print "%.*s" % (10, 'café ñunru!')
+        café ñun
+        >>> %s" % (textual_width_chop('café ñunru!', 10))
+        café ñunru
 
     .. note:: If you pass a unicode string into this function, you will get
-        a unicode string back.  But the string will have been formatted with
+        a unicode string back but the string will have been formatted with
         utf8 encoding in mind.
+
+    **UPDATE ME** This function has been rewritten -- a little speedier,
+    always returns unicode must always specify a chop value, can take either
+    unicode or byte string, others
     '''
-    if chop is None or utf8_width(msg) <= chop:
-        return utf8_width(msg), msg
 
-    ret = 0
-    passed_unicode = isinstance(msg, unicode)
-    msg_bytes = 0
-    msg = to_bytes(msg)
-    for (ucs, bytes) in _utf8_iter_ucs(msg):
-        if ucs is None:
-            width = bytes # Ugly ... should not feed non-utf8 bytes
+    msg = to_unicode(msg, encoding=encoding, errors=errors)
+
+    width = textual_width(msg)
+    if width <= chop:
+        return msg
+    maximum = len(msg)
+    if maximum < chop * 2:
+        # A character can take at most 2 cell positions so this is the actual
+        # maximum
+        maximum = chop * 2
+    minimum = 0
+    eos = maximum
+    eos = chop
+    width = textual_width(msg[:chop])
+
+    while True:
+        # if current width is high,
+        if width > chop:
+            # calculate new midpoint
+            mid = minimum + (eos - minimum) / 2
+            if mid == eos:
+                break
+            if (eos - chop) < (eos - mid):
+                while width > chop:
+                    width = width - _ucp_width(ord(msg[eos-1]))
+                    eos -= 1
+                return msg[:eos]
+            # subtract distance between eos and mid from width
+            width = width - textual_width(msg[mid:eos])
+            maximum = eos
+            eos = mid
+        # if current width is low,
+        elif width < chop:
+            # calculate new midpoint
+            mid = eos + (maximum - eos) / 2
+            if mid == eos:
+                break
+            if (chop - eos) < (mid - eos):
+                while width < chop:
+                    new_width = _ucp_width(ord(msg[eos]))
+                    width = width + new_width
+                    eos += 1
+                return msg[:eos]
+
+            # add distance between eos and new mid to width
+            width = width + textual_width(msg[eos:mid])
+            minimum = eos
+            eos = mid
+            if eos > maximum:
+                eos = maximum
+                break
+        # if current is just right
         else:
-            width = _utf8_ucp_width(ucs)
+            return msg[:eos]
+    return msg[:eos]
 
-        if chop is not None and (ret + width) > chop:
-            msg = msg[:msg_bytes]
-            break
-        ret += width
-        msg_bytes += bytes
+# I made some adjustments for using unicode but largely unchanged from JA's
+# port of MK's code -Toshio
+def textual_width_fill(msg, fill, chop=None, left=True):
+    '''Expand a utf8 msg to a specified "width" or chop to same.
 
-    if passed_unicode:
-        msg = to_unicode(msg)
+    :arg msg: byte string to format
+    :arg fill: pad string until the textual width is this long
+    :kwarg chop: before doing anything else, chop the string to this length.
+        Default: Don't chop the string at all
+    :kwarg left: If True (default) left justify the string and put the padding
+        on the right.  If False, pad on the left side.
+    :kwarg prefix: Attach this string before the field we're filling
+    :kwarg suffix: Append this string to the end of the field we're filling
 
-    return ret, msg
+    Expansion can be left or right. This is what you want to use instead of
+    %*.*s, as it does the "right" thing with regard to utf-8 sequences.
+    prefix and suffix should be used for "invisible" bytes, like
+    highlighting.  Eg::
+
+        >>> "%-*.*s" % (10, 20, msg)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 10, 20)).
+
+        >>> "%20.10s" % (msg)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 20, 10, left=False)).
+
+        >>> "%s%.10s%s" % (prefix, msg, suffix)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
+
+    **UPDATE ME** This function has been updated -- new signature and return values.
+    '''
+    msg = to_unicode(msg)
+    msg = textual_width_chop(msg, chop)[1]
+    width = textual_width(msg)
+    if width < fill:
+        extra = " " * (fill - width)
+        if left:
+            msg = ''.join([msg, extra])
+        else:
+            msg = ''.join([extra, msg])
+    return msg
 
 def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     '''Expand a utf8 msg to a specified "width" or chop to same.
@@ -476,24 +640,24 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     prefix and suffix should be used for "invisible" bytes, like
     highlighting.  Eg::
 
+        >>> "%-*.*s" % (10, 20, msg)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 10, 20)).
 
-        %-*.*s" % (10, 20, msg)
-            <= becomes =>
-        %s" % (utf8_width_fill(msg, 10, 20)).
+        >>> "%20.10s" % (msg)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 20, 10, left=False)).
 
-        %20.10s" % (msg)
-            <= becomes =>
-        %s" % (utf8_width_fill(msg, 20, 10, left=False)).
-
-        %s%.10s%s" % (prefix, msg, suffix)
-            <= becomes =>
-        %s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
+        >>> "%s%.10s%s" % (prefix, msg, suffix)
+        >>> # <= becomes =>
+        >>> "%s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
     '''
     passed_unicode = isinstance(msg, unicode)
     msg = to_bytes(msg)
     prefix = to_bytes(prefix)
     suffix = to_bytes(suffix)
-    width, msg = utf8_width_chop(msg, chop)
+    # Note: width value is short one here
+    width, msg = textual_width_chop(msg, chop)
 
     if width >= fill:
         if prefix or suffix:
@@ -512,7 +676,7 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
 
 def _utf8_width_le(width, *args):
     '''Minor speed hack, we often want to know "does X fit in Y". It takes
-    "a while" to work out a utf8_width() (see above), and we know that a utf8
+    "a while" to work out a :func:`textual_width` and we know that a utf8
     character is always <= byte. So given::
 
         assert bytes >= characters
@@ -532,14 +696,13 @@ def _utf8_width_le(width, *args):
         return True
     ret = 0
     for arg in args:
-        ret += utf8_width(arg)
+        ret += textual_width(arg)
     return ret <= width
 
 def utf8_valid(msg):
     '''Deprecated.  Detect if a string is valid utf8.
 
     Use :func:`kitchen.text.utils.byte_string_valid_encoding` instead.
-
     '''
     warnings.warn(_('Deprecated.  Use'
             ' kitchen.text.utils.byte_string_valid_encoding(msg) instead'),
@@ -583,7 +746,7 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
             count += 1
         if byte not in ("-", "*", ".", "o", '\xe2'):
             return count, 0
-        list_chr = utf8_width_chop(line[count:], 1)[1]
+        list_chr = textual_width_chop(line[count:], 1)[1]
         if list_chr in ("-", "*", ".", "o",
                         "\xe2\x80\xa2", "\xe2\x80\xa3", "\xe2\x88\x98"):
             nxt = _indent_at_beg(line[count+len(list_chr):])
@@ -639,7 +802,7 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
             spcs = csab
         for word in words:
             if (not _utf8_width_le(width, line, word) and
-                utf8_width(line) > utf8_width(subsequent_indent)):
+                textual_width(line) > textual_width(subsequent_indent)):
                 ret.append(line.rstrip(' '))
                 line = subsequent_indent + ' ' * spcs
             line += word
@@ -661,7 +824,7 @@ def utf8_text_fill(text, *args, **kwargs):
 
     .. seealso::
         :func:`utf8_text_wrap`
-            for other options that you can give this command.
+            for other parameters that you can give this command.
 
     This function is a light wrapper around :func:`utf8_text_wrap`.  Where
     that function returns a list of lines, this function returns one string
@@ -671,5 +834,42 @@ def utf8_text_fill(text, *args, **kwargs):
 
 # ----------------------------- END utf8 -----------------------------
 
-__all__ = ('utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
+#
+# Deprecated functions
+#
+
+def utf8_width(msg):
+    '''Deprecated
+
+    Use :func:`~kitchen.text.utf8.textual_width` instead.
+    '''
+    warnings.warn(_('kitchen.text.utf8.utf8_width is deprecated.  Use'
+        ' kitchen.text.utf8.textual_width(msg) instead'), DeprecationWarning,
+        stacklevel=2)
+    return textual_width(msg)
+
+
+def utf8_width_chop(msg, chop=None):
+    '''Deprecated
+
+    Use :func:`~kitchen.text.utf8.textual_width_chop` and
+    :func:`~kitchen.text.utf8.textual_width` instead.
+    '''
+    warnings.warn(_('kitchen.text.utf8.utf8_width_chop is deprecated.  Use'
+        ' kitchen.text.utf8.textual_width_chop instead'), DeprecationWarning,
+        stacklevel=2)
+
+    if chop == None:
+        return textual_width(msg), msg
+
+    as_bytes = False
+    if not isinstance(msg, unicode):
+        as_bytes = True
+ 
+    chopped_msg = textual_width_chop(msg, chop)
+    if as_bytes:
+        chopped_msg = to_bytes(chopped_msg)
+    return textual_width(msg), chopped_msg
+
+__all__ = ('textual_width', 'utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
         'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
