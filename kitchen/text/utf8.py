@@ -540,14 +540,15 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
     if width <= chop:
         return msg
     maximum = len(msg)
-    if maximum < chop * 2:
+    if maximum > chop * 2:
         # A character can take at most 2 cell positions so this is the actual
         # maximum
         maximum = chop * 2
     minimum = 0
     eos = maximum
-    eos = chop
-    width = textual_width(msg[:chop])
+    if eos > chop:
+        eos = chop
+    width = textual_width(msg[:eos])
 
     while True:
         # if current width is high,
