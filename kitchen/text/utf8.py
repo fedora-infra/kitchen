@@ -438,9 +438,12 @@ def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace')
             :strict: will raise
                 a :exc:`~kitchen.text.exceptions.ControlCharError` if
                 a control code is encountered
-    :kwarg encoding: If we are given a byte `str`, this is used to decode it
-        into :class:`unicode`.  Any characters that are not decodable in this
-        encoding will be assigned a width of 1.
+    :kwarg encoding: If we are given a byte :class:`str`, this is used to
+        decode it into :class:`unicode`.  Any characters that are not
+        decodable in this encoding will be assigned a width of 1.
+    :kwarg errors: How to treat errors encoding the byte :class:`str` to
+        :class:`unicode`.  Legal values are the same as for
+        :func:`kitchen.text.converters.to_unicode`
     :raises ControlCharError: if :attr:`msg` contains a control character and
         control_chars is 'strict'.
     :returns: :term:`Textual width` of the :attr:`msg`.  This is the amount of
@@ -497,30 +500,38 @@ def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace')
 
 # Wholly rewritten by me -Toshio Kuratomi
 def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
-    '''Return the textual width of a string, chopping it to a specified
-    length.
+    '''Given as string, return it chopped to a given :term:`textual width`
 
-    :arg msg: byte :class:`str` to chop
-    :kwarg chop: Chop the string if it exceeds this :term:`textual width`
-    :rtype: tuple
-    :returns: tuple of the :term:`textual width` of a string and the string,
-        chopped to that length
+    :arg msg: :class:`unicode` or byte :class:`str` to chop
+    :arg chop: Chop the string if it exceeds this :term:`textual width`
+    :kwarg encoding: If we are given a byte :class:`str`, this is used to
+        decode it into :class:`unicode`.  Any characters that are not
+        decodable in this encoding will be assigned a width of 1.
+    :kwarg errors: How to treat errors encoding the byte :class:`str` to
+        :class:`unicode`.  Legal values are the same as for
+        :func:`kitchen.text.converters.to_unicode`
+    :rtype: :class:`unicode` string
+    :returns: :class:`unicode` string of the :attr:`msg` chopped at the given
+        :term:`textual width`
 
     This is what you want to use instead of %.*s, as it does the "right" thing
-    with regard to :term:`UTF8` sequences. Eg::
+    with regard to :term:`UTF8` sequences, :term:`control character`s, and
+    characters that take more than one cell position. Eg::
 
+        >>> # Only displays 8 characters because it is operating on bytes
         >>> print "%.*s" % (10, 'café ñunru!')
         café ñun
-        >>> %s" % (textual_width_chop('café ñunru!', 10))
+        >>> # Properly operates on graphemes
+        >>> '%s' % (textual_width_chop('café ñunru!', 10))
         café ñunru
-
-    .. note:: If you pass a unicode string into this function, you will get
-        a unicode string back but the string will have been formatted with
-        utf8 encoding in mind.
-
-    **UPDATE ME** This function has been rewritten -- a little speedier,
-    always returns unicode must always specify a chop value, can take either
-    unicode or byte string, others
+        >>> # takes too many columns because the kanji need two cell positions
+        >>> print '1234567890\n%.*s' % (10, u'一二三四五六七八九十')
+        1234567890
+        一二三四五六七八九十
+        >>> # Properly chops at 10 columns
+        >>> print '1234567890\n%s' % (textual_width_chop(u'一二三四五六七八九十', 10))
+        1234567890
+        一二三四五
     '''
 
     msg = to_unicode(msg, encoding=encoding, errors=errors)
@@ -853,7 +864,17 @@ def utf8_width_chop(msg, chop=None):
     '''Deprecated
 
     Use :func:`~kitchen.text.utf8.textual_width_chop` and
-    :func:`~kitchen.text.utf8.textual_width` instead.
+    :func:`~kitchen.textt.utf8.textual_width` instead::
+
+        >>> msg = 'く ku ら ra と to み mi'
+        >>> # Old way:
+        >>> utf8_width_chop(msg, 5)
+        (5, 'く ku')
+        >>> # New way
+        >>> from kitchen.text.converters import to_bytes
+        >>> from kitchen.utf8 import textual_width, textual_width_chop
+        >>> (textual_width(msg), to_bytes(textual_width_chop(msg, 5)))
+        (5, 'く ku')
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_width_chop is deprecated.  Use'
         ' kitchen.text.utf8.textual_width_chop instead'), DeprecationWarning,
