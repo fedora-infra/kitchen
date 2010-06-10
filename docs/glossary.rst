@@ -21,6 +21,12 @@ Glossary
         for the computer to read.  Encodings define how the code points map to
         particular sequences of bytes on disk  and in memory.
 
+    control character
+        The set of characters in unicode that are used, not to display glyphs
+        o nthe screen, but to tell the displayin program to do something.
+
+        aa seealso:: http://en.wikipedia.org/wiki/Control_character
+
     I18N
         I18N is an abbreviation for internationalization.  It's often used to
         signify the need to translate words, number and date formats, and
