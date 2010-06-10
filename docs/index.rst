@@ -94,6 +94,7 @@ Contents
     :maxdepth: 2
 
     api-overview
+    hacking
     glossary
 
 ------------------
