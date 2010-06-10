@@ -82,6 +82,7 @@ general structure is:
     * Parameters that are :code:`kwarg` should specify what their default
       behaviour is.
 
+.. _kitchen-versioning:
 ------------------
 Kitchen versioning
 ------------------
@@ -213,6 +214,7 @@ useful subpackages.
         For information about subpackages not distributed in the kitchen sdist
         that install into the kitchen namespace.
 
+.. _subpackage-versiong:
 Versioning
 ==========
 
@@ -238,6 +240,10 @@ version.  Anytime new but backwards compatible changes are introduced this
 number should be incremented and the micro version number reset to zero.  The
 micro version should be incremented when a change is made that does not change
 the API at all.  This is a common case for bugfixes, for instance.
+
+Version information beyond the first three parts of the first tuple may be
+useful for versioning but semantically have similar meaning to the micro
+version.
 
 .. note:: We update the :attr:`__version_info__` tuple when the API is
     updated.  This way there's less chance of forgetting to update the API
@@ -316,3 +322,14 @@ boilerplate::
 
 Your unittests should now be able to find both your submodule and the main
 kitchen module.
+
+Versioning
+==========
+
+It is recommended that addon packages version similarly to
+:ref:`subpackage-versioning`.  The :data:`__version_info__` and
+:data:`__version__` strings can be changed independently of  the version
+exposed by setup.py so that you have both an API version
+(:data:`__version_info__`) and release version that's easier for people to
+parse.  However, you aren't required to do this and you could follow
+a different methodology if you want (for instance, :ref:`kitchen-versioning`)
