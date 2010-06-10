@@ -749,7 +749,8 @@ def _utf8_width_le(width, *args):
         ret += textual_width(arg)
     return ret <= width
 
-def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
+def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
+        encoding='utf8', errors='replace'):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
     doesn't screw up lists/blocks/etc.
 
@@ -775,58 +776,69 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     #   alsa-plugins-jack, setools*, dblatex, uisp, "perl-Getopt-GUI-Long",
     #   suitesparse, "synce-serial", writer2latex, xenwatch, ltsp-utils
 
-    passed_unicode = isinstance(text, unicode)
-
     def _indent_at_beg(line):
-        count = 0
-        byte = 'X'
-        for byte in line:
-            if byte != ' ':
-                break
-            count += 1
-        if byte not in ("-", "*", ".", "o", '\xe2'):
+        '''Return the indent to use for this and (possibly) subsequent lines
+
+        :arg line: :class:`unicode` line of text to process
+        :rtype: tuple
+        :returns: tuple of count of whitespace before getting to the start of
+            this line followed by a count to the following indent if this
+            block of text is an entry in a list.
+        '''
+        # Find the first non-whitespace character
+        try:
+            char = line.strip()[0]
+        except IndexError:
+            # All whitespace
+            return len(line) - 1, 0
+        else:
+            count = line.find(char)
+
+        # if we have a bullet character, check for list
+        if char not in u'-*.o\u2022\u2023\u2218':
+            # No bullet; not a list
             return count, 0
-        list_chr = textual_width_chop(line[count:], 1)[1]
-        if list_chr in ("-", "*", ".", "o",
-                        "\xe2\x80\xa2", "\xe2\x80\xa3", "\xe2\x88\x98"):
-            nxt = _indent_at_beg(line[count+len(list_chr):])
-            nxt = nxt[1] or nxt[0]
-            if nxt:
-                return count, count + 1 + nxt
-        return count, 0
 
-    initial_indent = to_bytes(initial_indent)
-    subsequent_indent = to_bytes(subsequent_indent)
+        # List: Keep searching until we hit the innermost list
+        nxt = _indent_at_beg(line[count+1:])
+        nxt = nxt[1] or nxt[0]
+        if nxt:
+            return count, count + 1 + nxt
 
-    text = to_bytes(text).rstrip('\n')
-    lines = text.replace('\t', ' ' * 8).split('\n')
+    initial_indent = to_unicode(initial_indent, encoding=encoding,
+            errors=errors)
+    subsequent_indent = to_unicode(subsequent_indent, encoding=encoding,
+            errors=errors)
+
+    text = to_unicode(text).rstrip('\n')
+    lines = text.expandtabs().split('\n')
 
     ret = []
     indent = initial_indent
     wrap_last = False
-    csab = 0
-    cspc_indent = 0
+    cur_sab = 0
+    cur_spc_indent = 0
     for line in lines:
         line = line.rstrip(' ')
-        (lsab, lspc_indent) = (csab, cspc_indent)
-        (csab, cspc_indent) = _indent_at_beg(line)
+        (last_sab, last_spc_indent) = (cur_sab, cur_spc_indent)
+        (cur_sab, cur_spc_indent) = _indent_at_beg(line)
         force_nl = False # We want to stop wrapping under "certain" conditions:
-        if wrap_last and cspc_indent:      # if line starts a list or
+        if wrap_last and cur_spc_indent:      # if line starts a list or
             force_nl = True
-        if wrap_last and csab == len(line):# is empty line
+        if wrap_last and cur_sab == len(line):# is empty line
             force_nl = True
-        if wrap_last and not lspc_indent:  # if line doesn't continue a list and
-            if csab >= 4 and csab != lsab: # is "block indented"
+        if wrap_last and not last_spc_indent:  # if line doesn't continue a list and
+            if cur_sab >= 4 and cur_sab != last_sab: # is "block indented"
                 force_nl = True
         if force_nl:
             ret.append(indent.rstrip(' '))
             indent = subsequent_indent
             wrap_last = False
-        if csab == len(line): # empty line, remove spaces to make it easier.
+        if cur_sab == len(line): # empty line, remove spaces to make it easier.
             line = ''
         if wrap_last:
             line = line.lstrip(' ')
-            cspc_indent = lspc_indent
+            cur_spc_indent = last_spc_indent
 
         if _utf8_width_le(width, indent, line):
             wrap_last = False
@@ -837,9 +849,9 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
         wrap_last = True
         words = line.split(' ')
         line = indent
-        spcs = cspc_indent
-        if not spcs and csab >= 4:
-            spcs = csab
+        spcs = cur_spc_indent
+        if not spcs and cur_sab >= 4:
+            spcs = cur_sab
         for word in words:
             if (not _utf8_width_le(width, line, word) and
                 textual_width(line) > textual_width(subsequent_indent)):
@@ -851,8 +863,6 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     if wrap_last:
         ret.append(indent.rstrip(' '))
 
-    if passed_unicode:
-        return map(to_unicode, ret)
     return ret
 
 def utf8_text_fill(text, *args, **kwargs):
@@ -938,11 +948,28 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         ' kitchen.text.utf8.byte_string_textual_width_fill instead'),
         DeprecationWarning, stacklevel=2)
 
-    return kitchen.text.utf8.byte_string_textual_width_fill(msg, fill,
-            chop=chop, left=left, prefix=prefix, suffix=suffix)
+    return byte_string_textual_width_fill(msg, fill, chop=chop, left=left,
+            prefix=prefix, suffix=suffix)
 
+def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
+    '''Deprecated.
+
+    Use :func:`~kitchen.text.utf8.wrap_lines` instead
+    '''
+    warnings.warn(_('kitchen.text.utf8.utf8_text_wrap is deprecated.  Use'
+        ' kitchen.text.utf8.wrap_lines instead'),
+        DeprecationWarning, stacklevel=2)
+
+    as_bytes = not isinstance(text, unicode)
+
+    msg = wrap_lines(text, width=width, initial_indent=initial_indent,
+            subsequent_indent=subsequent_indent)
+    if as_bytes:
+        msg = to_bytes(msg)
+
+    return msg
 
 __all__ = ('byte_string_textual_width_fill', 'textual_width',
         'textual_width_chop', 'textual_width_fill', 'utf8_text_fill',
         'utf8_text_wrap', 'utf8_valid', 'utf8_width', 'utf8_width_chop',
-        'utf8_width_fill',)
+        'utf8_width_fill', 'wrap_lines')
