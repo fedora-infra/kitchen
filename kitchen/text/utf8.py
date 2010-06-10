@@ -593,96 +593,134 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
 
 # I made some adjustments for using unicode but largely unchanged from JA's
 # port of MK's code -Toshio
-def textual_width_fill(msg, fill, chop=None, left=True):
-    '''Expand a utf8 msg to a specified "width" or chop to same.
+def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
+    '''Expand a unicode string to a specified "width" or chop to same.
 
-    :arg msg: byte string to format
-    :arg fill: pad string until the textual width is this long
+    :arg msg: :class:`unicode` string to format
+    :arg fill: pad string until the :term:`textual width` of the string is
+        this length
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all
     :kwarg left: If True (default) left justify the string and put the padding
         on the right.  If False, pad on the left side.
     :kwarg prefix: Attach this string before the field we're filling
     :kwarg suffix: Append this string to the end of the field we're filling
+    :rtype: :class:`unicode` string
+    :returns: :attr:`msg`, formatted to fill the specified width.  If no
+        :attr:`chop` is specified, the string could exceed the fill length
+        when completed.  If :attr:`prefix` or :attr:`suffix` are printable
+        characters, the string could be longer than fill width.
 
-    Expansion can be left or right. This is what you want to use instead of
-    %*.*s, as it does the "right" thing with regard to utf-8 sequences.
-    prefix and suffix should be used for "invisible" bytes, like
-    highlighting.  Eg::
+    .. warning:: :attr:`prefix` and :attr:`suffix` should be used for
+        "invisible" characters, like highlighting, color changing escape
+        codes, etc.  The fill characters are appended outside of any
+        :attr:`prefix` or :attr:`suffix` elements.  This allows you to only
+        highlight :attr:`msg` inside of the field you're filling.
 
-        >>> "%-*.*s" % (10, 20, msg)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 10, 20)).
+    .. warning:: :attr:`msg`, :attr:`prefix`, and :attr:`suffix` should all be
+        representable as unicode characters.  In particular, any escape
+        sequences in :attr:`prefix` and :attr:`suffix` need to be convertible
+        to :class:`unicode`.  If you need to use byte sequences here rather
+        than unicode characters, use
+        :func:`~kitchen.text.utf8.byte_string_textual_width_fill` instead.
 
-        >>> "%20.10s" % (msg)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 20, 10, left=False)).
+    This function expands a string to fill a field of a particular width.  Use
+    it instead of %*.*s, as it does the "right" thing with regard to
+    :term:`UTF8` sequences, :term:`control character`s, and characters that
+    take more than one cell position in a display.  Example usage::
 
-        >>> "%s%.10s%s" % (prefix, msg, suffix)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
+        >>> msg = u'一二三四五六七八九十'
+        >>> # This uses 10 characters instead of 10 cells:
+        >>> u":%-*.*s:" % (10, 10, msg[:9])
+        :一二三四五六七八九 :
+        >>> # This uses 10 cells like we really want:
+        >>> u":%s:" % (textual_width_fill(msg[:9], 10, 10))
+        :一二三四五:
 
-    **UPDATE ME** This function has been updated -- new signature and return values.
+        >>> # Right aligned in the field
+        >>> u"%20.10s" % (msg)
+                  一二三四五六七八九十
+        >>> u"%s" % (textual_width_fill(msg, 20, 10, left=False))
+                  一二三四五
+
+        >>> # Adding some escape characters to highlight the line
+        >>> u"%s%20.10s%s" % (prefix, msg, suffix)
+        u'\x1b[7m          一二三四五六七八九十\x1b[0m'
+        >>> u"%s%s%s" % (prefix, utf8.textual_width_fill(msg, 20, 10, left=False), suffix)
+        u'\x1b[7m          一二三四五\x1b[0m'
+
+        >>> # If you don't want to highlight the fill as well
+        >>> u"%s" % (utf8.textual_width_fill(msg, 20, 10, left=False, prefix=prefix, suffix=suffix))
+        u'          \x1b[7m一二三四五\x1b[0m'
     '''
     msg = to_unicode(msg)
-    msg = textual_width_chop(msg, chop)[1]
+    if chop is not None:
+        msg = textual_width_chop(msg, chop)
     width = textual_width(msg)
-    if width < fill:
-        extra = " " * (fill - width)
+    if width >= fill:
+        if prefix or suffix:
+            msg = u''.join([prefix, msg, suffix])
+    else:
+        extra = u' ' * (fill - width)
         if left:
-            msg = ''.join([msg, extra])
+            msg = u''.join([prefix, msg, suffix, extra])
         else:
-            msg = ''.join([extra, msg])
+            msg = u''.join([extra, prefix, msg, suffix])
     return msg
 
-def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Expand a utf8 msg to a specified "width" or chop to same.
+def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
+        suffix='', encoding='utf8', errors='replace'):
+    '''Expand a byte :class:`str` to a specified "width" or chop to same.
 
-    :arg msg: byte string to format
-    :arg fill: pad string until the textual width is this long
+    :arg msg: byte :class:`str` encoded in :term:`UTF8` that we want formatted
+    :arg fill: pad :attr:`msg` until the :term:`textual width` is this long
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all
     :kwarg left: If True (default) left justify the string and put the padding
         on the right.  If False, pad on the left side.
-    :kwarg prefix: Attach this string before the field we're filling
-    :kwarg suffix: Append this string to the end of the field we're filling
+    :kwarg prefix: Attach this byte :class:`str` before the field we're
+        filling
+    :kwarg suffix: Append this byte :class:`str` to the end of the field we're
+        filling
+    :rtype: byte :class:`str`
+    :returns: :attr:`msg`, formatted to fill the specified width.  If no
+        :attr:`chop` is specified, the string could exceed the fill length
+        when completed.  If :attr:`prefix` or :attr:`suffix` are printable
+        characters, the string could be longer than fill width.
 
-    Expansion can be left or right. This is what you want to use instead of
-    %*.*s, as it does the "right" thing with regard to utf-8 sequences.
-    prefix and suffix should be used for "invisible" bytes, like
-    highlighting.  Eg::
+    .. warning:: :attr:`prefix` and :attr:`suffix` should be used for
+        "invisible" characters, like highlighting, color changing escape
+        codes, etc.  The fill characters are appended outside of any
+        :attr:`prefix` or :attr:`suffix` elements.  This allows you to only
+        highlight :attr:`msg` inside of the field you're filling.
 
-        >>> "%-*.*s" % (10, 20, msg)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 10, 20)).
+    .. seealso::
+        :func:`~kitchen.text.utf8.textual_width_fill`
+            For example usage.  This function has only two differences.
 
-        >>> "%20.10s" % (msg)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 20, 10, left=False)).
-
-        >>> "%s%.10s%s" % (prefix, msg, suffix)
-        >>> # <= becomes =>
-        >>> "%s" % (utf8_width_fill(msg, 0, 10, prefix=prefix, suffix=suffix)).
+            1. it takes byte strings for :attr:`prefix` and :attr:`suffix` so
+                you can pass in arbitrary sequences of bytes, not just unicode
+                characters.
+            2. it returns a byte :class:`str` instead of a :class:`unicode`
+                string.
     '''
-    passed_unicode = isinstance(msg, unicode)
+    prefix = to_bytes(prefix, encoding=encoding, errors=errors)
+    suffix = to_bytes(suffix, encoding=encoding, errors=errors)
+
+    if chop is not None:
+        msg = textual_width_chop(msg, chop, encoding=encoding, errors=errors)
+    width = textual_width(msg)
     msg = to_bytes(msg)
-    prefix = to_bytes(prefix)
-    suffix = to_bytes(suffix)
-    # Note: width value is short one here
-    width, msg = textual_width_chop(msg, chop)
 
     if width >= fill:
         if prefix or suffix:
             msg = ''.join([prefix, msg, suffix])
     else:
-        extra = " " * (fill - width)
+        extra = ' ' * (fill - width)
         if left:
             msg = ''.join([prefix, msg, suffix, extra])
         else:
             msg = ''.join([extra, prefix, msg, suffix])
-
-    if passed_unicode:
-        return to_unicode(msg)
 
     return msg
 
@@ -710,16 +748,6 @@ def _utf8_width_le(width, *args):
     for arg in args:
         ret += textual_width(arg)
     return ret <= width
-
-def utf8_valid(msg):
-    '''Deprecated.  Detect if a string is valid utf8.
-
-    Use :func:`kitchen.text.utils.byte_string_valid_encoding` instead.
-    '''
-    warnings.warn(_('Deprecated.  Use'
-            ' kitchen.text.utils.byte_string_valid_encoding(msg) instead'),
-            DeprecationWarning, stacklevel=2)
-    return byte_string_valid_encoding(msg)
 
 def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
@@ -850,6 +878,16 @@ def utf8_text_fill(text, *args, **kwargs):
 # Deprecated functions
 #
 
+def utf8_valid(msg):
+    '''Deprecated.  Detect if a string is valid utf8.
+
+    Use :func:`kitchen.text.utils.byte_string_valid_encoding` instead.
+    '''
+    warnings.warn(_('Deprecated.  Use'
+            ' kitchen.text.utils.byte_string_valid_encoding(msg) instead'),
+            DeprecationWarning, stacklevel=2)
+    return byte_string_valid_encoding(msg)
+
 def utf8_width(msg):
     '''Deprecated
 
@@ -884,14 +922,27 @@ def utf8_width_chop(msg, chop=None):
     if chop == None:
         return textual_width(msg), msg
 
-    as_bytes = False
-    if not isinstance(msg, unicode):
-        as_bytes = True
+    as_bytes = not isinstance(msg, unicode)
  
     chopped_msg = textual_width_chop(msg, chop)
     if as_bytes:
         chopped_msg = to_bytes(chopped_msg)
     return textual_width(msg), chopped_msg
 
-__all__ = ('textual_width', 'utf8_text_fill', 'utf8_text_wrap', 'utf8_valid',
-        'utf8_width', 'utf8_width_chop', 'utf8_width_fill',)
+def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
+    '''Deprecated.
+
+    Use :func:`~kitchen.text.utf8.byte_string_textual_width_fill` instead
+    '''
+    warnings.warn(_('kitchen.text.utf8.utf8_width_fill is deprecated.  Use'
+        ' kitchen.text.utf8.byte_string_textual_width_fill instead'),
+        DeprecationWarning, stacklevel=2)
+
+    return kitchen.text.utf8.byte_string_textual_width_fill(msg, fill,
+            chop=chop, left=left, prefix=prefix, suffix=suffix)
+
+
+__all__ = ('byte_string_textual_width_fill', 'textual_width',
+        'textual_width_chop', 'textual_width_fill', 'utf8_text_fill',
+        'utf8_text_wrap', 'utf8_valid', 'utf8_width', 'utf8_width_chop',
+        'utf8_width_fill',)
