@@ -3,7 +3,7 @@
 import unittest
 from nose import tools
 
-from kitchen.pycompat24.builtinset import add_builtin_set
+from kitchen.pycompat24.sets import add_builtin_set
 add_builtin_set()
 
 from kitchen.collections.strictdict import StrictDict
