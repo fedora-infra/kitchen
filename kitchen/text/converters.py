@@ -389,7 +389,7 @@ just like anything else.
 try:
     from base64 import b64encode, b64decode
 except ImportError:
-    from kitchen.pycompat24.base64modern import b64encode, b64decode
+    from kitchen.pycompat24.base64 import b64encode, b64decode
 
 import warnings
 import xml.sax.saxutils
