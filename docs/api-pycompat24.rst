@@ -7,14 +7,14 @@ Python 2.4 Compatibiity
 Sets for python-2.3
 -------------------
 
-.. automodule:: kitchen.pycompat24.builtinset
-.. autofunction:: kitchen.pycompat24.builtinset.add_builtin_set
+.. automodule:: kitchen.pycompat24.sets
+.. autofunction:: kitchen.pycompat24.sets.add_builtin_set
 
 ----------------------------------
 Partial new style base64 interface
 ----------------------------------
 
-.. automodule:: kitchen.pycompat24.base64modern
+.. automodule:: kitchen.pycompat24.base64
     :members:
 
 ----------

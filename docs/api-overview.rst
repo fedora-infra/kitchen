@@ -14,6 +14,7 @@ that may drag in more dependencies can be found on the `project webpage`_
     api-collections
     api-versioning
     api-pycompat24
+    api-pycompat25
     api-pycompat27
 
 .. _`project webpage`: https://fedorahosted.org/kitchen
