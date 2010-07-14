@@ -25,7 +25,7 @@ Glossary
         The set of characters in unicode that are used, not to display glyphs
         o nthe screen, but to tell the displayin program to do something.
 
-        aa seealso:: http://en.wikipedia.org/wiki/Control_character
+        .. seealso:: http://en.wikipedia.org/wiki/Control_character
 
     I18N
         I18N is an abbreviation for internationalization.  It's often used to
