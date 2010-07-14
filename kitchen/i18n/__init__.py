@@ -350,4 +350,4 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
 
     return (_, N_)
 
-__all__ = (DummyTranslations, easy_gettext_setup, get_translation_object)
+__all__ = ('DummyTranslations', 'easy_gettext_setup', 'get_translation_object')

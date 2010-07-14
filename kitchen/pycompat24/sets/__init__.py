@@ -81,4 +81,4 @@ def add_builtin_set():
     if not hasattr(__builtin__, 'frozenset'):
         __builtin__.frozenset = frozenset
 
-__all__ = (add_builtin_set, set, frozenset)
+__all__ = ('add_builtin_set', 'set', 'frozenset')
