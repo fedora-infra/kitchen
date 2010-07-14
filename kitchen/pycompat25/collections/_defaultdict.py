@@ -80,13 +80,7 @@ import types
 
 from kitchen import _
 
-try:
-    from collections import defaultdict
-except ImportError:
-    # pylint:disable-msg=C0103
-    defaultdict = None
-
-class _DefaultDict(dict):
+class defaultdict(dict):
     def __init__(self, default_factory=None, *args, **kwargs):
         if (default_factory is not None and
             not hasattr(default_factory, '__call__')):
@@ -128,14 +122,8 @@ class _DefaultDict(dict):
         # recursion
         if isinstance(self.default_factory, types.MethodType) \
                 and self.default_factory.im_self is not None \
-                and issubclass(self.default_factory.im_class, _DefaultDict):
+                and issubclass(self.default_factory.im_class, defaultdict):
             defrepr = '<bound method sub._factory of defaultdict(...'
         else:
             defrepr = repr(self.default_factory)
         return 'defaultdict(%s, %s)' % (defrepr, dict.__repr__(self))
-
-if not defaultdict:
-    # pylint:disable-msg=C0103
-    defaultdict = _DefaultDict
-
-__all__ = ('defaultdict',)

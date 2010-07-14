@@ -20,7 +20,7 @@
 try:
     from collections import defaultdict
 except ImportError:
-    from kitchen.pycompat25.defaultdict import defaultdict
+    from kitchen.pycompat25.collections import defaultdict
 
 class StrictDict(defaultdict):
     '''

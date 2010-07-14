@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from test import test_support
 
-from kitchen.pycompat25.defaultdict import _DefaultDict as defaultdict
+from kitchen.pycompat25.collections._defaultdict import defaultdict
 
 def foobar():
     return list
