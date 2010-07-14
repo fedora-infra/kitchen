@@ -23,8 +23,31 @@
 '''
 In python-2.4, a builtin set type was added to python.  This module provides
 a function to emulate that on python-2.3 by using the :mod:`sets` module.
+
+.. func:: set
+    Create a set.  If running on python 2.4+ this is the :type:`set` constructor.  If
+    using python-2.3, it's sets.Set.
+
+.. func:: frozenset
+    Create a frozenset.  If running on python2.4+ this is the
+    :type:`frozenset` constructor.  If using python-2.3, it's
+    sets.ImmutableSet.
+
+.. versionchanged:: 0.2 0
+    Added set and frozenset
 '''
 import __builtin__
+
+# Setup set and frozenset on this module
+if not hasattr(__builtin__, 'set'):
+    import sets.Set as set
+else:
+    set = set
+
+if not hasattr(__builtin__, 'frozenset'):
+    import sets.ImmutableSet as frozenset
+else:
+    frozenset = frozenset
 
 def add_builtin_set():
     '''If there's no set builtin, add the implementations from the sets module
@@ -42,10 +65,10 @@ def add_builtin_set():
 
         myprogram/__init__.py:
 
-        from kitchen.pycompat24 import builtinset
+        from kitchen.pycompat24 import sets
         builtinset.add_builtin_set()
 
-    Then you can use set() and frosenset anywhere in your code::
+    Then you can use :func:`set` and :func:`frozenset` anywhere in your code::
 
         myprogram/compute.py:
 
@@ -53,11 +76,9 @@ def add_builtin_set():
             return set(algebra_student_list) union set(geometry_student_list)
     '''
     if not hasattr(__builtin__, 'set'):
-        import sets
-        __builtin__.set = sets.Set
+        __builtin__.set = set
 
     if not hasattr(__builtin__, 'frozenset'):
-        import sets
-        __builtin__.frozenset = sets.ImmutableSet
+        __builtin__.frozenset = frozenset
 
-__all__ = (add_builtin_set,)
+__all__ = (add_builtin_set, set, frozenset)
