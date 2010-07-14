@@ -396,7 +396,7 @@ import xml.sax.saxutils
 
 from kitchen import _
 from kitchen.text.exceptions import ControlCharError, XmlEncodeError
-from kitchen.text.utils import guess_encoding, html_entities_unescape, \
+from kitchen.text.misc import guess_encoding, html_entities_unescape, \
         process_control_chars
 
 def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):

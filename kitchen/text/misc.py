@@ -256,7 +256,7 @@ def byte_string_valid_encoding(byte_string, encoding='utf8'):
         specified encoding.  It **does not** detect whether the byte string
         actually was encoded in that encoding.  If you want that sort of
         functionality, you probably want to use
-        :func:`~kitchen.text.utils.guess_encoding` instead.
+        :func:`~kitchen.text.misc.guess_encoding` instead.
     '''
     try:
         unicode(byte_string, encoding)

@@ -45,7 +45,7 @@ import warnings
 from kitchen import _
 from kitchen.text.converters import to_unicode, to_bytes
 from kitchen.text.exceptions import ControlCharError
-from kitchen.text.utils import byte_string_valid_encoding
+from kitchen.text.misc import byte_string_valid_encoding
 
 # This is ported from ustr_utf8_* which I got from:
 #     http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
@@ -891,10 +891,10 @@ def utf8_text_fill(text, *args, **kwargs):
 def utf8_valid(msg):
     '''Deprecated.  Detect if a string is valid utf8.
 
-    Use :func:`kitchen.text.utils.byte_string_valid_encoding` instead.
+    Use :func:`kitchen.text.misc.byte_string_valid_encoding` instead.
     '''
     warnings.warn(_('Deprecated.  Use'
-            ' kitchen.text.utils.byte_string_valid_encoding(msg) instead'),
+            ' kitchen.text.misc.byte_string_valid_encoding(msg) instead'),
             DeprecationWarning, stacklevel=2)
     return byte_string_valid_encoding(msg)
 
