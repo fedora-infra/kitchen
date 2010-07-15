@@ -62,8 +62,12 @@ class TestDefineSets(unittest.TestCase):
         '''Test that calling pycompat24.add_builtin_set() adds set and frozenset to __builtin__
         '''
         sets.add_builtin_set()
-        tools.ok_(__builtin__.set == py_sets.Set)
-        tools.ok_(__builtin__.frozenset == py_sets.ImmutableSet)
+        if self.set_val:
+            tools.ok_(__builtin__.set == self.set_val)
+            tools.ok_(__builtin__.frozenset == self.frozenset_val)
+        else:
+            tools.ok_(__builtin__.set == py_sets.Set)
+            tools.ok_(__builtin__.frozenset == py_sets.ImmutableSet)
 
 class TestSubprocess(unittest.TestCase):
     pass
