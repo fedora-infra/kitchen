@@ -40,6 +40,7 @@ Functions for operating on byte :class:`str` encoded as :term:`utf8`
     code to do so with a :class:`unicode` type is often simpler.
 '''
 import itertools
+import unicodedata
 import warnings
 
 from kitchen import _
@@ -209,7 +210,6 @@ def _generate_combining_table():
         for interval in table:
             print '( %s, %s ),' % (hex(interval[0]), hex(interval[1]))
     '''
-    import unicodedata
     # Marcus Kuhn's sorted list of non-overlapping intervals of non-spacing
     # characters generated ifrom Unicode 5.0 data by:
     # "uniset +cat=Me +cat=Mn +cat=Cf -00AD +1160-11FF +200B c"
@@ -724,31 +724,47 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
 
     return msg
 
-def _utf8_width_le(width, *args):
-    '''Minor speed hack, we often want to know "does X fit in Y". It takes
-    "a while" to work out a :func:`textual_width` and we know that a utf8
-    character is always <= byte. So given::
+def _textual_width_le(width, *args):
+    '''Optimize the common case when deciding which textual width is larger
 
-        assert bytes >= characters
-        characters <= width?
+    :arg width: :term:`textual width` to compare against.
+    :arg *args: :class:`unicode` strings to check the total :term:`textual
+        width` of
+    :returns: True if the total length of :attr:`args` are less than or equal
+        to :attr:`width`.
 
-        ...we can change to:
+    We often want to know "does X fit in Y".  It takes a while to use
+    :func:`textual_width` to calculate this.  However, we know that the number
+    of canonically composed :class:`unicode` characters is always going to
+    have 1 or 2 for the textual_width per character.  With this we can take
+    the following shortcuts:
 
-        bytes <= width or characters <= width
-
-        ...and bytes are much faster.
+    1) If the number of canonically composed characters is more than width,
+       the true :term:`textual width` cannot be less than width.
+    2) If the number of canonically composed characters * 2 is less than the
+       width then the textual width must be ok.
+    :term:`textual width` of a canonically composed :class:`unicode` string
+    will always be greater than or equal to the the number of :class:`unicode`
+    characters.  So we can first check if the number of composed
+    :class:`unicode` characters is less than the asked for width.  If it is we
+    can return True immediately.  If not, then we must do a full textual width
+    lookup.
     '''
-    # This assumes that all args. are utf8.
-    ret = 0
-    for arg in args:
-        ret += len(arg)
-    if ret <= width:
+    chars = 0
+    string = ''.join(args)
+    string = unicodedata.normalize('NFC', string)
+    if len(string) > width:
+        return False
+    elif len(string) <= width * 2:
         return True
-    ret = 0
-    for arg in args:
-        ret += textual_width(arg)
-    return ret <= width
-
+    elif len(to_bytes(string)) <= width:
+        # Check against bytes.
+        # utf8 has the property of having the same amount or more bytes per
+        # character than textual width.
+        return True
+    else:
+        true_width = textual_width(string)
+    return true_width <= width
 def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf8', errors='replace'):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
@@ -790,7 +806,7 @@ def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
             char = line.strip()[0]
         except IndexError:
             # All whitespace
-            return len(line) - 1, 0
+            return 0, 0
         else:
             count = line.find(char)
 
@@ -804,14 +820,16 @@ def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
         nxt = nxt[1] or nxt[0]
         if nxt:
             return count, count + 1 + nxt
+        return count, 0
 
     initial_indent = to_unicode(initial_indent, encoding=encoding,
             errors=errors)
     subsequent_indent = to_unicode(subsequent_indent, encoding=encoding,
             errors=errors)
+    subsequent_indent_width = textual_width(subsequent_indent)
 
-    text = to_unicode(text).rstrip('\n')
-    lines = text.expandtabs().split('\n')
+    text = to_unicode(text, encoding=encoding, errors=errors).rstrip(u'\n')
+    lines = text.expandtabs().split(u'\n')
 
     ret = []
     indent = initial_indent
@@ -819,7 +837,7 @@ def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
     cur_sab = 0
     cur_spc_indent = 0
     for line in lines:
-        line = line.rstrip(' ')
+        line = line.rstrip(u' ')
         (last_sab, last_spc_indent) = (cur_sab, cur_spc_indent)
         (cur_sab, cur_spc_indent) = _indent_at_beg(line)
         force_nl = False # We want to stop wrapping under "certain" conditions:
@@ -831,13 +849,13 @@ def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
             if cur_sab >= 4 and cur_sab != last_sab: # is "block indented"
                 force_nl = True
         if force_nl:
-            ret.append(indent.rstrip(' '))
+            ret.append(indent.rstrip(u' '))
             indent = subsequent_indent
             wrap_last = False
         if cur_sab == len(line): # empty line, remove spaces to make it easier.
-            line = ''
+            line = u''
         if wrap_last:
-            line = line.lstrip(' ')
+            line = line.lstrip(u' ')
             cur_spc_indent = last_spc_indent
 
         if _utf8_width_le(width, indent, line):
@@ -847,25 +865,25 @@ def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
             continue
 
         wrap_last = True
-        words = line.split(' ')
+        words = line.split(u' ')
         line = indent
         spcs = cur_spc_indent
         if not spcs and cur_sab >= 4:
             spcs = cur_sab
         for word in words:
-            if (not _utf8_width_le(width, line, word) and
-                textual_width(line) > textual_width(subsequent_indent)):
-                ret.append(line.rstrip(' '))
-                line = subsequent_indent + ' ' * spcs
+            if (not _textual_width_le(width, line, word) and
+                textual_width(line) > subsequent_indent_width):
+                ret.append(line.rstrip(u' '))
+                line = subsequent_indent + u' ' * spcs
             line += word
-            line += ' '
-        indent = line.rstrip(' ') + ' '
+            line += u' '
+        indent = line.rstrip(u' ') + u' '
     if wrap_last:
-        ret.append(indent.rstrip(' '))
+        ret.append(indent.rstrip(u' '))
 
     return ret
 
-def utf8_text_fill(text, *args, **kwargs):
+def text_fill(text, *args, **kwargs):
     '''Works like we want textwrap.fill() to work, uses utf-8 data and
         doesn't screw up lists/blocks/etc.
 
@@ -880,7 +898,7 @@ def utf8_text_fill(text, *args, **kwargs):
     that function returns a list of lines, this function returns one string
     with each line separated by a newline.
     '''
-    return '\n'.join(utf8_text_wrap(text, *args, **kwargs))
+    return u'\n'.join(wrap_lines(text, *args, **kwargs))
 
 # ----------------------------- END utf8 -----------------------------
 
@@ -968,6 +986,24 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
         msg = to_bytes(msg)
 
     return msg
+
+def utf8_text_fill(text, *args, **kwargs):
+    '''**Deprecated**  Use :func:`kitchen.text.utf8.text_fill` instead.'''
+    warnings.warn(_('kitchen.text.utf8.utf8_text_fill is deprecated.  Use'
+        ' kitchen.text.utf8.text_fill instead'),
+        DeprecationWarning, stacklevel=2)
+    # This assumes that all args. are utf8.
+    return utf8_text_fill(text, *args, **kwargs)
+
+def _utf8_width_le(width, *args):
+    '''**Deprecated** Convert the arguments to unicode and use
+    :func:`_textual_width_le` instead.
+    '''
+    warnings.warn(_('kitchen.text.utf8._utf8_width_le is deprecated.  Use'
+        ' kitchen.text.utf8._textual_width_le instead'),
+        DeprecationWarning, stacklevel=2)
+    # This assumes that all args. are utf8.
+    return _textual_width_le(width, to_unicode(''.join(args)))
 
 __all__ = ('byte_string_textual_width_fill', 'textual_width',
         'textual_width_chop', 'textual_width_fill', 'utf8_text_fill',
