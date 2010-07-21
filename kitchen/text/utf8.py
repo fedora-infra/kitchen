@@ -1007,7 +1007,7 @@ def _utf8_width_le(width, *args):
     # This assumes that all args. are utf8.
     return _textual_width_le(width, to_unicode(''.join(args)))
 
-__all__ = ('byte_string_textual_width_fill', 'textual_width',
+__all__ = ('byte_string_textual_width_fill', 'text_fill', 'textual_width',
         'textual_width_chop', 'textual_width_fill', 'utf8_text_fill',
         'utf8_text_wrap', 'utf8_valid', 'utf8_width', 'utf8_width_chop',
         'utf8_width_fill', 'wrap_lines')
