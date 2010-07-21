@@ -4,68 +4,12 @@ import unittest
 from nose import tools
 
 import warnings
-from kitchen.text.converters import to_bytes
 
 from kitchen.text import utf8
 
-class TestUTF8(unittest.TestCase):
-    u_kana = u'くらとみ'
-    u_accent = u'café'
-    utf8_kana = u_kana.encode('utf8')
-    utf8_accent = u_accent.encode('utf8')
-    latin1_accent = u_accent.encode('latin1')
-    u_mixed = u'く ku ら ra と to み mi'
-    utf8_mixed = u_mixed.encode('utf8')
-    utf8_ku = u_kana[0].encode('utf8')
-    utf8_ra = u_kana[1].encode('utf8')
-    utf8_to = u_kana[2].encode('utf8')
-    utf8_mi = u_kana[3].encode('utf8')
-    paragraph = '''ConfigObj is a simple but powerful config file reader and writer: an ini file
-round tripper. Its main feature is that it is very easy to use, with a
-straightforward programmer's interface and a simple syntax for config files.
-It has lots of other features though:
-    * Nested sections (subsections), to any level
-    * List values
-    * Multiple line values
-    * String interpolation (substitution)
-    * Integrated with a powerful validation system
-          o including automatic type checking/conversion
-          o repeated sections
-          o and allowing default values
-    * All comments in the file are preserved
-    * The order of keys/sections is preserved
-    * No external dependencies
-    * Full Unicode support
-    * A powerful unrepr mode for storing basic datatypes
-'''
+import base_classes
 
-    paragraph_out = ['ConfigObj is a simple but powerful config file reader and writer: an',
-'ini file round tripper. Its main feature is that it is very easy to',
-"use, with a straightforward programmer's interface and a simple syntax",
-'for config files. It has lots of other features though:',
-'    * Nested sections (subsections), to any level',
-'    * List values',
-'    * Multiple line values',
-'    * String interpolation (substitution)',
-'    * Integrated with a powerful validation system',
-'          o including automatic type checking/conversion',
-'          o repeated sections',
-'          o and allowing default values',
-'    * All comments in the file are preserved',
-'    * The order of keys/sections is preserved',
-'    * No external dependencies',
-'    * Full Unicode support',
-'    * A powerful unrepr mode for storing basic datatypes']
-
-    u_mixed_para = u'くらとみ kuratomi ' * 5
-    utf8_mixed_para = u_mixed_para.encode('utf8')
-    u_mixed_para_out = [u'くらとみ kuratomi くらとみ kuratomi くらとみ kuratomi くらとみ',
-            u'kuratomi くらとみ kuratomi']
-    u_mixed_para_57_initial_subsequent_out = [u'    くらとみ kuratomi くらとみ kuratomi くらとみ kuratomi',
-        u'----くらとみ kuratomi くらとみ kuratomi']
-    utf8_mixed_para_out = map(to_bytes, u_mixed_para_out)
-    utf8_mixed_para_57_initial_subsequent_out = map(to_bytes, u_mixed_para_57_initial_subsequent_out)
-
+class TestUTF8(base_classes.UnicodeTests, unittest.TestCase):
     def test_utf8_width(self):
         '''Test that we find the proper number of spaces that a utf8 string will consume'''
         tools.ok_(utf8.utf8_width(self.utf8_kana) == 8)
@@ -102,8 +46,7 @@ It has lots of other features though:
         tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
         tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_accent, suffix=self.utf8_accent) == self.utf8_accent + self.u_mixed[:-4].encode('utf8') + self.utf8_accent + '       ')
         tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
-
-        tools.ok_(utf8.utf8_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_accent, suffix=self.utf8_accent) == self.u_accent + self.u_mixed[:-4] + self.u_accent + u'       ')
+        tools.ok_(utf8.utf8_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_accent, suffix=self.utf8_accent) == self.u_accent.encode('utf8') + self.u_mixed[:-4].encode('utf8') + self.u_accent.encode('utf8') + '       ')
         pass
 
     def test_utf8_valid(self):
