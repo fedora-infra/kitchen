@@ -755,7 +755,7 @@ def _textual_width_le(width, *args):
     string = unicodedata.normalize('NFC', string)
     if len(string) > width:
         return False
-    elif len(string) <= width * 2:
+    elif len(string) * 2 <= width:
         return True
     elif len(to_bytes(string)) <= width:
         # Check against bytes.
@@ -765,6 +765,7 @@ def _textual_width_le(width, *args):
     else:
         true_width = textual_width(string)
     return true_width <= width
+
 def wrap_lines(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf8', errors='replace'):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
@@ -955,7 +956,7 @@ def utf8_width_chop(msg, chop=None):
     chopped_msg = textual_width_chop(msg, chop)
     if as_bytes:
         chopped_msg = to_bytes(chopped_msg)
-    return textual_width(msg), chopped_msg
+    return textual_width(chopped_msg), chopped_msg
 
 def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     '''Deprecated.
@@ -980,12 +981,13 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
 
     as_bytes = not isinstance(text, unicode)
 
-    msg = wrap_lines(text, width=width, initial_indent=initial_indent,
+    text = to_unicode(text)
+    lines = wrap_lines(text, width=width, initial_indent=initial_indent,
             subsequent_indent=subsequent_indent)
     if as_bytes:
-        msg = to_bytes(msg)
+        lines = [to_bytes(m) for m in lines]
 
-    return msg
+    return lines
 
 def utf8_text_fill(text, *args, **kwargs):
     '''**Deprecated**  Use :func:`kitchen.text.utf8.text_fill` instead.'''
