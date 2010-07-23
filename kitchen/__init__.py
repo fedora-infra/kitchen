@@ -31,4 +31,4 @@ from kitchen import versioning
 __version_info__ = ((0, 2), ('a', 1))
 __version__ = versioning.version_tuple_to_string(__version_info__)
 
-__all__ = tuple()
+__all__ = ('exceptions', 'release',)

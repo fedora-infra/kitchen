@@ -3,4 +3,4 @@ from kitchen.versioning import version_tuple_to_string
 __version_info__ = ((1, 0, 0),)
 __version__ = version_tuple_to_string(__version_info__)
 
-__all__ = ('sets', 'base64')
+__all__ = ('base64', 'sets', 'subprocess')

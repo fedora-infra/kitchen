@@ -9,3 +9,5 @@ if sys.version_info >= (2, 7):
     import subprocess as subprocess
 else:
     import _subprocess as subprocess
+
+__all__ = ('subprocess',)
