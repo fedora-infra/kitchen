@@ -6,7 +6,7 @@ from nose import tools
 from kitchen.pycompat24.sets import add_builtin_set
 add_builtin_set()
 
-from kitchen.collections.strictdict import StrictDict
+from kitchen.collections import StrictDict
 
 def test_strict_dict_get_set():
     '''Test getting and setting items in StrictDict'''
