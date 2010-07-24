@@ -108,7 +108,11 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.ok_(converters.to_bytes(5, non_string='passthru') == 5)
         tools.ok_(converters.to_bytes(5, non_string='simplerepr') == '5')
         tools.ok_(converters.to_bytes(5, non_string='repr') == '5')
+
+        # Raise a TypeError if the msg is non_string and we're set to strict
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'non_string': 'strict'})
+        # Raise a TypeError if given an invalid non_string arg
+        tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'non_string': 'INVALID'})
 
         # No __str__ method so this returns repr
         string = converters.to_bytes(UnicodeNoStr(), non_string='simplerepr')
