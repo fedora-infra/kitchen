@@ -6,11 +6,11 @@ from nose import tools
 from kitchen.pycompat24.sets import add_builtin_set
 add_builtin_set()
 
-from kitchen.collections import StrictDict
+from kitchen import collections
 
 def test_strict_dict_get_set():
     '''Test getting and setting items in StrictDict'''
-    d = StrictDict()
+    d = collections.StrictDict()
     d[u'a'] = 1
     d['a'] = 2
     tools.ok_(d[u'a'] != d['a'])
@@ -26,7 +26,7 @@ def test_strict_dict_get_set():
 
 class TestStrictDict(unittest.TestCase):
     def setUp(self):
-        self.d = StrictDict()
+        self.d = collections.StrictDict()
         self.d[u'a'] = 1
         self.d['a'] = 2
         self.d[u'\xf1'] = 1
