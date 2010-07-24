@@ -5,7 +5,6 @@ import unittest
 from nose import tools
 from nose.plugins.skip import SkipTest
 
-import re
 import warnings
 
 try:
@@ -16,62 +15,36 @@ except:
 from kitchen.text import converters
 from kitchen.text.exceptions import XmlEncodeError
 
+import base_classes
+
 class UnicodeNoStr(object):
     def __unicode__(self):
-        return u'café'
+        return u'El veloz murciélago saltó sobre el perro perezoso.'
 
 class StrNoUnicode(object):
     def __str__(self):
-        return u'café'.encode('utf8')
+        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
 class StrReturnsUnicode(object):
     def __str__(self):
-        return u'café'
+        return u'El veloz murciélago saltó sobre el perro perezoso.'
 
 class UnicodeReturnsStr(object):
     def __unicode__(self):
-        return u'café'.encode('utf8')
+        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
 class UnicodeStrCrossed(object):
     def __unicode__(self):
-        return u'café'.encode('utf8')
+        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
     def __str__(self):
-        return u'café'
+        return u'El veloz murciélago saltó sobre el perro perezoso.'
 
 class ReprUnicode(object):
     def __repr__(self):
-        return u'ReprUnicode(café)'
+        return u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'
 
-class UnicodeTestData(object):
-    u_spanish = u'El veloz murciélago saltó sobre el perro perezoso.'
-    utf8_spanish = u_spanish.encode('utf8')
-    latin1_spanish = u_spanish.encode('latin1')
-    u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
-    utf8_japanese = u_japanese.encode('utf8')
-    euc_jp_japanese = u_japanese.encode('euc_jp')
-    utf8_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1').encode('utf8')
-    u_accent = u'café'
-    u_accent_replace = u'caf\ufffd'
-    u_accent_ignore = u'caf'
-    latin1_accent = u_accent.encode('latin1')
-    utf8_accent = u_accent.encode('utf8')
-    u_syllabary = u'く ku'
-    latin1_syllabary_replace = '? ku'
-    latin1_syllabary_ignore = ' ku'
-    u_entity = u'Test: <"&"> – ' + u_japanese + u'é'
-    utf8_entity = u_entity.encode('utf8')
-    utf8_entity_escape = 'Test: &lt;"&amp;"&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
-    utf8_attrib_escape = 'Test: &lt;&quot;&amp;&quot;&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
-    ascii_entity_escape = (u'Test: <"&"> – ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace').replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;')
-
-
-    b_byte_chars = ' '.join(map(chr, range(0, 256)))
-    b_byte_encoded = 'ACABIAIgAyAEIAUgBiAHIAggCSAKIAsgDCANIA4gDyAQIBEgEiATIBQgFSAWIBcgGCAZIBogGyAcIB0gHiAfICAgISAiICMgJCAlICYgJyAoICkgKiArICwgLSAuIC8gMCAxIDIgMyA0IDUgNiA3IDggOSA6IDsgPCA9ID4gPyBAIEEgQiBDIEQgRSBGIEcgSCBJIEogSyBMIE0gTiBPIFAgUSBSIFMgVCBVIFYgVyBYIFkgWiBbIFwgXSBeIF8gYCBhIGIgYyBkIGUgZiBnIGggaSBqIGsgbCBtIG4gbyBwIHEgciBzIHQgdSB2IHcgeCB5IHogeyB8IH0gfiB/IIAggSCCIIMghCCFIIYghyCIIIkgiiCLIIwgjSCOII8gkCCRIJIgkyCUIJUgliCXIJggmSCaIJsgnCCdIJ4gnyCgIKEgoiCjIKQgpSCmIKcgqCCpIKogqyCsIK0griCvILAgsSCyILMgtCC1ILYgtyC4ILkguiC7ILwgvSC+IL8gwCDBIMIgwyDEIMUgxiDHIMggySDKIMsgzCDNIM4gzyDQINEg0iDTINQg1SDWINcg2CDZINog2yDcIN0g3iDfIOAg4SDiIOMg5CDlIOYg5yDoIOkg6iDrIOwg7SDuIO8g8CDxIPIg8yD0IPUg9iD3IPgg+SD6IPsg/CD9IP4g/w=='
-
-    repr_re = re.compile('^<[^ ]*\.([^.]+) object at .*>$')
-
-class TestConverters(unittest.TestCase, UnicodeTestData):
+class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def test_to_unicode(self):
         '''Test to_unicode when the user gives good values'''
         tools.ok_(converters.to_unicode(self.u_japanese, encoding='latin1') == self.u_japanese)
@@ -85,10 +58,10 @@ class TestConverters(unittest.TestCase, UnicodeTestData):
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'foo'})
 
     def test_to_unicode_errors(self):
-        tools.ok_(converters.to_unicode(self.latin1_accent) == self.u_accent_replace)
-        tools.ok_(converters.to_unicode(self.latin1_accent, errors='ignore') == self.u_accent_ignore)
+        tools.ok_(converters.to_unicode(self.latin1_spanish) == self.u_spanish_replace)
+        tools.ok_(converters.to_unicode(self.latin1_spanish, errors='ignore') == self.u_spanish_ignore)
         tools.assert_raises(UnicodeDecodeError, converters.to_unicode,
-                *[self.latin1_accent], **{'errors': 'strict'})
+                *[self.latin1_spanish], **{'errors': 'strict'})
 
     def test_to_unicode_non_string(self):
         tools.ok_(converters.to_unicode(5) == u'')
@@ -97,11 +70,11 @@ class TestConverters(unittest.TestCase, UnicodeTestData):
         tools.ok_(converters.to_unicode(5, non_string='repr') == u'5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'strict'})
 
-        tools.ok_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr') == self.u_accent)
-        tools.ok_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr') == self.u_accent)
-        tools.ok_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr') == self.u_accent)
-        tools.ok_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr') == self.u_accent)
-        tools.ok_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr') == self.u_accent)
+        tools.ok_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr') == self.u_spanish)
+        tools.ok_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr') == self.u_spanish)
+        tools.ok_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr') == self.u_spanish)
+        tools.ok_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr') == self.u_spanish)
+        tools.ok_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr') == self.u_spanish)
 
         obj_repr = converters.to_unicode(object, non_string='simplerepr')
         tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
@@ -117,12 +90,12 @@ class TestConverters(unittest.TestCase, UnicodeTestData):
         tools.ok_(converters.to_bytes(self.u_japanese, encoding='euc_jp') == self.euc_jp_japanese)
 
     def test_to_bytes_errors(self):
-        tools.ok_(converters.to_bytes(self.u_syllabary, encoding='latin1') ==
-                self.latin1_syllabary_replace)
-        tools.ok_(converters.to_bytes(self.u_syllabary, encoding='latin',
-            errors='ignore') == self.latin1_syllabary_ignore)
+        tools.ok_(converters.to_bytes(self.u_mixed, encoding='latin1') ==
+                self.latin1_mixed_replace)
+        tools.ok_(converters.to_bytes(self.u_mixed, encoding='latin',
+            errors='ignore') == self.latin1_mixed_ignore)
         tools.assert_raises(UnicodeEncodeError, converters.to_bytes,
-            *[self.u_syllabary], **{'errors': 'strict', 'encoding': 'latin1'})
+            *[self.u_mixed], **{'errors': 'strict', 'encoding': 'latin1'})
 
     def _check_repr_bytes(self, repr_string, obj_name):
         tools.ok_(isinstance(repr_string, str))
@@ -142,26 +115,26 @@ class TestConverters(unittest.TestCase, UnicodeTestData):
         self._check_repr_bytes(string, 'UnicodeNoStr')
 
         # This object's _str__ returns a utf8 encoded object
-        tools.ok_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr') == self.utf8_accent)
+        tools.ok_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr') == self.utf8_spanish)
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr') == self.utf8_accent)
+        tools.ok_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr') == self.utf8_spanish)
         # Unless we explicitly ask ofr something different
         tools.ok_(converters.to_bytes(StrReturnsUnicode(),
-            non_string='simplerepr', encoding='latin1') == self.latin1_accent)
+            non_string='simplerepr', encoding='latin1') == self.latin1_spanish)
 
         # This object has no __str__ so it returns repr
         string = converters.to_bytes(UnicodeReturnsStr(), non_string='simplerepr')
         self._check_repr_bytes(string, 'UnicodeReturnsStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(UnicodeStrCrossed(), non_string='simplerepr') == self.utf8_accent)
+        tools.ok_(converters.to_bytes(UnicodeStrCrossed(), non_string='simplerepr') == self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
         tools.ok_(converters.to_bytes(ReprUnicode(), non_string='simplerepr')
-                == u'ReprUnicode(café)'.encode('utf8'))
+                == u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
         tools.ok_(converters.to_bytes(ReprUnicode(), non_string='repr') ==
-                u'ReprUnicode(café)'.encode('utf8'))
+                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
         obj_repr = converters.to_bytes(object, non_string='simplerepr')
         tools.ok_(obj_repr == "<type 'object'>" and isinstance(obj_repr, str))
@@ -222,7 +195,7 @@ class TestConverters(unittest.TestCase, UnicodeTestData):
                     == self.utf8_mangled_euc_jp_as_latin1)
 
 
-class TestDeprecatedConverters(unittest.TestCase, UnicodeTestData):
+class TestDeprecatedConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def setUp(self):
         warnings.simplefilter('ignore', DeprecationWarning)
 

@@ -6,6 +6,14 @@ NEWS
 :Date: 23 Jul 2010
 :Version: 0.2.x
 
+---------------
+0.2a2 (Planned)
+---------------
+* Ensure that all deprecated functions used by yum are present
+* Add unittests
+* Test on RHEL-4
+* Update docs to include the new files
+
 -----
 0.2a1
 -----
