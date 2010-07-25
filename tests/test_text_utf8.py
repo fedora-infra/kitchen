@@ -10,6 +10,13 @@ from kitchen.text import utf8
 import base_classes
 
 class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
+    def setUp(self):
+        # All of the utf8* functions are deprecated
+        warnings.simplefilter('ignore', DeprecationWarning)
+
+    def tearDown(self):
+        warnings.simplefilter('default', DeprecationWarning)
+
     def test_utf8_width(self):
         '''Test that we find the proper number of spaces that a utf8 string will consume'''
         tools.ok_(utf8.utf8_width(self.utf8_japanese) == 31)
