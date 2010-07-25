@@ -8,16 +8,27 @@ import re
 from kitchen.text.converters import to_bytes
 
 class UnicodeTestData(object):
+    u_ascii = u'the quick brown fox jumped over the lazy dog'
+    b_ascii = 'the quick brown fox jumped over the lazy dog'
+
     u_spanish = u'El veloz murciélago saltó sobre el perro perezoso.'
     utf8_spanish = u_spanish.encode('utf8')
     latin1_spanish = u_spanish.encode('latin1')
     u_spanish_replace = u'El veloz murci\ufffdgo salt\ufffdbre el perro perezoso.'
+    u_mangled_spanish_utf8_as_latin1 = u'El veloz murci\xc3\xa9lago salt\xc3\xb3 sobre el perro perezoso.'
+    ascii_spanish_replace = 'El veloz murci?lago salt? sobre el perro perezoso.'
+    u_mangled_spanish_utf8_as_ascii = u'El veloz murci\ufffd\ufffdlago salt\ufffd\ufffd sobre el perro perezoso.'
+    u_mangled_spanish_latin1_as_ascii = u'El veloz murci\ufffdlago salt\ufffd sobre el perro perezoso.'
     u_spanish_ignore = u'El veloz murcigo saltbre el perro perezoso.'
 
     u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
     utf8_japanese = u_japanese.encode('utf8')
     euc_jp_japanese = u_japanese.encode('euc_jp')
     utf8_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1').encode('utf8')
+    u_mangled_japanese_utf8_as_latin1 = unicode(utf8_japanese, 'latin1')
+    u_mangled_japanese_utf8_as_ascii = u"������������������������������������������'���"
+    ascii_japanese_replace = "??????????????'?"
+    latin1_japanese_replace = "??????????????'?"
 
     u_mixed = u'く ku ら ra と to み mi'
     utf8_mixed = u_mixed.encode('utf8')

@@ -9,6 +9,8 @@ import types
 
 from kitchen import i18n
 
+import base_classes
+
 class TestI18N(unittest.TestCase):
     def test_easy_gettext_setup(self):
         '''Test that the eay_gettext_setup function works
@@ -41,72 +43,64 @@ class TestI18N(unittest.TestCase):
 
 # Note: Using nose's generator tests for this so we can't subclass
 # unittest.TestCase
-class TestDummyTranslations(object):
-    u_ascii = u'the quick brown fox jumped over the lazy dog'
-    u_accent = u'café'
-    u_kana = u'くらとみ'
-    b_ascii = 'the quick brown fox jumped over the lazy dog'
-    utf8_accent = 'caf\xc3\xa9'
-    latin1_accent = 'caf\xe9'
-    ascii_accent= 'caf?'
-    utf8_kana = '\xe3\x81\x8f\xe3\x82\x89\xe3\x81\xa8\xe3\x81\xbf'
-    latin1_kana = '????'
-    ascii_kana = '????'
-
-    test_data = {'bytes': (( # First set is with default charset (utf8)
-                (u_ascii, b_ascii),
-                (u_accent, utf8_accent),
-                (u_kana, utf8_kana),
-                (b_ascii, b_ascii),
-                (utf8_accent, utf8_accent),
-                (latin1_accent, latin1_accent),
-                (utf8_kana, utf8_kana),
+class TestDummyTranslations(base_classes.UnicodeTestData):
+    def __init__(self):
+        self.test_data = {'bytes': (( # First set is with default charset (utf8)
+                (self.u_ascii, self.b_ascii),
+                (self.u_spanish, self.utf8_spanish),
+                (self.u_japanese, self.utf8_japanese),
+                (self.b_ascii, self.b_ascii),
+                (self.utf8_spanish, self.utf8_spanish),
+                (self.latin1_spanish, self.latin1_spanish),
+                (self.utf8_japanese, self.utf8_japanese),
                 ),
                 ( # Second set is with output_charset of latin1 (ISO-8859-1)
-                (u_ascii, b_ascii),
-                (u_accent, latin1_accent),
-                (u_kana, latin1_kana),
-                (b_ascii, b_ascii),
-                (utf8_accent, utf8_accent),
-                (latin1_accent, latin1_accent),
-                (utf8_kana, utf8_kana),
+                (self.u_ascii, self.b_ascii),
+                (self.u_spanish, self.latin1_spanish),
+                (self.u_japanese, self.latin1_japanese_replace),
+                (self.b_ascii, self.b_ascii),
+                (self.utf8_spanish, self.utf8_spanish),
+                (self.latin1_spanish, self.latin1_spanish),
+                (self.utf8_japanese, self.utf8_japanese),
                 ),
                 ( # Third set is with output_charset of C
-                (u_ascii, b_ascii),
-                (u_accent, ascii_accent),
-                (u_kana, ascii_kana),
-                (b_ascii, b_ascii),
-                (utf8_accent, utf8_accent),
-                (latin1_accent, latin1_accent),
-                (utf8_kana, utf8_kana),
+                (self.u_ascii, self.b_ascii),
+                (self.u_spanish, self.ascii_spanish_replace),
+                (self.u_japanese, self.ascii_japanese_replace),
+                (self.b_ascii, self.b_ascii),
+                (self.utf8_spanish, self.utf8_spanish),
+                (self.latin1_spanish, self.latin1_spanish),
+                (self.utf8_japanese, self.utf8_japanese),
                 ),
             ),
             'unicode': (( # First set is with the default charset (utf8)
-                (u_ascii, u_ascii),
-                (u_accent, u_accent),
-                (u_kana, u_kana),
-                (b_ascii, u_ascii),
-                (utf8_accent, u_accent),
-                (latin1_accent, u'caf�'), # String is mangled but no exception
-                (utf8_kana, u_kana),
+                (self.u_ascii, self.u_ascii),
+                (self.u_spanish, self.u_spanish),
+                (self.u_japanese, self.u_japanese),
+                (self.b_ascii, self.u_ascii),
+                (self.utf8_spanish, self.u_spanish),
+                (self.latin1_spanish, self.u_spanish_replace), # String is mangled but no exception
+                (self.utf8_japanese, self.u_japanese),
                 ),
                 ( # Second set is with _charset of latin1 (ISO-8859-1)
-                (u_ascii, u_ascii),
-                (u_accent, u_accent),
-                (u_kana, u_kana),
-                (b_ascii, u_ascii),
-                (utf8_accent, u'cafÃ©'), # String mangled but no exception
-                (latin1_accent, u_accent),
-                (utf8_kana, u'\xe3\x81\x8f\xe3\x82\x89\xe3\x81\xa8\xe3\x81\xbf'), # String mangled but no exception
+                (self.u_ascii, self.u_ascii),
+                (self.u_spanish, self.u_spanish),
+                (self.u_japanese, self.u_japanese),
+                (self.b_ascii, self.u_ascii),
+                (self.utf8_spanish, self.u_mangled_spanish_utf8_as_latin1), # String mangled but no exception
+                (self.latin1_spanish, self.u_spanish),
+                #(self.utf8_japanese, u'\xe3\x81\x8f\xe3\x82\x89\xe3\x81\xa8\xe3\x81\xbf'), # String mangled but no exception
+                (self.utf8_japanese, self.u_mangled_japanese_utf8_as_latin1), # String mangled but no exception
                 ),
                 ( # Third set is with _charset of C
-                (u_ascii, u_ascii),
-                (u_accent, u_accent),
-                (u_kana, u_kana),
-                (b_ascii, u_ascii),
-                (utf8_accent, u'caf��'), # String mangled but no exception
-                (latin1_accent, u'caf�'), # String mangled but no exception
-                (utf8_kana, u'������������'), # String mangled but no exception
+                (self.u_ascii, self.u_ascii),
+                (self.u_spanish, self.u_spanish),
+                (self.u_japanese, self.u_japanese),
+                (self.b_ascii, self.u_ascii),
+                (self.utf8_spanish, self.u_mangled_spanish_utf8_as_ascii
+                    ), # String mangled but no exception
+                (self.latin1_spanish, self.u_mangled_spanish_latin1_as_ascii), # String mangled but no exception
+                (self.utf8_japanese, self.u_mangled_japanese_utf8_as_ascii), # String mangled but no exception
                 ),
             )
     }
