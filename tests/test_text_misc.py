@@ -13,23 +13,9 @@ from kitchen.text import misc
 from kitchen.text.exceptions import ControlCharError
 from kitchen.text.converters import to_unicode
 
-class TestTextmisc(unittest.TestCase):
-    u_spanish = u'El veloz murciélago saltó sobre el perro perezoso.'
-    utf8_spanish = u_spanish.encode('utf8')
-    latin1_spanish = u_spanish.encode('latin1')
-    u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
-    utf8_japanese = u_japanese.encode('utf8')
-    euc_jp_japanese = u_japanese.encode('euc_jp')
-    u_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1')
+import base_classes
 
-    u_ascii_chars = u' '.join(map(unichr, range(0, 256)))
-    u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in misc._control_codes])
-    u_ascii_ctrl_replace = u_ascii_chars.translate(dict([(c, u'?') for c in misc._control_codes]))
-    utf8_ascii_chars = u_ascii_chars.encode('utf8')
-
-    u_entity_escape = u'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + u_japanese.encode('ascii', 'xmlcharrefreplace') + '&#xe9;'
-    u_entity = u'Test: <"&"> – ' + u_japanese + u'é'
-
+class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
     def test_guess_encoding_no_chardet(self):
         # Test that unicode strings are not allowed
         tools.assert_raises(TypeError, misc.guess_encoding, self.u_spanish)

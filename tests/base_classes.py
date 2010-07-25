@@ -6,6 +6,7 @@
 import re
 
 from kitchen.text.converters import to_bytes
+from kitchen.text import misc
 
 class UnicodeTestData(object):
     u_ascii = u'the quick brown fox jumped over the lazy dog'
@@ -24,7 +25,8 @@ class UnicodeTestData(object):
     u_japanese = u"速い茶色のキツネが怠惰な犬に'増"
     utf8_japanese = u_japanese.encode('utf8')
     euc_jp_japanese = u_japanese.encode('euc_jp')
-    utf8_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1').encode('utf8')
+    u_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1')
+    utf8_mangled_euc_jp_as_latin1 = u_mangled_euc_jp_as_latin1.encode('utf8')
     u_mangled_japanese_utf8_as_latin1 = unicode(utf8_japanese, 'latin1')
     u_mangled_japanese_utf8_as_ascii = u"������������������������������������������'���"
     ascii_japanese_replace = "??????????????'?"
@@ -44,6 +46,7 @@ class UnicodeTestData(object):
 
     u_entity = u'Test: <"&"> – ' + u_japanese + u'é'
     utf8_entity = u_entity.encode('utf8')
+    u_entity_escape = u'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + u_japanese.encode('ascii', 'xmlcharrefreplace') + '&#xe9;'
     utf8_entity_escape = 'Test: &lt;"&amp;"&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
     utf8_attrib_escape = 'Test: &lt;&quot;&amp;&quot;&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
     ascii_entity_escape = (u'Test: <"&"> – ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace').replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;')
@@ -98,3 +101,8 @@ It has lots of other features though:
         u'----くらとみ kuratomi くらとみ kuratomi']
     utf8_mixed_para_out = map(to_bytes, u_mixed_para_out)
     utf8_mixed_para_57_initial_subsequent_out = map(to_bytes, u_mixed_para_57_initial_subsequent_out)
+
+    u_ascii_chars = u' '.join(map(unichr, range(0, 256)))
+    u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in misc._control_codes])
+    u_ascii_ctrl_replace = u_ascii_chars.translate(dict([(c, u'?') for c in misc._control_codes]))
+    utf8_ascii_chars = u_ascii_chars.encode('utf8')
