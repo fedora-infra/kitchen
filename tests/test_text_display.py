@@ -36,9 +36,27 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         pass
 
     def test_wrap(self):
+        '''Test that text wrapping works'''
         tools.ok_(display.wrap(self.u_mixed) == [self.u_mixed])
         tools.ok_(display.wrap(self.paragraph) == self.paragraph_out)
         tools.ok_(display.wrap(self.u_mixed_para) == self.u_mixed_para_out)
         tools.ok_(display.wrap(self.u_mixed_para, width=57,
             initial_indent='    ', subsequent_indent='----') ==
             self.u_mixed_para_57_initial_subsequent_out)
+
+    def test_internal_interval_bisearch(self):
+        '''Test that we can find things in an interval table'''
+        table = ((0, 3), (5,7), (9, 10))
+        tools.ok_(display._interval_bisearch(0, table) == True)
+        tools.ok_(display._interval_bisearch(1, table) == True)
+        tools.ok_(display._interval_bisearch(2, table) == True)
+        tools.ok_(display._interval_bisearch(3, table) == True)
+        tools.ok_(display._interval_bisearch(5, table) == True)
+        tools.ok_(display._interval_bisearch(6, table) == True)
+        tools.ok_(display._interval_bisearch(7, table) == True)
+        tools.ok_(display._interval_bisearch(9, table) == True)
+        tools.ok_(display._interval_bisearch(10, table) == True)
+        tools.ok_(display._interval_bisearch(-1, table) == False)
+        tools.ok_(display._interval_bisearch(4, table) == False)
+        tools.ok_(display._interval_bisearch(8, table) == False)
+        tools.ok_(display._interval_bisearch(11, table) == False)
