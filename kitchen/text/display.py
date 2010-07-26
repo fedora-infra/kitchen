@@ -270,9 +270,12 @@ def _generate_combining_table():
                 in_interval = False
                 interval.append(codepoint - 1)
                 combining.append(interval)
+
     if in_interval:
+        # If we're at the end and the interval is open, close it.
         interval.append(codepoint)
         combining.append(interval)
+
     return tuple(itertools.imap(tuple, combining))
 
 # Handling of control chars rewritten.  Rest is JA's port of MK's C code.
@@ -298,8 +301,8 @@ def _ucp_width(ucs, control_chars='guess'):
         the number of characters or bytes.
     '''
     # test for 8-bit control characters
-    if ucs < 32 or (ucs >= 0x7f and ucs < 0xa0):
-        # Control characted detected
+    if ucs < 32 or (ucs < 0xa0 and ucs >= 0x7f):
+        # Control character detected
         if control_chars == 'strict':
             raise ControlCharError(_('_ucp_width does not understand how to'
                 ' assign a width value to control characters.'))
@@ -479,6 +482,9 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
             eos = mid
         # if current width is low,
         elif width < chop:
+            # Note: at present, the if (eos - chop) < (eos - mid):
+            # short-circuit above means that we never use this branch.
+
             # calculate new midpoint
             mid = eos + (maximum - eos) / 2
             if mid == eos:
