@@ -129,7 +129,14 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(display.textual_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.u_spanish) == self.u_spanish + self.u_mixed[:-4] + self.u_spanish + u'       ')
 
     def test_internal_textual_width_le(self):
-        pass
+        test_data = ''.join([self.u_mixed, self.u_spanish])
+        tw = display.textual_width(test_data)
+        tools.ok_(display._textual_width_le(68, self.u_mixed, self.u_spanish) == (tw <= 68))
+        tools.ok_(display._textual_width_le(69, self.u_mixed, self.u_spanish) == (tw <= 69))
+        tools.ok_(display._textual_width_le(137, self.u_mixed, self.u_spanish) == (tw <= 137))
+        tools.ok_(display._textual_width_le(138, self.u_mixed, self.u_spanish) == (tw <= 138))
+        tools.ok_(display._textual_width_le(78, self.u_mixed, self.u_spanish) == (tw <= 78))
+        tools.ok_(display._textual_width_le(79, self.u_mixed, self.u_spanish) == (tw <= 79))
 
     def test_wrap(self):
         '''Test that text wrapping works'''
@@ -141,7 +148,18 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
             self.u_mixed_para_57_initial_subsequent_out)
 
     def test_fill(self):
-        pass
+        tools.ok_(display.fill(self.paragraph) == u'\n'.join(self.paragraph_out))
+        tools.ok_(display.fill(self.u_mixed_para) == u'\n'.join(self.u_mixed_para_out))
+        tools.ok_(display.fill(self.u_mixed_para, width=57,
+            initial_indent='    ', subsequent_indent='----') ==
+            u'\n'.join(self.u_mixed_para_57_initial_subsequent_out))
 
     def test_byte_string_textual_width_fill(self):
-        pass
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 1) == self.utf8_mixed)
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25) == self.utf8_mixed + '  ')
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, left=False) == '  ' + self.utf8_mixed)
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish) == self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
+        tools.ok_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish) == self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
+
