@@ -70,6 +70,11 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
     def test_html_entities_unescape(self):
         tools.assert_raises(TypeError, misc.html_entities_unescape, 'byte string')
         tools.ok_(misc.html_entities_unescape(self.u_entity_escape) == self.u_entity)
+        tools.ok_(misc.html_entities_unescape(u'<tag>%s</tag>'
+            % self.u_entity_escape) == self.u_entity)
+        tools.ok_(misc.html_entities_unescape(u'a&#1234567890;b') == u'a&#1234567890;b')
+        tools.ok_(misc.html_entities_unescape(u'a&#xfffd;b') == u'a\ufffdb')
+        tools.ok_(misc.html_entities_unescape(u'a&#65533;b') == u'a\ufffdb')
 
     def test_byte_string_valid_xml(self):
         tools.ok_(misc.byte_string_valid_xml(u'unicode string') == False)
