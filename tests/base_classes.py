@@ -60,6 +60,9 @@ class UnicodeTestData(object):
 round tripper. Its main feature is that it is very easy to use, with a
 straightforward programmer's interface and a simple syntax for config files.
 It has lots of other features though:
+
+      
+
     * Nested sections (subsections), to any level
     * List values
     * Multiple line values
@@ -79,6 +82,9 @@ It has lots of other features though:
 'ini file round tripper. Its main feature is that it is very easy to',
 "use, with a straightforward programmer's interface and a simple syntax",
 'for config files. It has lots of other features though:',
+'',
+'',
+'',
 '    * Nested sections (subsections), to any level',
 '    * List values',
 '    * Multiple line values',
