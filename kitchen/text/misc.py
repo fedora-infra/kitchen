@@ -186,6 +186,8 @@ def html_entities_unescape(string):
                 else:
                     return unichr(int(string[2:-1]))
             except ValueError:
+                # If the value is outside the unicode codepoint range, leave
+                # it in the output as is
                 pass
         elif string[:1] == "&":
             entity = htmlentitydefs.entitydefs.get(string[1:-1])
@@ -194,6 +196,8 @@ def html_entities_unescape(string):
                     try:
                         return unichr(int(entity[2:-1]))
                     except ValueError:
+                        # If the value is outside the unicode codepoint range, leave
+                        # it in the output as is
                         pass
                 else:
                     return unicode(entity, "iso-8859-1")
