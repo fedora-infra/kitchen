@@ -100,7 +100,7 @@ class TestBase64(unittest.TestCase):
         tools.ok_(base64.urlsafe_b64decode(self.b_byte_encoded_urlsafe) == self.b_byte_chars)
 
     def test_base64_stdlib_compat(self):
-        if not hasattr(base64, 'b64encode'):
+        if not hasattr(py_b64, 'b64encode'):
             raise SkipTest('Python-2.3 doesn\'t have b64encode to compare against')
         tools.ok_(base64._b64encode(self.b_byte_chars) == py_b64.b64encode(self.b_byte_chars))
         tools.ok_(base64._b64decode(self.b_byte_chars) == py_b64.b64decode(self.b_byte_chars))
