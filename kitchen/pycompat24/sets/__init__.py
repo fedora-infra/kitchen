@@ -24,28 +24,30 @@
 In python-2.4, a builtin set type was added to python.  This module provides
 a function to emulate that on python-2.3 by using the :mod:`sets` module.
 
-.. func:: set
+:func:`set`
     Create a set.  If running on python 2.4+ this is the :type:`set` constructor.  If
     using python-2.3, it's sets.Set.
 
-.. func:: frozenset
+:func:`frozenset`
     Create a frozenset.  If running on python2.4+ this is the
     :type:`frozenset` constructor.  If using python-2.3, it's
     sets.ImmutableSet.
 
-.. versionchanged:: 0.2 0
+.. versionchanged:: Release: kitchen 0.2 0, API: kitchen.pycompat24 1.0.0
     Added set and frozenset
 '''
 import __builtin__
 
 # Setup set and frozenset on this module
 if not hasattr(__builtin__, 'set'):
-    import sets.Set as set
+    import sets
+    set = sets.Set
 else:
     set = set
 
 if not hasattr(__builtin__, 'frozenset'):
-    import sets.ImmutableSet as frozenset
+    import sets
+    frozenset = sets.ImmutableSet
 else:
     frozenset = frozenset
 
