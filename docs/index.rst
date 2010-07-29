@@ -3,8 +3,8 @@ Kitchen, everything but the sink
 ================================
 
 :Author: Toshio Kuratomi
-:Date: 20 May 2010
-:Version: 0.1.x
+:Date: 28 July 2010
+:Version: 0.2.x
 
 We've all done it.  In the process of writing a brand new application we've
 discovered that we need a little bit of code that we've invented before.
@@ -45,7 +45,7 @@ better in some way.  If they are not present, the API that they enable will
 still exist but may function in a different manner.
 
 `chardet <http://chardet.feedparser.org/>`_
-    Used in :func:`~kitchen.text.xml.guess_encoding__to_xml` to help guess
+    Used in :func:`~kitchen.text.converters.guess_encoding_to_xml` to help guess
     encoding of byte strings being converted.  If not present, unknown
     encodings will be converted as if they were latin1
 

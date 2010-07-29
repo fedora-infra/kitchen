@@ -1,13 +1,14 @@
-==================
-Coding conventions
-==================
+=======================================
+Conventions for contributing to kitchen
+=======================================
 
 -----
 Style
 -----
 
-* :pep:`8`
-* Run pylint over the code and try to resolve most of its nitpicking
+* Strive to be :pep:`8` compliant
+* Run `:command:`pylint` ` over the code and try to resolve most of its nitpicking
+`chardet <http://chardet.feedparser.org/>`_
 
 ------------------------
 Python 2.3 compatibility

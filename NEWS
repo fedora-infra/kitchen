@@ -3,16 +3,35 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 23 Jul 2010
+:Date: 28 Jul 2010
 :Version: 0.2.x
 
----------------
-0.2a2 (Planned)
----------------
+-----
+0.2a3
+-----
+
+Planned
+=======
 * Ensure that all deprecated functions used by yum are present
-* Add unittests
-* Test on RHEL-4
-* Update docs to include the new files
+: Update docs to include the new files
+  - api-exceptions.rst
+  - api-using-kitchen-versions.rst
+    - Using kitchen.release
+    - Using kitchen.*.__version_info__
+  - api-text.rst::
+    - Update utf8
+    - Update misc?
+    - Add display
+    - Add kitchen.text.conveerters.getwriter()
+* unittest kitchen.text.converters.getwriter()
+
+-----
+0.2a2
+-----
+* Add unittests for kitchen.text.display, update kitchen.text.utf8 and
+  kitchen.text.misc test coverage
+* Bug fixes for python-2.3
+* Some doc updates.  More to come.
 
 -----
 0.2a1
