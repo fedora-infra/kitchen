@@ -391,6 +391,7 @@ try:
 except ImportError:
     from kitchen.pycompat24.base64 import b64encode, b64decode
 
+import codecs
 import warnings
 import xml.sax.saxutils
 
@@ -934,6 +935,71 @@ def guess_encoding_to_xml(string, output_encoding='utf8', attrib=False,
             errors='replace', output_encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
 
+def getwriter(encoding):
+    '''Return a :class:`codecs.StreamWriter` that resists tracing back.
+
+    This is a reimplemetation of :func:`codecs.getwriter` that resists issuing
+    tracebacks.  The :class:`~codecs.StreamWriter` that is returned uses
+    :func:`kitchen.text.converters.to_bytes` to convert :class:`unicode`
+    strings into byte :class:`str`.  The departures from
+    :func:`codecs.getwriter` are:
+
+    1) The :class:`~codecs.StreamWriter` that is returned will take byte
+        :class:`str` as well as :class:`unicode` strings.  byte :class:`str`
+        will be passed through unmodified.
+    2) The default error handler for unknown bytes is to ``replace`` the bytes
+        with the unknown character ('?' in most ascii-based encodings, u'�' in
+        the utf encodings).  :func:`codecs.getwriter` defaults to ``strict``.
+        Like :class:`codecs.StreamWriter`, the returned
+        :class:`~codecs.StreamWriter` can change have its error handler
+        changed in code by setting stream.errors = 'new_handler_name'
+
+    :arg encoding: Encoding to use for transforming the :class:`unicode`
+        characters into bytes.
+    :rtype: `codecs.StreamWriter` class
+    :returns: `~codecs.StreamWriter` that you can instantiate to wrap output
+        streams to automatically translate bytes into :attr:`encoding`.
+
+    Example usage::
+
+        $ LC_ALL=C python
+        >>> import sys
+        >>> from kitchen.text.converters import getwriter
+        >>> UTF8Writer = getwriter('utf8')
+        >>> unwrapped_stdout = sys.stdout
+        >>> sys.stdout = UTF8Writer(unwrapped_stdout)
+        >>> print 'caf\xc3\xa9'
+        café
+        >>> print u'caf\xe9'
+        café
+        >>> ASCIIWriter = getwriter('ascii')
+        >>> sys.stdout = ASCIIWriter(unwrapped_stdout)
+        >>> print 'caf\xc3\xa9'
+        café
+        >>> print u'caf\xe9'
+        caf?
+
+    .. seealso::
+        :class:`codecs.StreamWriter`
+            password
+        :func:`codecs.getwriter`
+            password
+        `Print Fails <http://wiki.python.org/moin/PrintFails>`_ on the python wiki
+            password
+
+    .. versionadded:: kitchen 0.2a2, API: kitchen.text 1.1.0
+    '''
+    class _StreamWriter(codecs.StreamWriter):
+
+        def __init__(self, stream, errors='replace'):
+            return codecs.StreamWriter.__init__(self, stream, errors)
+
+        def encode(self, msg, errors='replace'):
+            return to_bytes(msg, encoding=self.encoding, errors=errors), len(msg)
+
+    _StreamWriter.encoding = encoding
+    return _StreamWriter
+
 def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
     '''Deprecated: Use guess_encoding_to_xml() instead
     '''
@@ -943,7 +1009,7 @@ def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
     return guess_encoding_to_xml(string, output_encoding=encoding,
             attrib=attrib, control_chars=control_chars)
 
-__all__ = ('byte_string_to_xml', 'bytes_to_xml', 'guess_encoding_to_xml',
-        'to_bytes', 'to_str', 'to_unicode', 'to_utf8', 'to_xml',
-        'unicode_to_xml', 'xml_to_byte_string', 'xml_to_bytes',
-        'xml_to_unicode')
+__all__ = ('byte_string_to_xml', 'bytes_to_xml', 'getwriter',
+        'guess_encoding_to_xml', 'to_bytes', 'to_str', 'to_unicode',
+        'to_utf8', 'to_xml', 'unicode_to_xml', 'xml_to_byte_string',
+        'xml_to_bytes', 'xml_to_unicode')
