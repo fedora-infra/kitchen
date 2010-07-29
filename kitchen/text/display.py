@@ -33,6 +33,8 @@ Format Text for Display
 
 Functions related to displaying unicode text.  Unicode characters don't all
 have the same width so we need helper functions for displaying them.
+
+.. versionadded:: kitchen 0.2, kitchen.display API 1.0.0
 '''
 import itertools
 import unicodedata
@@ -109,7 +111,7 @@ def _interval_bisearch(value, table):
 
     return False
 
-#: Internal table, provided by this module to list :term:`code points` which
+#: Internal table, provided by this module to list :term:`code point` s which
 # combine with other characters and therefore should have no :term:`textual
 # width`.  This is a sorted tuple of non-overlapping intervals.  Each interval
 # is a tuple listing a starting :term:`code point` and ending
@@ -117,7 +119,7 @@ def _interval_bisearch(value, table):
 # a combining character.
 #
 # .. seealso::
-#   `~kitchen.text.utf8._generate_combining_table`
+#   `~kitchen.text.display._generate_combining_table`
 #       for how this table is generated
 #
 # This table was last regenerated on python-2.6.4 with
@@ -182,7 +184,7 @@ def _generate_combining_table():
     '''Combine Markus Kuhn's data with unicodedata to make combining char list
 
     :rtype: tuple of tuples
-    :returns: A list of intervals of :term:`code points` that are combining
+    :returns: A list of intervals of :term:`code point` s that are combining
         character.  Each interval is a 2-tuple of the starting
         :term:`code point` and the ending :term:`code point` for the combining
         characters.
@@ -195,10 +197,10 @@ def _generate_combining_table():
     the python :mod:`unicodedata` library but the python :mod:`unicodedata` is
     synced against later versions of the unicode database
 
-    This is used to generate the :data:`~kitchen.text.utf8._COMBINING` table
+    This is used to generate the :data:`~kitchen.text.display._COMBINING` table
     using roughly the following code::
 
-        from kitchen.text.utf8 import _generate_combining_table
+        from kitchen.text.display import _generate_combining_table
         table = _generate_combining_table()
         for interval in table:
             print '( %s, %s ),' % (hex(interval[0]), hex(interval[1]))
@@ -367,14 +369,14 @@ def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace')
         the string.
 
     .. note:: This function can be wrong sometimes because Unicode does not
-        specify a strict width value for all of the :term:`code points`.  In
+        specify a strict width value for all of the :term:`code point` s.  In
         particular, we've found that some Tamil characters take up to
         4 character cells but are represented with a lesser amount.
     '''
     # On python 2.6.4, x86_64, I've benchmarked a few alternate
     # implementations::
     #
-    #   timeit.repeat('utf8.textual_width(data)', 'from __main__ import utf8, data',
+    #   timeit.repeat('display.textual_width(data)', 'from __main__ import display, data',
     #       number=100)
     # I varied data by size and content (1MB of ascii, a few words, 43K utf8, unicode type
     #
@@ -428,9 +430,9 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
     :returns: :class:`unicode` string of the :attr:`msg` chopped at the given
         :term:`textual width`
 
-    This is what you want to use instead of %.*s, as it does the "right" thing
-    with regard to :term:`UTF8` sequences, :term:`control character`s, and
-    characters that take more than one cell position. Eg::
+    This is what you want to use instead of ``%.*s``, as it does the "right"
+    thing with regard to :term:`UTF8` sequences, :term:`control character` s,
+    and characters that take more than one cell position. Eg::
 
         >>> # Only displays 8 characters because it is operating on bytes
         >>> print "%.*s" % (10, 'café ñunru!')
@@ -439,13 +441,14 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
         >>> '%s' % (textual_width_chop('café ñunru!', 10))
         café ñunru
         >>> # takes too many columns because the kanji need two cell positions
-        >>> print '1234567890\n%.*s' % (10, u'一二三四五六七八九十')
+        >>> print '1234567890\\n%.*s' % (10, u'一二三四五六七八九十')
         1234567890
         一二三四五六七八九十
         >>> # Properly chops at 10 columns
-        >>> print '1234567890\n%s' % (textual_width_chop(u'一二三四五六七八九十', 10))
+        >>> print '1234567890\\n%s' % (textual_width_chop(u'一二三四五六七八九十', 10))
         1234567890
         一二三四五
+
     '''
 
     msg = to_unicode(msg, encoding=encoding, errors=errors)
@@ -539,11 +542,11 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         sequences in :attr:`prefix` and :attr:`suffix` need to be convertible
         to :class:`unicode`.  If you need to use byte sequences here rather
         than unicode characters, use
-        :func:`~kitchen.text.utf8.byte_string_textual_width_fill` instead.
+        :func:`~kitchen.text.display.byte_string_textual_width_fill` instead.
 
     This function expands a string to fill a field of a particular width.  Use
-    it instead of %*.*s, as it does the "right" thing with regard to
-    :term:`UTF8` sequences, :term:`control character`s, and characters that
+    it instead of ``%*.*s``, as it does the "right" thing with regard to
+    :term:`UTF8` sequences, :term:`control character` s, and characters that
     take more than one cell position in a display.  Example usage::
 
         >>> msg = u'一二三四五六七八九十'
@@ -563,11 +566,11 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         >>> # Adding some escape characters to highlight the line
         >>> u"%s%20.10s%s" % (prefix, msg, suffix)
         u'\x1b[7m          一二三四五六七八九十\x1b[0m'
-        >>> u"%s%s%s" % (prefix, utf8.textual_width_fill(msg, 20, 10, left=False), suffix)
+        >>> u"%s%s%s" % (prefix, display.textual_width_fill(msg, 20, 10, left=False), suffix)
         u'\x1b[7m          一二三四五\x1b[0m'
 
         >>> # If you don't want to highlight the fill as well
-        >>> u"%s" % (utf8.textual_width_fill(msg, 20, 10, left=False, prefix=prefix, suffix=suffix))
+        >>> u"%s" % (display.textual_width_fill(msg, 20, 10, left=False, prefix=prefix, suffix=suffix))
         u'          \x1b[7m一二三四五\x1b[0m'
     '''
     msg = to_unicode(msg)
@@ -753,10 +756,10 @@ def fill(text, *args, **kwargs):
     :returns: string with each line separated by a newline.
 
     .. seealso::
-        :func:`utf8_text_wrap`
+        :func:`kitchen.display.wrap`
             for other parameters that you can give this command.
 
-    This function is a light wrapper around :func:`utf8_text_wrap`.  Where
+    This function is a light wrapper around :func:`kitchen.display.wrap`.  Where
     that function returns a list of lines, this function returns one string
     with each line separated by a newline.
     '''
@@ -793,7 +796,7 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         highlight :attr:`msg` inside of the field you're filling.
 
     .. seealso::
-        :func:`~kitchen.text.utf8.textual_width_fill`
+        :func:`~kitchen.text.display.textual_width_fill`
             For example usage.  This function has only two differences.
 
             1. it takes byte strings for :attr:`prefix` and :attr:`suffix` so

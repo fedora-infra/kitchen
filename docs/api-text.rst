@@ -17,12 +17,20 @@ These are function for converting between unicode, bytes, and xml.
 
 :ref:`kitchen.text.converters`
 
+-------
+display
+-------
+
+.. automodule:: kitchen.text.display
+    :members:
+
 -----
 UTF-8
 -----
 
 .. automodule:: kitchen.text.utf8
     :members:
+    :deprecated:
 
 Internal Data
 =============
@@ -31,17 +39,17 @@ There are a few internal functions and variables in this module.  Code outside
 of kitchen shouldn't use them but people coding on kitchen itself may find
 them useful.
 
-.. autodata:: kitchen.text.utf8._COMBINING
+.. autodata:: kitchen.text.display._COMBINING
 
-.. autofunction:: kitchen.text.utf8._interval_bisearch
+.. autofunction:: kitchen.text.display._interval_bisearch
 
-.. autofunction:: kitchen.text.utf8._generate_combining_table
+.. autofunction:: kitchen.text.display._generate_combining_table
 
 ----
 Misc
 ----
 
-.. automodule:: kitchen.text.utils
+.. automodule:: kitchen.text.misc
     :members:
 
 ----------

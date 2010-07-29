@@ -38,6 +38,11 @@ Functions for operating on byte :class:`str` encoded as :term:`utf8`
     can handle many of these functions itself.  For those that it doesn't
     (removing control characters from length calculations, for instance) the
     code to do so with a :class:`unicode` type is often simpler.
+
+.. warning:: All of the functions in this module are deprecated.  Most of
+    them have been replaced with functions that operate on unicode values in
+    :mod:`kitchen.text.display`.  :func:`kitchen.text.utf8.utf8_valid` has
+    been replaced with a function in :mod:`kichen.text.misc`.
 '''
 import warnings
 
@@ -57,7 +62,7 @@ def utf8_valid(msg):
 
     Use :func:`kitchen.text.misc.byte_string_valid_encoding` instead.
     '''
-    warnings.warn(_('Deprecated.  Use'
+    warnings.warn(_('kitchen.text.utf8.utf8_valid is deprecated.  Use'
             ' kitchen.text.misc.byte_string_valid_encoding(msg) instead'),
             DeprecationWarning, stacklevel=2)
     return byte_string_valid_encoding(msg)
@@ -68,16 +73,16 @@ def utf8_width(msg):
     Use :func:`~kitchen.text.utf8.textual_width` instead.
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_width is deprecated.  Use'
-        ' kitchen.text.utf8.textual_width(msg) instead'), DeprecationWarning,
-        stacklevel=2)
+        ' kitchen.text.display.textual_width(msg) instead'),
+        DeprecationWarning, stacklevel=2)
     return textual_width(msg)
 
 
 def utf8_width_chop(msg, chop=None):
     '''Deprecated
 
-    Use :func:`~kitchen.text.utf8.textual_width_chop` and
-    :func:`~kitchen.textt.utf8.textual_width` instead::
+    Use :func:`~kitchen.text.display.textual_width_chop` and
+    :func:`~kitchen.text.display.textual_width` instead::
 
         >>> msg = 'く ku ら ra と to み mi'
         >>> # Old way:
@@ -85,12 +90,12 @@ def utf8_width_chop(msg, chop=None):
         (5, 'く ku')
         >>> # New way
         >>> from kitchen.text.converters import to_bytes
-        >>> from kitchen.utf8 import textual_width, textual_width_chop
+        >>> from kitchen.text.display import textual_width, textual_width_chop
         >>> (textual_width(msg), to_bytes(textual_width_chop(msg, 5)))
         (5, 'く ku')
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_width_chop is deprecated.  Use'
-        ' kitchen.text.utf8.textual_width_chop instead'), DeprecationWarning,
+        ' kitchen.text.display.textual_width_chop instead'), DeprecationWarning,
         stacklevel=2)
 
     if chop == None:
@@ -106,10 +111,10 @@ def utf8_width_chop(msg, chop=None):
 def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     '''Deprecated.
 
-    Use :func:`~kitchen.text.utf8.byte_string_textual_width_fill` instead
+    Use :func:`~kitchen.text.display.byte_string_textual_width_fill` instead
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_width_fill is deprecated.  Use'
-        ' kitchen.text.utf8.byte_string_textual_width_fill instead'),
+        ' kitchen.text.display.byte_string_textual_width_fill instead'),
         DeprecationWarning, stacklevel=2)
 
     return byte_string_textual_width_fill(msg, fill, chop=chop, left=left,
@@ -144,10 +149,10 @@ def utf8_text_fill(text, *args, **kwargs):
 
 def _utf8_width_le(width, *args):
     '''**Deprecated** Convert the arguments to unicode and use
-    :func:`_textual_width_le` instead.
+    :func:`kitchen.text.display._textual_width_le` instead.
     '''
     warnings.warn(_('kitchen.text.utf8._utf8_width_le is deprecated.  Use'
-        ' kitchen.text.utf8._textual_width_le instead'),
+        ' kitchen.text.display._textual_width_le instead'),
         DeprecationWarning, stacklevel=2)
     # This assumes that all args. are utf8.
     return _textual_width_le(width, to_unicode(''.join(args)))

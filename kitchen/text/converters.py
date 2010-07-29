@@ -618,9 +618,9 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         If False (default), quote for use in an xml text field.
     :kwarg control_chars: XML does not allow ASCII control characters.  When
         we encounter those we need to know what to do.  Valid options are:
-            :replace: (default) Replace the control characters with "?"
-            :ignore: Remove the characters altogether from the output
-            :strict: Raise an error when we encounter a control character
+        :replace: (default) Replace the control characters with "?"
+        :ignore: Remove the characters altogether from the output
+        :strict: Raise an error when we encounter a control character
     :raises XmlEncodeError: If control_chars is set to 'strict' and the string
         to be made suitable for output to xml contains control characters or if
         :attr:`string` is not a unicode type then we raise this exception.
@@ -638,13 +638,16 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
 
     There are a few different ways to use this function depending on your needs.
     The simplest invocation is like this::
+
        unicode_to_xml(u'String with non-ASCII characters: <"á と">')
 
     This will return the following to you, encoded in utf8::
+
       'String with non-ASCII characters: &lt;"á と"&gt;'
 
     Pretty straightforward.  Now, what if you need to encode your document in
     something other than utf8?  For instance, latin1?  Let's see::
+
        unicode_to_xml(u'String with non-ASCII characters: <"á と">', encoding='latin1')
        'String with non-ASCII characters: &lt;"á &#12392;"&gt;'
 
@@ -662,6 +665,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     those.  For use cases that don't need absolute character by character
     fidelity (example: holding strings that will just be used for display
     in a GUI app later), the default value of 'replace' works well::
+
         unicode_to_xml(u'String with disallowed control chars: \u0000\u0007')
         'String with disallowed control chars: ??'
 
@@ -673,6 +677,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     thing about doing this is that the code is pretty simple.  You just need to
     use utf7 both when encoding the field for xml and when decoding it for use
     in your python program::
+
         unicode_to_xml(u'String with unicode: と and control char: \u0007', encoding='utf7')
         'String with unicode: +MGg and control char: +AAc-'
         [...]
@@ -684,6 +689,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     unicode characters in the file to be readable without being decoded first.
     You can work around this with increased complexity in your application
     code::
+
         encoding = 'utf8'
         u_string = u'String with unicode: と and control char: \u0007'
         try:

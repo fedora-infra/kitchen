@@ -7,7 +7,7 @@ Python 2.5 Compatibiity
 defaultdict
 -----------
 
-.. automodule:: kitchen.pycompat25.defaultdict
+.. automodule:: kitchen.pycompat25.collections._defaultdict
 
 .. seealso::
 
