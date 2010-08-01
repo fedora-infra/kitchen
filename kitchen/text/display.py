@@ -280,6 +280,21 @@ def _generate_combining_table():
 
     return tuple(itertools.imap(tuple, combining))
 
+def _print_combining_table():
+    table = _generate_combining_table()
+    entries = 0
+    print '_COMBINING = ('
+    for pair in table:
+        if entries >= 3:
+            entries = 0
+            print
+        if entries == 0:
+            print '      ',
+        entries += 1
+        entry = '( 0x%x, 0x%x ),' % pair
+        print entry,
+    print ')'
+
 # Handling of control chars rewritten.  Rest is JA's port of MK's C code.
 # -Toshio Kuratomi
 def _ucp_width(ucs, control_chars='guess'):
