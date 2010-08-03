@@ -10,11 +10,16 @@ NEWS
 0.2a3
 -----
 
+* Update table of combining utf8 characters from python-2.7
+* docs:
+  - api-i18n.rst
+  - api-exceptions.rst
+  - api-collections.rst
+
 Planned
 =======
 * Ensure that all deprecated functions used by yum are present
 : Update docs to include the new files
-  - api-exceptions.rst
   - api-using-kitchen-versions.rst
     - Using kitchen.release
     - Using kitchen.*.__version_info__
@@ -24,6 +29,7 @@ Planned
     - Add display
     - Add kitchen.text.conveerters.getwriter()
 * unittest kitchen.text.converters.getwriter()
+* unittest kitchen.text.display.print_combining_table() ?
 
 -----
 0.2a2
@@ -32,6 +38,7 @@ Planned
   kitchen.text.misc test coverage
 * Bug fixes for python-2.3
 * Some doc updates.  More to come.
+* New function kitchen.text.converters.getwriter()
 
 -----
 0.2a1

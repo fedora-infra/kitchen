@@ -19,6 +19,10 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 #
 '''
+-----------------------
+Base kitchen exceptions
+-----------------------
+
 Exception classes for kitchen and the root of the exception hierarchy for
 all kitchen modules.
 '''
@@ -27,3 +31,5 @@ class KitchenError(Exception):
     '''Base exception class for any error thrown directly by kitchen.
     '''
     pass
+
+__all__ = ('KitchenError',)

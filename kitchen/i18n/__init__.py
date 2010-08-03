@@ -88,18 +88,21 @@ import sys
 
 class DummyTranslations(gettext.NullTranslations):
     def __init__(self, fp=None):
-        '''Safer version of :class:`~gettext.NullTranslations`
+        '''Safer version of :class:`gettext.NullTranslations`
 
-        This Translations class doesn't translate the strings and is mostly
-        meant for times when there were errors setting up a real Translations
-        object.  It's safer than :class:`gettext.NullTranslations` in its
-        handling of byte :class:`str` vs :class:`unicode` strings.  Unlike
-        :class:`~gettext.NullTranslations`, this Translation class will never
-        throw a :exc:`~exceptions.UnicodeError`.  Note that the code that you
-        have around a call to :class:`DummyTranslations` might throw
+        This Translations class doesn't translate the strings and is intended
+        to be used as a fallback when there were errors setting up a real
+        Translations object.  It's safer than
+        :class:`gettext.NullTranslations` in its handling of byte :class:`str`
+        vs :class:`unicode` strings.
+
+        Unlike :class:`~gettext.NullTranslations`, this Translation class will
+        never throw a :exc:`~exceptions.UnicodeError`.  Note that the code
+        that you have around a call to :class:`DummyTranslations` might throw
         a :exc:`~exceptions.UnicodeError` but at least that will be in code
-        you control and can fix.  Also, like
-        :class:`~gettext.GNUTranslations`, all of this Translation object's
+        you control and can fix.  Also, unlike
+        :class:`~gettext.NullTranslations` but similar to
+        :class:`gettext.GNUTranslations`, all of this Translation object's
         methods guarantee to return byte :class:`str` except for
         :meth:`ugettext` and :meth:`ungettext` which guarantee to return
         :class:`unicode` strings.
@@ -241,14 +244,15 @@ def get_translation_object(domain, localedirs=tuple()):
     :kwarg localedirs: Iterator of directories to look for message catalogs
         under.  The first directory to exist is used regardless of messages
         for this domain are present.  If none of the directories exist,
-        fallback on sys.prefix + '/share/locale'  Default: No directories to
-        search.
+        fallback on ``sys.prefix`` + :file:`/share/locale`  Default: No
+        directories to search.
     :return: Translation object to get gettext methods from
 
     If you need more flexibility than :func:`easy_gettext_setup`, use this
     function.  It sets up a gettext Translation object and returns it to you.
     Then you can access any of the methods of the object that you need
-    directly.  For instance, if you specifically need to access lgettext::
+    directly.  For instance, if you specifically need to access
+    :func:`~NullTranslations.lgettext`::
 
         translations = get_translation_object('foo')
         translations.lgettext('My Message')
@@ -274,9 +278,9 @@ def get_translation_object(domain, localedirs=tuple()):
     This allows gettext to work on Windows and in development (where the
     locale files are typically in the toplevel module directory) and also when
     installed under Linux (where the message catalogs are installed in
-    /usr/share/locale).  You (or the Linux packager) just need to place the
-    locale files in /usr/share/locale and remove the locale directory from the
-    module to make this work.  ie::
+    :file:`/usr/share/locale`).  You (or the Linux packager) just need to
+    place the locale files in :file:`/usr/share/locale` and remove the locale
+    directory from the module to make this work.  ie::
 
         In development:
             ~/foo   # Toplevel module directory
@@ -313,10 +317,10 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     :kwarg localedirs: Iterator of directories to look for message catalogs
         under.  The first directory to exist is used regardless of whether
         messages for this domain are present.  If none of the directories
-        exist, fallback on sys.prefix + '/share/locale'  Default: No
+        exist, fallback on ``sys.prefix`` + :file:`/share/locale`  Default: No
         directories to search.
     :kwarg use_unicode: If True return :class:`unicode` strings else return
-        byte strings for the translations.  Default is True
+        byte :class:`str` for the translations.  Default is True
     :return: tuple of the gettext function and gettext function for plurals
 
     Setting up gettext can be a little tricky because of lack of documentation.

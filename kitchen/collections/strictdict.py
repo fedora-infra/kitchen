@@ -17,6 +17,14 @@
 #
 # Authors:
 #   Toshio Kuratomi <toshio@fedoraproject.org>
+'''
+----------
+StrictDict
+----------
+
+:class:`kitchen.collections.StrictDict` provides a dictionary treats
+:class:`str` and :class:`unicode` as distinct key values.
+'''
 try:
     from collections import defaultdict
 except ImportError:
@@ -24,13 +32,22 @@ except ImportError:
 
 class StrictDict(defaultdict):
     '''
-    Mapping class that considers unicode and str different keys
+    Map class that considers :class:`unicode` and :class:`str` different keys
 
     Ordinarily when you are dealing with data you want to have keys that have
     the same characters end up in the same bucket even if one key is
-    :class:`unicode` and the other is a byte :class:`str`.  If you cannot do
+    :class:`unicode` and the other is a byte :class:`str`.  The normal
+    :class:`dict` type does this for .  If you cannot do
     that, then this class will help you by making all :class:`unicode` strings
     evaluate to a different key than all :class:`str` keys.
+
+    .. seealso::
+        :class:`dict`
+            for all the documentation on this classes methods.  This class
+            implements all the standard :class:`dict` methods.  Its
+            treatment of :class:`unicode` and :class:`str` keys as separate is
+            the only difference.
+
     '''
     def __getitem__(self, key):
         return defaultdict.__getitem__(self, (repr(key), key))

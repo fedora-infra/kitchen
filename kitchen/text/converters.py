@@ -385,6 +385,9 @@ just like anything else.
     :class:`kitchen.collections.StrictDict` which has separate entries for all
     :class:`unicode` and byte :class:`str` and deals correctly with tuples
     containing mixed :class:`unicode` and byte :class:`str`.
+
+.. versionchanged:: kitchen 0.2a2 ; API kitchen.text 1.1.0
+    Added :func:`~kitchen.text.converters.getwriter`
 '''
 try:
     from base64 import b64encode, b64decode

@@ -18,6 +18,13 @@
 # Authors:
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 #
+'''
+-----------------------
+Kitchen.text exceptions
+-----------------------
+
+Exception classes thrown by kitchen's text processing routines.
+'''
 from kitchen import exceptions
 
 class XmlEncodeError(exceptions.KitchenError):
@@ -29,3 +36,5 @@ class ControlCharError(exceptions.KitchenError):
     '''Exception thrown when an ascii control character is encountered.
     '''
     pass
+
+__all__ = ('XmlEncodeError', 'ControlCharError')

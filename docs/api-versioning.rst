@@ -1,6 +1,6 @@
-============================
-PEP-386 compliant versioning
-============================
+===============================
+Helpers for versioning software
+===============================
 
 .. automodule:: kitchen.versioning
     :members:

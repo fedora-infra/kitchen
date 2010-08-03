@@ -8,6 +8,12 @@ Glossary
         An English idiom meaning to include nearly everything that you can
         think of.
 
+    API version
+        Version that is meant for computer consumption.  This version is
+        parsable and comparable by computers.  It contains information about
+        a library's API so that computer software can decide whether it works
+        with the software.
+
     ASCII
         A character encoding that maps numbers to characters essential to
         American English.  It maps 128 characters using 7bits.
@@ -32,6 +38,11 @@ Glossary
         signify the need to translate words, number and date formats, and
         other pieces of data in a computer program so that it will work well
         for people who speak another language than yourself.
+
+    release version
+        Version that is meant for human consumption.  This version is easy for
+        a human to look at to decide how a particular version relates to other
+        versions of the software.
 
     textual width
         The amount of horizontal space a character takes up on a monospaced

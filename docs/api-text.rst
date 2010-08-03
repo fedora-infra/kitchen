@@ -56,5 +56,4 @@ Misc
 Exceptions
 ----------
 
- .. automodule:: kitchen.text.exceptions
-    :members:
+ .. seealso:: api-exceptions
