@@ -89,7 +89,6 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 (self.b_ascii, self.u_ascii),
                 (self.utf8_spanish, self.u_mangled_spanish_utf8_as_latin1), # String mangled but no exception
                 (self.latin1_spanish, self.u_spanish),
-                #(self.utf8_japanese, u'\xe3\x81\x8f\xe3\x82\x89\xe3\x81\xa8\xe3\x81\xbf'), # String mangled but no exception
                 (self.utf8_japanese, self.u_mangled_japanese_utf8_as_latin1), # String mangled but no exception
                 ),
                 ( # Third set is with _charset of C

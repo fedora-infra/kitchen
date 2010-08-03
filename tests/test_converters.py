@@ -123,7 +123,7 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.ok_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr') == self.utf8_spanish)
-        # Unless we explicitly ask ofr something different
+        # Unless we explicitly ask for something different
         tools.ok_(converters.to_bytes(StrReturnsUnicode(),
             non_string='simplerepr', encoding='latin1') == self.latin1_spanish)
 
