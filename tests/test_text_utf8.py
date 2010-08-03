@@ -24,11 +24,21 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(utf8.utf8_width(self.utf8_mixed) == 23)
 
     def test_utf8_width_non_utf8(self):
-        '''Test that we handle non-utf8 bytes in utf8_wdith without backtracing'''
+        '''Test that we handle non-utf8 bytes in utf8_width without backtracing'''
         # utf8_width() treats non-utf8 byte sequences as undecodable so you
         # end up with less characters than normal.  In this string:
+        # Python-2.7+ replaces problematic characters in a different manner
+        # than older pythons.
+        # Python >= 2.7:
+        # El veloz murci�lago salt� sobre el perro perezoso.
+        # Python < 2.7:
         # El veloz murci�go salt�bre el perro perezoso.
-        tools.ok_(utf8.utf8_width(self.latin1_spanish) == 45)
+        if len(unicode(u'\xe9la'.encode('latin1'), 'utf8', 'replace')) == 1:
+            # Python < 2.7
+            tools.ok_(utf8.utf8_width(self.latin1_spanish) == 45)
+        else:
+            # Python >= 2.7
+            tools.ok_(utf8.utf8_width(self.latin1_spanish) == 50)
 
     def test_utf8_width_chop(self):
         '''utf8_width_chop with byte strings'''
