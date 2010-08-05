@@ -10,6 +10,7 @@ NEWS
 0.2a3
 -----
 
+* Fix failing unittest on python-2.7
 * Update table of combining utf8 characters from python-2.7
 * docs:
   - api-i18n.rst
