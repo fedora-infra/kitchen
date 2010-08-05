@@ -24,10 +24,10 @@ snippets so that you can get on with your life.
 
 This package forms the core of Kitchen.  It contains some useful modules for
 using newer |stdlib| modules on older python versions, text manipulation,
-PEP-386 versioning, and gettext.  With this package we're trying to provide
-a few useful features that don't have too many dependencies outside of the
-|stdlib|.  We'll be releasing other modules that drop into the kitchen namespace
-to add other features (possibly with larger deps).
+:pep:`386` versioning, and initializing gettext.  With this package we're
+trying to provide a few useful features that don't have too many dependencies
+outside of the |stdlib|.  We'll be releasing other modules that drop into the
+kitchen namespace to add other features (possibly with larger deps).
 
 ------------
 Requirements
@@ -45,7 +45,8 @@ better in some way.  If they are not present, the API that they enable will
 still exist but may function in a different manner.
 
 `chardet <http://chardet.feedparser.org/>`_
-    Used in :func:`~kitchen.text.converters.guess_encoding_to_xml` to help guess
+    Used in :func:`~kitchen.text.misc.guess_encoding` and
+    :func:`~kitchen.text.converters.guess_encoding_to_xml` to help guess
     encoding of byte strings being converted.  If not present, unknown
     encodings will be converted as if they were latin1
 
@@ -56,35 +57,41 @@ Other Recommended Libraries
 These libraries implement commonly used functionality that everyone seems to
 invent.  Rather than reinvent their wheel, I simply list the things that they
 do well for now.  Perhaps if people can't find them normally, I'll add them as
-requirements in setup.py or link them into kitchen's namespace.  For now, I
-just mention them here:
+requirements in :file:`setup.py` or link them into kitchen's namespace.  For
+now, I just mention them here:
 
 `bunch <http://pypi.python.org/pypi/bunch/>`_
     Bunch is a dictionary that you can use attribute lookup as well as bracket
     notation to access.  Setting it apart from most homebrewed implementations
-    is the bunchify() function which will descend nested structures of lists
-    and dicts, transforming the dicts to Bunch's.
+    is the :func:`bunchify` function which will descend nested structures of
+    lists and dicts, transforming the dicts to Bunch's.
 `hashlib <http://code.krypto.org/python/hashlib/>`_
-    Python 2.5 and forward have a hashlib library that provides secure hash
-    functions to python.  If you're developing for python2.3 or python2.4,
-    though, you can install the standalone hashlib library and have access to
-    the same functions.
+    Python 2.5 and forward have a :mod:`hashlib` library that provides secure
+    hash functions to python.  If you're developing for python2.3 or
+    python2.4, though, you can install the standalone hashlib library and have
+    access to the same functions.
+`unittest2 <http://pypi.python.org/pypi/unittest2>`_
+    Python 2.7 has an updated :mod:`unittest` library with new functions not
+    present in the |stdlib| for Python 2.6 or less.  If you want to use those
+    new functions but need your testing framework to be compatible with older
+    Python the unittest2 library provides the update as an external module.
 
 -------
 License
 -------
 
-This python module is distributed under the terms of the GNU Lesser General
-Public License Version 2 or later.
+This python module is distributed under the terms of the
+`GNU Lesser General Public License Version 2 or later
+<http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>`_.
 
 .. note:: Some parts of this module are licensed under terms less restrictive
-    than the LGPL.  If you separate these files from the work as a whole you are
-    allowed to use them under the less restrictive licenses.  The following is
-    a list of the files that are known:
+    than the LGPLv2+.  If you separate these files from the work as a whole
+    you are allowed to use them under the less restrictive licenses.  The
+    following is a list of the files that are known:
 
     `Python 2 license <http://www.python.org/download/releases/2.4/license/>`_
-        subprocess.py, test_subprocess.py, defaultdict.py, and
-        test_defaultdict.py.
+        :file:`subprocess.py`, :file:`test_subprocess.py`,
+        :file:`defaultdict.py`, and :file:`test_defaultdict.py`.
 
 --------
 Contents

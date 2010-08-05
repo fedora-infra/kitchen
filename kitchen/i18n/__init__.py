@@ -71,8 +71,8 @@ See the documentation of :func:`easy_gettext_setup` and
         :mod:`gettext`
             for more information on how the python gettext facilities work
         `babel <http://babel.edgewall.org>`_
-            The babel module for in depth information on gettext, message
-            catalogs, and translating your app.  babel provides some nice
+            The babel module for in depth information on gettext, :term:`message
+            catalogs`, and translating your app.  babel provides some nice
             features for :term:`i18n` on top of gettext
 '''
 
@@ -131,6 +131,11 @@ class DummyTranslations(gettext.NullTranslations):
           these methods.
         * The encoding used to decode the byte :class:`str` is taken from
           :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
+
+        Any characters that aren't able to be transformed from a byte
+        :class:`str` to :class:`unicode` string or vice versa will be replaced
+        with a replacement character (ie: u'�' in unicode based encodings, '?'
+        in other :term:`ASCII` compatible encodings).
 
         .. seealso::
             :class:`gettext.NullTranslations`
@@ -204,7 +209,7 @@ class DummyTranslations(gettext.NullTranslations):
             # Ignore UnicodeErrors: we'll do our own encoding next
             # AttributeError happens on py2.3 where lngettext is not implemented
             if n == 1:
-                message = msgid1
+               message = msgid1
             else:
                 message = msgid2
 
@@ -238,29 +243,29 @@ class DummyTranslations(gettext.NullTranslations):
 
 
 def get_translation_object(domain, localedirs=tuple()):
-    '''Get a translation object bound to the message catalogs
+    '''Get a translation object bound to the :term:`message catalogs`
 
     :arg domain: Name of the message domain
-    :kwarg localedirs: Iterator of directories to look for message catalogs
-        under.  The first directory to exist is used regardless of messages
-        for this domain are present.  If none of the directories exist,
-        fallback on ``sys.prefix`` + :file:`/share/locale`  Default: No
-        directories to search.
+    :kwarg localedirs: Iterator of directories to look for :term:`message
+        catalogs` under.  The first directory to exist is used regardless of
+        whether messages for this domain are present.  If none of the
+        directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
+        Default: No directories to search; just use the fallback.
     :return: Translation object to get gettext methods from
 
     If you need more flexibility than :func:`easy_gettext_setup`, use this
-    function.  It sets up a gettext Translation object and returns it to you.
-    Then you can access any of the methods of the object that you need
-    directly.  For instance, if you specifically need to access
-    :func:`~NullTranslations.lgettext`::
+    function.  It sets up a :mod:`gettext` Translation object and returns it
+    to you.  Then you can access any of the methods of the object that you
+    need directly.  For instance, if you specifically need to access
+    :func:`~gettext.GNUTranslations.lgettext`::
 
         translations = get_translation_object('foo')
         translations.lgettext('My Message')
 
-    Setting up gettext in a portable manner can be a little tricky due to not
-    having a common directory for translations across operating systems.
-    :func:`get_translation_object` is able to handle that by giving it a list
-    of directories::
+    Setting up :mod:`gettext` in a portable manner can be a little tricky due
+    to not having a common directory for translations across operating
+    systems.  :func:`get_translation_object` is able to handle that if you give
+    it a list of directories to search for catalogs::
 
         translations = get_translation_object('foo', localedirs=(
              os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
@@ -268,31 +273,39 @@ def get_translation_object(domain, localedirs=tuple()):
 
     This will search for several different directories:
 
-    1) A directory named 'locale' in the same directory as the module that
-       called :func:`get_translation_object`,
-    2) In :file:`/usr/lib/locale`
-    3) In :file:`/usr/share/locale` (the fallback directory)
+    1. A directory named :file:`locale` in the same directory as the module
+       that called :func:`get_translation_object`,
+    2. In :file:`/usr/lib/locale`
+    3. In :file:`/usr/share/locale` (the fallback directory)
 
-    The first of these that is a directory we can access will be used
-    (regardless of whether any locale files are present in the directory.)
-    This allows gettext to work on Windows and in development (where the
-    locale files are typically in the toplevel module directory) and also when
-    installed under Linux (where the message catalogs are installed in
-    :file:`/usr/share/locale`).  You (or the Linux packager) just need to
-    place the locale files in :file:`/usr/share/locale` and remove the locale
-    directory from the module to make this work.  ie::
+    This allows :mod:`gettext` to work on Windows and in development (where the
+    :term:`message catalogs` are typically in the toplevel module directory)
+    and also when installed under Linux (where the :term:`message catalogs`
+    are installed in :file:`/usr/share/locale`).  You (or the system packager)
+    just need to install the :term:`message catalogs` in
+    :file:`/usr/share/locale` and remove the :file:`locale` directory from the
+    module to make this work.  ie::
 
         In development:
             ~/foo   # Toplevel module directory
-            ~/foo__/init__.py
+            ~/foo/__init__.py
             ~/foo/locale    # With message catalogs below here:
             ~/foo/locale/es/LC_MESSAGES/foo.mo
 
         Installed on Linux:
-            /usr/lib/python2.6/site-packages/foo
-            /usr/lib/python2.6/site-packages/foo/__init__.py
+            /usr/lib/python2.7/site-packages/foo
+            /usr/lib/python2.7/site-packages/foo/__init__.py
             /usr/share/locale/  # With message catalogs below here:
             /usr/share/locale/es/LC_MESSAGES/foo.mo
+
+    .. warning:: The first directory that we can access will be used
+        regardless of whether locale files for our domain and language are
+        present in the directory.  That means you have to consider the order
+        in which you list directories in :attr:`localedirs`.  Always list
+        directories which you, the user, or the system packager can control
+        the existence of before system directories that will exist whether or
+        not the :term:`message catalogs` are present in them.
+
     '''
     # Look for the message catalogs in several places.  This allows for use
     # with uninstalled modules, installed modules on Linux, and modules
@@ -314,35 +327,39 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     ''' Setup translation domain for an app.
 
     :arg domain: Name of the message domain
-    :kwarg localedirs: Iterator of directories to look for message catalogs
-        under.  The first directory to exist is used regardless of whether
-        messages for this domain are present.  If none of the directories
-        exist, fallback on ``sys.prefix`` + :file:`/share/locale`  Default: No
-        directories to search.
+    :kwarg localedirs: Iterator of directories to look for :term:`message
+        catalogs` under.  The first directory to exist is used regardless of
+        whether messages for this domain are present.  If none of the
+        directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
+        Default: No directories to search so we just use the fallback.
     :kwarg use_unicode: If True return :class:`unicode` strings else return
         byte :class:`str` for the translations.  Default is True
-    :return: tuple of the gettext function and gettext function for plurals
+    :return: tuple of the :mod:`gettext` function and :mod:`gettext` function
+        for plurals
 
-    Setting up gettext can be a little tricky because of lack of documentation.
-    This function will setup gettext for you.  For the simple case, you can
-    use the default arguments and call it like this::
+    Setting up :mod:`gettext` can be a little tricky because of lack of
+    documentation.  This function will setup :mod:`gettext`  using the 
+    `Class-based API
+    <http://docs.python.org/library/gettext.html#class-based-api>`_ for you.
+    For the simple case, you can use the default arguments and call it like
+    this::
 
         _, N_ = easy_gettext_setup()
 
     This will get you two functions, :func:`_` and :func:`N_` that you can use
     to mark strings in your code for translation.  :func:`_` is used to mark
-    strings that don't need a different string depending on an argument to the
-    string.  :func:`N_` is used to mark strings that do need to have
-    a different form if a variable in the string is plural.
+    strings that don't need to worry about plural forms no matter what the
+    value of the variable is.  :func:`N_` is used to mark strings that do need
+    to have a different form if a variable in the string is plural.
 
     .. seealso::
 
         :doc:`api-i18n`
-            The module documentation has examples of using :func:`_` and :func:`N_`
+            This module's documentation has examples of using :func:`_` and :func:`N_`
         :func:`get_translation_object`
             for information on how to use :attr:`localedirs` to get the
-            proper message catalogs both when in development or when installed
-            to FHS compliant directories on Linux.
+            proper :term:`message catalogs` both when in development and when
+            installed to FHS compliant directories on Linux.
     '''
     translations = get_translation_object(domain, localedirs=localedirs)
     if use_unicode:

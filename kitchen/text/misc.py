@@ -50,24 +50,27 @@ _control_chars = frozenset(itertools.imap(unichr, _control_codes))
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
 
 def guess_encoding(byte_string, disable_chardet=False):
-    '''Try to guess the encoding of a byte_string
+    '''Try to guess the encoding of a byte :class:`str`
 
-    :arg byte_string: byte_string to guess the encoding of
+    :arg byte_string: byte `str` to guess the encoding of
     :kwarg disable_chardet: If this is True, we never attempt to use
         :mod:`chardet` to guess the encoding.  This is useful if you need to
-        have reproducability whether chardet is installed or not.  Default:
-        False.
-    :raises TypeError: if byte_string is not a byte string (str) type
-    :returns: string containing a guess at the encoding of byte_string
+        have reproducability whether :mod:`chardet` is installed or not.
+        Default: False.
+    :raises TypeError: if :attr:`byte_string` is not a byte :class:`str` type
+    :returns: string containing a guess at the encoding of
+        :attr:`byte_string`.  This is appropriate to pass as the encoding
+        argument when encoding nad decoding unicode.
 
-    We start by attempting to decode the bytes as utf8.  If this succeeds we
-    tell the world it's utf8 text.  If it doesn't and :mod:`chardet` is
-    installed on the system and :attr:`disable_chardet` is False this function
-    will use it to try detecting the encoding of the byte_string.  If it is
-    not installed or chardet cannot determine the encoding with a high enough
-    confidence then we rather arbitrarily claim that it is latin1.  Since latin1
-    will encode to every byte, decoding from laint1 to unicode will not cause
-    UnicodeErrors even if the output is mangled.
+    We start by attempting to decode the byte :class:`str` as :term:`UTF8`.
+    If this succeeds we tell the world it's :term:`UTF8` text.  If it doesn't
+    and :mod:`chardet` is installed on the system and :attr:`disable_chardet`
+    is False this function will use it to try detecting the encoding of
+    :attr:`byte_string`.  If it is not installed or :mod:`chardet` cannot
+    determine the encoding with a high enough confidence then we rather
+    arbitrarily claim that it is latin1.  Since latin1 will encode to every
+    byte, decoding from latin1 to :class:`unicode` will not cause
+    :exc:`UnicodeErrors` even if the output is mangled.
     '''
     if not isinstance(byte_string, str):
         raise TypeError(_('byte_string must be a byte string (str)'))

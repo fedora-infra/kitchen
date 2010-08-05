@@ -39,6 +39,22 @@ Glossary
         other pieces of data in a computer program so that it will work well
         for people who speak another language than yourself.
 
+    message catalogs
+        Message catalogs contain translations for user-visible strings that
+        are present in your code.  Normally, you need to mark the strings to
+        be translated by wrapping them in one of several :mod:`gettext`
+        functions.  The function serves two purposes:
+
+        1. It allows automated tools to find which strings are supposed to be
+           extracted for translation.
+        2. The functions perform the translation when the program is running.
+
+        .. seealso::
+            `babel's documentation
+            <http://babel.edgewall.org/wiki/Documentation/messages.html>`_
+                for one method of extracting message catalogs from source
+                code.
+
     release version
         Version that is meant for human consumption.  This version is easy for
         a human to look at to decide how a particular version relates to other
