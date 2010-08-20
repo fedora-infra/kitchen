@@ -21,7 +21,10 @@
 #   Seth Vidal
 #
 # Portions of this code taken from yum/misc.py and yum/i18n.py
-'''Miscellaneous functions for manipulating text.
+'''
+---------------------------------------------
+Miscellaneous functions for manipulating text
+---------------------------------------------
 '''
 import htmlentitydefs
 import itertools
@@ -62,8 +65,8 @@ def guess_encoding(byte_string, disable_chardet=False):
         :attr:`byte_string`.  This is appropriate to pass as the encoding
         argument when encoding nad decoding unicode.
 
-    We start by attempting to decode the byte :class:`str` as :term:`UTF8`.
-    If this succeeds we tell the world it's :term:`UTF8` text.  If it doesn't
+    We start by attempting to decode the byte :class:`str` as :term:`UTF-8`.
+    If this succeeds we tell the world it's :term:`UTF-8` text.  If it doesn't
     and :mod:`chardet` is installed on the system and :attr:`disable_chardet`
     is False this function will use it to try detecting the encoding of
     :attr:`byte_string`.  If it is not installed or :mod:`chardet` cannot

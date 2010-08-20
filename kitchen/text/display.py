@@ -111,7 +111,7 @@ def _interval_bisearch(value, table):
 
     return False
 
-#: Internal table, provided by this module to list :term:`code point` s which
+#: Internal table, provided by this module to list :term:`code points` which
 # combine with other characters and therefore should have no :term:`textual
 # width`.  This is a sorted tuple of non-overlapping intervals.  Each interval
 # is a tuple listing a starting :term:`code point` and ending
@@ -190,7 +190,7 @@ def _generate_combining_table():
     '''Combine Markus Kuhn's data with unicodedata to make combining char list
 
     :rtype: tuple of tuples
-    :returns: A list of intervals of :term:`code point` s that are combining
+    :returns: A list of intervals of :term:`code points` that are combining
         character.  Each interval is a 2-tuple of the starting
         :term:`code point` and the ending :term:`code point` for the combining
         characters.
@@ -391,7 +391,7 @@ def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace')
         the string.
 
     .. note:: This function can be wrong sometimes because Unicode does not
-        specify a strict width value for all of the :term:`code point` s.  In
+        specify a strict width value for all of the :term:`code points`.  In
         particular, we've found that some Tamil characters take up to
         4 character cells but are represented with a lesser amount.
     '''
@@ -453,7 +453,7 @@ def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
         :term:`textual width`
 
     This is what you want to use instead of ``%.*s``, as it does the "right"
-    thing with regard to :term:`UTF8` sequences, :term:`control character` s,
+    thing with regard to :term:`UTF-8` sequences, :term:`control character` s,
     and characters that take more than one cell position. Eg::
 
         >>> # Only displays 8 characters because it is operating on bytes
@@ -568,7 +568,7 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
 
     This function expands a string to fill a field of a particular width.  Use
     it instead of ``%*.*s``, as it does the "right" thing with regard to
-    :term:`UTF8` sequences, :term:`control character` s, and characters that
+    :term:`UTF-8` sequences, :term:`control character` s, and characters that
     take more than one cell position in a display.  Example usage::
 
         >>> msg = u'一二三四五六七八九十'
@@ -795,7 +795,7 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         suffix='', encoding='utf8', errors='replace'):
     '''Expand a byte :class:`str` to a specified "width" or chop to same.
 
-    :arg msg: byte :class:`str` encoded in :term:`UTF8` that we want formatted
+    :arg msg: byte :class:`str` encoded in :term:`UTF-8` that we want formatted
     :arg fill: pad :attr:`msg` until the :term:`textual width` is this long
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all

@@ -63,23 +63,23 @@ between the types fail::
     False
 
 Why do these conversions fail?  The reason is that the python2
-:class:`unicode` represents an abstract sequence of text unicode codepoints.
-:class:`str`, on the other hand, really represents a sequence of bytes.  Those
-bytes are converted by your operating system to appear as characters on your
-screen using a particular encoding (usually defined by the operating system
-and customizable by the individual user.) Although :term:`ASCII` characters
-are fairly standard in what bytes represent each character, the bytes outside
-of the :term:`ASCII` range are not.  In general, each encoding will map
-a different character to a particular byte.  The newer and better encodings
-map individual characters to multiple bytes (which the older encodings will
-instead treat as multiple characters).  In the face of these differences,
-python refuses to guess at an encoding and instead issues a warning or
-exception and refuses to convert.
+:class:`unicode` type represents an abstract sequence of unicode text known as
+:term:`code points`.  :class:`str`, on the other hand, really represents
+a sequence of bytes.  Those bytes are converted by your operating system to
+appear as characters on your screen using a particular encoding (usually
+with a default defined by the operating system and customizable by the
+individual user.) Although :term:`ASCII` characters are fairly standard in
+what bytes represent each character, the bytes outside of the :term:`ASCII`
+range are not.  In general, each encoding will map a different character to
+a particular byte.  The newer and better encodings map individual characters
+to multiple bytes (which the older encodings will instead treat as multiple
+characters).  In the face of these differences, python refuses to guess at an
+encoding and instead issues a warning or exception and refuses to convert.
 
 Strategy for Explicit Conversion
 ================================
 
-So what is the best method of dealing with this weltering babble on incoherent
+So what is the best method of dealing with this weltering babble of incoherent
 encodings?  The basic strategy is to explicitly turn everything into
 :class:`unicode` when it first enters your program.  Then, when you send it to
 output, you can transform the unicode back into bytes.  Doing this allows you
@@ -109,27 +109,30 @@ something like this:
 A few notes:
 
 Looking at line 6, you'll notice that the input we took from the user was
-a :class:`str` (byte string).  In general, anytime we're getting a value from
-outside of python (The filesystem, reading data from the network, interacting
-with an external command, reading values from the environment) we are
-interacting with something that will want to give us byte strings.  Some
-libraries and python |stdlib|_ modules will automatically attempt to convert
-those byte strings to unicode types for you.  This is both a boon and a curse.
-If the library can guess correctly about the encoding that the data is in, it
-will return :class:`unicode` objects to you without you having to convert.
-However, if it can't guess correctly, you may end up with one of several
-problems:
+a byte :class:`str`.  In general, anytime we're getting a value from outside
+of python (The filesystem, reading data from the network, interacting with an
+external command, reading values from the environment) we are interacting with
+something that will want to give us byte :class:`str` s.  Some |stdlib|_
+modules and third party libraries will automatically attempt to convert those
+byte :class:`str` s to :class:`unicode` strings for you.  This is both a boon
+and a curse.  If the library can guess correctly about the encoding that the
+data is in, it will return :class:`unicode` objects to you without you having
+to convert.  However, if it can't guess correctly, you may end up with one of
+several problems:
 
-* A :exc:`UnicodeError`.  The library attempted to decode a byte string
-  into :class:`unicode`, failed, and raises an error.
-* Garbled data.  If the library returns the data after decoding it with the
-  wrong encoding, the characters you see in the :exc:`unicode` string won't be
-  the ones that you expect.
-* You may get a byte string instead of unicode.  Some libraries will return
-  :class:`unicode` when they're able to decode the data and bytes when they
-  can't.  This is generally the hardest problem to debug when it occurs.
-  Avoid it in your own code and try to avoid or open bugs against upstreams
-  that do this.
+:exc:`UnicodeError`
+    The library attempted to decode a byte string into :class:`unicode`,
+    failed, and raises an exception.
+Garbled data
+    If the library returns the data after decoding it with the wrong encoding,
+    the characters you see in the :exc:`unicode` string won't be the ones that
+    you expect.
+A byte string instead of unicode
+    Some libraries will return :class:`unicode` when they're able to decode
+    the data and bytes when they can't.  This is generally the hardest problem
+    to debug when it occurs.  Avoid it in your own code and try to avoid or
+    open bugs against upstreams that do this. See :ref:`Designing Unicode
+    Aware APIs` for strategies to do this properly.
 
 On line 8, we convert from a :class:`str` to a :class:`unicode`.
 :func:`~kitchen.text.converters.to_unicode` does this for us.  It has some
@@ -137,7 +140,7 @@ error handling and sane defaults that make this a nicer function to use than
 calling :meth:`str.decode` directly:
 
 * Instead of defaulting to the :term:`ASCII` encoding which fails with all
-  but the simple American English characters, it defaults to :term:`UTF8`.
+  but the simple American English characters, it defaults to :term:`UTF-8`.
 * Instead of raising an error if it cannot decode a value, it will replace
   the value with the unicode "Replacement character" symbol (�).
 * If you happen to call this method with something that is not a :class:`str`
@@ -155,7 +158,7 @@ On line 15 we push the data back out to a file.  Two things you should note here
     this stage.
 2. :func:`~kitchen.text.converters.to_bytes`, does the reverse of
     :func:`to_unicode`.  In this case, we're using the default values which
-    turn :class:`unicode` into a byte :class:`str` using :term:`UTF8`.  Any
+    turn :class:`unicode` into a byte :class:`str` using :term:`UTF-8`.  Any
     errors are replaced with a "?" and sending non-string objects yield empty
     :class:`unicode` strings.  Just like :func:`to_unicode`, you can look at
     the documentation for :func:`to_bytes` to find out how to override any of
@@ -971,15 +974,15 @@ def getwriter(encoding):
         >>> UTF8Writer = getwriter('utf8')
         >>> unwrapped_stdout = sys.stdout
         >>> sys.stdout = UTF8Writer(unwrapped_stdout)
-        >>> print 'caf\xc3\xa9'
+        >>> print 'caf\\xc3\\xa9'
         café
-        >>> print u'caf\xe9'
+        >>> print u'caf\\xe9'
         café
         >>> ASCIIWriter = getwriter('ascii')
         >>> sys.stdout = ASCIIWriter(unwrapped_stdout)
-        >>> print 'caf\xc3\xa9'
+        >>> print 'caf\\xc3\\xa9'
         café
-        >>> print u'caf\xe9'
+        >>> print u'caf\\xe9'
         caf?
 
     .. seealso::

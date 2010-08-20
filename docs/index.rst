@@ -23,10 +23,10 @@ and paste!  Now you can let someone else maintain and release these small
 snippets so that you can get on with your life.
 
 This package forms the core of Kitchen.  It contains some useful modules for
-using newer |stdlib| modules on older python versions, text manipulation,
-:pep:`386` versioning, and initializing gettext.  With this package we're
+using newer |stdlib|_ modules on older python versions, text manipulation,
+:pep:`386` versioning, and initializing :mod:`gettext`.  With this package we're
 trying to provide a few useful features that don't have too many dependencies
-outside of the |stdlib|.  We'll be releasing other modules that drop into the
+outside of the |stdlib|_.  We'll be releasing other modules that drop into the
 kitchen namespace to add other features (possibly with larger deps).
 
 ------------
@@ -48,7 +48,7 @@ still exist but may function in a different manner.
     Used in :func:`~kitchen.text.misc.guess_encoding` and
     :func:`~kitchen.text.converters.guess_encoding_to_xml` to help guess
     encoding of byte strings being converted.  If not present, unknown
-    encodings will be converted as if they were latin1
+    encodings will be converted as if they were ``latin1``
 
 ---------------------------
 Other Recommended Libraries
@@ -72,7 +72,7 @@ now, I just mention them here:
     access to the same functions.
 `unittest2 <http://pypi.python.org/pypi/unittest2>`_
     Python 2.7 has an updated :mod:`unittest` library with new functions not
-    present in the |stdlib| for Python 2.6 or less.  If you want to use those
+    present in the |stdlib|_ for Python 2.6 or less.  If you want to use those
     new functions but need your testing framework to be compatible with older
     Python the unittest2 library provides the update as an external module.
 
@@ -100,6 +100,7 @@ Contents
 .. toctree::
     :maxdepth: 2
 
+    tutorial
     api-overview
     hacking
     glossary

@@ -1,4 +1,3 @@
-
 .. automodule:: kitchen.text.converters
 
 Functions
@@ -11,6 +10,7 @@ Unicode and byte str conversion
 .. autofunction:: kitchen.text.converters.to_bytes
 .. autofunction:: kitchen.text.converters.to_utf8
 .. autofunction:: kitchen.text.converters.to_str
+.. autofunction:: kitchen.text.converters.getwriter
 
 Transformation to XML
 ---------------------

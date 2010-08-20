@@ -1,3 +1,5 @@
+.. _KitchenAPI:
+
 ===========
 Kitchen API
 ===========

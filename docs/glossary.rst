@@ -27,11 +27,20 @@ Glossary
         for the computer to read.  Encodings define how the code points map to
         particular sequences of bytes on disk  and in memory.
 
+    code points
+        :term:`code point`
+
     control character
         The set of characters in unicode that are used, not to display glyphs
         o nthe screen, but to tell the displayin program to do something.
 
         .. seealso:: http://en.wikipedia.org/wiki/Control_character
+
+    grapheme
+        characters or pieces of characters that you might write on a page to
+        make words, sentences, or other pieces of text.
+
+        .. seealso:: http://en.wikipedia.org/wiki/Grapheme
 
     I18N
         I18N is an abbreviation for internationalization.  It's often used to
@@ -55,6 +64,11 @@ Glossary
                 for one method of extracting message catalogs from source
                 code.
 
+    Murphy's Law
+        "Anything that can go wrong, will go wrong."
+
+        .. seealso:: http://en.wikipedia.org/wiki/Murphy%27s_Law
+
     release version
         Version that is meant for human consumption.  This version is easy for
         a human to look at to decide how a particular version relates to other
@@ -65,9 +79,9 @@ Glossary
         screen.  The units are number of character cells or columns that it
         takes the place of.
 
-    UTF8
-        A character encoding that maps all unicode codepoints to a sequence of
-        bytes.  It is compatible with :term:`ASCII`.  It uses a variable
+    UTF-8
+        A character encoding that maps all unicode :term:`code point` s to a sequence
+        of bytes.  It is compatible with :term:`ASCII`.  It uses a variable
         number of bytes to encode all of unicode.  ASCII characters take one
         byte.  Characters from other parts of unicode take two to four bytes.
         It is widespread as an encoding on the internet and in Linux.

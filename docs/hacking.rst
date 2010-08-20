@@ -17,7 +17,7 @@ Python 2.3 compatibility
 At the moment, we're supporting python-2.3 and above.  Understand that there's
 a lot of python features that we cannot use because of this.
 
-Sometimes modules in the |stdlib| can be added to kitchen so that they're
+Sometimes modules in the |stdlib|_ can be added to kitchen so that they're
 available.  When we do that we need to be careful of several things:
 
 1. Keep the module in sync with the version in the python-2.x trunk.  Use
@@ -266,9 +266,9 @@ Supackages within kitchen should meet these criteria:
 
 * Generally useful or needed for other pieces of kitchen.
 
-* No mandatory requirements outside of the |stdlib|.
+* No mandatory requirements outside of the |stdlib|_.
 
-  * Optional requirements from outside the |stdlib| are allowed.  Things with
+  * Optional requirements from outside the |stdlib|_ are allowed.  Things with
     mandatory requirements are better placed in `kitchen addon packages`_
 
 * Somewhat API stable -- this is not a hard requirement.  We can change the
