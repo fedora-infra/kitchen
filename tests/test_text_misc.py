@@ -53,10 +53,49 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
                 self.u_mangled_euc_jp_as_latin1)
 
     def test_str_eq(self):
-        tools.ok_(misc.str_eq(self.u_japanese, self.u_japanese) == True)
+        # str vs str:
         tools.ok_(misc.str_eq(self.euc_jp_japanese, self.euc_jp_japanese) == True)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.utf8_japanese) == True)
+        tools.ok_(misc.str_eq(self.b_ascii, self.b_ascii) == True)
+        tools.ok_(misc.str_eq(self.euc_jp_japanese, self.latin1_spanish) == False)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.euc_jp_japanese) == False)
+        tools.ok_(misc.str_eq(self.b_ascii, self.b_ascii[:-2]) == False)
+
+        # unicode vs unicode:
+        tools.ok_(misc.str_eq(self.u_japanese, self.u_japanese) == True)
+        tools.ok_(misc.str_eq(self.u_ascii, self.u_ascii) == True)
+        tools.ok_(misc.str_eq(self.u_japanese, self.u_spanish) == False)
+        tools.ok_(misc.str_eq(self.u_ascii, self.u_ascii[:-2]) == False)
+
+        # unicode vs str with default utf-8 conversion:
+        tools.ok_(misc.str_eq(self.u_japanese, self.utf8_japanese) == True)
+        tools.ok_(misc.str_eq(self.u_ascii, self.b_ascii) == True)
         tools.ok_(misc.str_eq(self.u_japanese, self.euc_jp_japanese) == False)
+        tools.ok_(misc.str_eq(self.u_ascii, self.b_ascii[:-2]) == False)
+
+        # unicode vs str with explicit encodings:
         tools.ok_(misc.str_eq(self.u_japanese, self.euc_jp_japanese, encoding='euc_jp') == True)
+        tools.ok_(misc.str_eq(self.u_japanese, self.utf8_japanese, encoding='utf8') == True)
+        tools.ok_(misc.str_eq(self.u_ascii, self.b_ascii, encoding='latin1') == True)
+        tools.ok_(misc.str_eq(self.u_japanese, self.euc_jp_japanese, encoding='latin1') == False)
+        tools.ok_(misc.str_eq(self.u_japanese, self.utf8_japanese, encoding='euc_jp') == False)
+        tools.ok_(misc.str_eq(self.u_japanese, self.utf8_japanese, encoding='euc_jp') == False)
+        tools.ok_(misc.str_eq(self.u_ascii, self.b_ascii[:-2], encoding='latin1') == False)
+
+        # str vs unicode (reverse parameter order of unicode vs str)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.u_japanese) == True)
+        tools.ok_(misc.str_eq(self.b_ascii, self.u_ascii) == True)
+        tools.ok_(misc.str_eq(self.euc_jp_japanese, self.u_japanese) == False)
+        tools.ok_(misc.str_eq(self.b_ascii, self.u_ascii[:-2]) == False)
+
+        tools.ok_(misc.str_eq(self.euc_jp_japanese, self.u_japanese, encoding='euc_jp') == True)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.u_japanese, encoding='utf8') == True)
+        tools.ok_(misc.str_eq(self.b_ascii, self.u_ascii, encoding='latin1') == True)
+        tools.ok_(misc.str_eq(self.euc_jp_japanese, self.u_japanese, encoding='latin1') == False)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.u_japanese, encoding='euc_jp') == False)
+        tools.ok_(misc.str_eq(self.utf8_japanese, self.u_japanese, encoding='euc_jp') == False)
+        tools.ok_(misc.str_eq(self.b_ascii, self.u_ascii[:-2], encoding='latin1') == False)
+
 
     def test_process_control_chars(self):
         tools.assert_raises(TypeError, misc.process_control_chars, 'byte string')
