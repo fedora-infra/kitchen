@@ -115,13 +115,20 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
     for each.
     '''
     # Import this here to avoid circular deps
-    from kitchen.text.converters import to_bytes
-    if isinstance(str1, unicode) == isinstance(str2, unicode):
+    #from kitchen.text.converters import to_bytes
+    str1_type = isinstance(str1, unicode)
+    str2_type = isinstance(str2, unicode)
+
+    if str1_type == str2_type:
         if str1 == str2:
             return True
-    elif to_bytes(str1, encoding=encoding, errors=errors)\
-            == to_bytes(str2, encoding=encoding, errors=errors):
-        return True
+    else:
+        if str1_type:
+            str2 = str2.decode(encoding, errors)
+        else:
+            str1 = str1.decode(encoding, errors)
+        if str1 == str2:
+            return True
 
     return False
 
