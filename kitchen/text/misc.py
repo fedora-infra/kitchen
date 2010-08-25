@@ -114,6 +114,10 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
     means that strings can compare differently if you use different encodings
     for each.
     '''
+    try:
+        return (not str1 < str2) and (not str1 > str2)
+    except UnicodeError:
+        pass
     str1_type = isinstance(str1, unicode)
     if str1_type == isinstance(str2, unicode):
         if str1 == str2:
