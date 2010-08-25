@@ -118,18 +118,13 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
         return (not str1 < str2) and (not str1 > str2)
     except UnicodeError:
         pass
-    str1_type = isinstance(str1, unicode)
-    if str1_type == isinstance(str2, unicode):
-        if str1 == str2:
-            return True
-        return False
+
+    if isinstance(str1, unicode):
+        str1 = str1.encode(encoding, errors)
     else:
-        if str1_type:
-            str1 = str1.encode(encoding, errors)
-        else:
-            str2 = str2.encode(encoding, errors)
-        if str1 == str2:
-            return True
+        str2 = str2.encode(encoding, errors)
+    if str1 == str2:
+        return True
 
     return False
 
