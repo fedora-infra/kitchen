@@ -114,19 +114,16 @@ def str_eq(str1, str2, encoding='utf8', errors='replace'):
     means that strings can compare differently if you use different encodings
     for each.
     '''
-    # Import this here to avoid circular deps
-    #from kitchen.text.converters import to_bytes
     str1_type = isinstance(str1, unicode)
-    str2_type = isinstance(str2, unicode)
-
-    if str1_type == str2_type:
+    if str1_type == isinstance(str2, unicode):
         if str1 == str2:
             return True
+        return False
     else:
         if str1_type:
-            str2 = str2.decode(encoding, errors)
+            str1 = str1.encode(encoding, errors)
         else:
-            str1 = str1.decode(encoding, errors)
+            str2 = str2.encode(encoding, errors)
         if str1 == str2:
             return True
 
