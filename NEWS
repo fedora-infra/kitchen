@@ -11,11 +11,14 @@ NEWS
 -----
 
 * Fix failing unittest on python-2.7
+* Add iterutils module
 * Update table of combining utf8 characters from python-2.7
+* Speed up kitchen.text.misc.str_eq().
 * docs:
   - api-i18n.rst
   - api-exceptions.rst
   - api-collections.rst
+  - Add two tutorial sections for unicode
 
 Planned
 =======
