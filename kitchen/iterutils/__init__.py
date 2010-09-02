@@ -23,7 +23,7 @@
 '''
 Functions to manipulate iterables
 
-.. versionadded:: 0.2.1a3
+.. versionadded:: 0.2.1a1
 
 .. moduleauthor:: Toshio Kuratomi <toshio@fedoraproject.org>
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
