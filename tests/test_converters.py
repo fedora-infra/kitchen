@@ -5,6 +5,7 @@ import unittest
 from nose import tools
 from nose.plugins.skip import SkipTest
 
+import StringIO
 import warnings
 
 try:
@@ -198,6 +199,37 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
             tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
                     == self.utf8_mangled_euc_jp_as_latin1)
 
+class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
+    def setUp(self):
+        self.io = StringIO.StringIO()
+
+    def test_utf8_writer(self):
+        writer = converters.getwriter('utf-8')
+        io = writer(self.io)
+        io.write(u'%s\n' % self.u_japanese)
+        io.seek(0)
+        result = io.read().strip()
+        tools.ok_(result == self.utf8_japanese)
+
+        io.seek(0)
+        io.truncate(0)
+        io.write('%s\n' % self.euc_jp_japanese)
+        io.seek(0)
+        result = io.read().strip()
+        tools.ok_(result == self.euc_jp_japanese)
+
+        io.seek(0)
+        io.truncate(0)
+        io.write('%s\n' % self.utf8_japanese)
+        io.seek(0)
+        result = io.read().strip()
+        tools.ok_(result == self.utf8_japanese)
+
+    def test_error_handlers(self):
+        '''Test setting alternate error handlers'''
+        writer = converters.getwriter('lstin2')
+        io = writer(self.io, errors='strict')
+        tools.assert_raises(io.write(self.u_japanese))
 
 class TestDeprecatedConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def setUp(self):
