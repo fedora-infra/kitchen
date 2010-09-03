@@ -33,7 +33,7 @@ Here's a good API that uses this strategy::
         msg = to_unicode(msg, encoding, errors)
         return msg[:max_length]
 
-The call to :func:`truncate` start with the essential parameters for
+The call to :func:`truncate` starts with the essential parameters for
 performing the task.  It ends with two optional keyword arguments that define
 the encoding to use to transform from a byte :class:`str` to :class:`unicode`
 and the strategy to use if undecodable bytes are encountered.  The defaults
@@ -46,7 +46,29 @@ want to handle any problems.  Having the values is also a clue to them that
 a conversion from byte :class:`str` to :class:`unicode` string is going to
 occur.
 
-Here's a few bad APIs that uses this strategy::
+.. note::
+    If you're targeting python-3.1 and above, ``errors='surrogateescape'`` may
+    be a better default than ``errors='strict'``.  You need to be mindful of
+    a few things when using ``surrogateescape`` though:
+
+    * ``surrogateescape`` will cause issues if a non-:term:`ASCII` compatible
+      encoding is used (for instance, UTF-16 and UTF-32.)  That makes it
+      unhelpful in situations where a true general purpose method of encoding
+      must be found.  :pep:`383` mentions that ``surrogateescape`` was
+      specifically designed with the limitations of translating using system
+      locales (where :term:`ASCII` compatibility is generally seen as
+      inescapable) so you should keep that in mind.
+    * If you use ``surrogateescape`` to decode from :class:`bytes`
+      to :class:`unicode` you will need to use an error handler other than
+      ``strict`` to encode as the lone surrogate that this error handler
+      creates makes for invalid unicode that must be handled when encoding.
+      In Python-3.1.2 or less, a bug in the encoder error handlers mean that
+      you can only use ``surrogateescape`` to encode; anything else will throw
+      an error.
+
+    Evaluate your usages of the variables in question to see what makes sense.
+
+Here's a bad example of using this strategy::
 
     from kitchen.text.converters import to_unicode
 
@@ -59,31 +81,19 @@ In this example, we don't have the optional keyword arguments for
 likely to miss the fact that a conversion from byte :class:`str` to
 :class:`unicode` is going to occur.  And once an error is reported, they will
 have to look through their backtrace and think harder about where they want to
-transform their data into :class:`unicode` strings.  Note that the user does have the
-ability to make this work by making the transformation to unicode themselves::
+transform their data into :class:`unicode` strings instead of having the
+opportunity to control how the conversion takes place in the function itself.
+Note that the user does have the ability to make this work by making the
+transformation to unicode themselves::
 
     from kitchen.text.converters import to_unicode
 
     msg = to_unicode(msg, encoding='euc_jp', errors='ignore')
     new_msg = truncate(msg, 5)
 
-------------------
-Separate functions
-------------------
-
-Sometimes you want to be able to take either byte :class:`str` or
-:class:`unicode` strings, perform similar operations on either one and then
-return data in the same format as was given.  Probably the easiest way to do
-that is to have separate functions for each and adopt a naming convention to
-show that one is for working with byte :class:`str` and the other is for
-working with :class:`unicode` strings.
-
-    def translateb(msg, table):
-        pass
-
------------------------------------------------------
-Take either bytes or unicode, output bytes or unicode
------------------------------------------------------
+--------------------------------------------------
+Take either bytes or unicode, output the same type
+--------------------------------------------------
 
 This strategy is sometimes called polymorphic because the type of data that is
 returned is dependent on the type of data that is received.  The concept is
@@ -99,7 +109,7 @@ the function does not change the type.
 
 In cases where the encoding of the byte :class:`str` is known or can be
 discovered based on the input data this works well.  If you can't figure out
-hte input encoding, however, this strategy will fail in any of the following
+the input encoding, however, this strategy can fail in any of the following
 cases:
 
 1. It needs to do an internal conversion between byte :class:`str` and
@@ -125,10 +135,14 @@ First, a couple examples of using this strategy in a good way::
 In this example, all of the strings that we use (except the empty string which
 is okay because it doesn't have any characters to encode) come from outside of
 the function.  Due to that, the user is responsible for making sure that the
-msg, keys, and values in table all match in terms of type (:class:`unicode` vs
-:class:`str`) and encoding (You can do some error checking to error if the
-user doesn't give all the same type.  You can't do the same for the user
-giving different encodings).  You do not need to make changes to the 
+:attr:`msg`, and the keys and values in :attr:`table` all match in terms of
+type (:class:`unicode` vs :class:`str`) and encoding (You can do some error
+checking to make sure the user gave all the same type but you can't do the
+same for the user giving different encodings).  You do not need to make
+changes to the string that require you to know the encoding or type of the
+string; everything is a simple replacement of one element in the array of
+characters in message with the character in table.
+
 ::
 
     import json
@@ -160,10 +174,10 @@ giving different encodings).  You do not need to make changes to the
         data = json.loads(unicode(json_string, encoding))
         return data[0].encode(encoding)
 
-This function takes either a byte :class:`str` type or a :class:`unicode`
-string that has a list in json format and returns the first field from it as
-the type of the input string.  The first section of code is very
-straightforward; we receive a :class:`unicode` string, parse it with
+In this example the function takes either a byte :class:`str` type or
+a :class:`unicode` string that has a list in json format and returns the first
+field from it as the type of the input string.  The first section of code is
+very straightforward; we receive a :class:`unicode` string, parse it with
 a function, and then return the first field from our parsed data (which our
 function returned to us as json data).
 
@@ -228,7 +242,7 @@ Another example of failure::
         # files could contain both bytes and unicode
         new_files = []
         for filename in files:
-            if not isinstance(filename, unicode)
+            if not isinstance(filename, unicode):
                 # What to do here?
                 continue
             new_files.appen(filename)
@@ -237,12 +251,18 @@ Another example of failure::
 This function illustrates the second failure mode.  Here, not all of the
 possible values can be represented as :class:`unicode` without knowing more
 about the encoding of each of the filenames involved.  Since each filename
-could have a different encoding what we probably need most is to know what to
-do when we encounter an error::
+could have a different encoding there's a few different options to pursue.  We
+could make this function always return byte :class:`str` since that can
+accurately represent anything that could be returned.  If we want to return
+:class:`unicode` we need to at least allow the user to specify what to do in
+case of an error decoding the bytes to :class:`unicode`.  We can also let the
+user specify the encoding to use for doing the decoding but that won't help in
+all cases since not all files will be in the same encoding (or even
+necessarily in any encoding)::
 
     import locale
     import os
-    def listdir(directory, errors='strict'):
+    def listdir(directory, encoding=locale.getpreferredencoding(), errors='strict'):
         # Note: In python-3.1+, surrogateescape may be a better default
         files = os.listdir(directory)
         if isinstance(directory, str):
@@ -250,11 +270,15 @@ do when we encounter an error::
         new_files = []
         for filename in files:
             if not isinstance(filename, unicode):
-                if errors == 'ignore':
-                    continue
-                filename = unicode(filename, encoding=locale.getpreferredencoding(), errors=errors)
+                filename = unicode(filename, encoding=encoding, errors=errors)
             new_files.append(filename)
         return new_files
+
+Note that although we use :attr:`errors` in this example as what to pass to
+the codec that decodes to :class:`unicode` we could also have an
+:attr:`errors` argument that decides other things to do like skip a filename
+entirely, return a placeholder (``Nondisplayable filename``), or raise an
+exception.
 
 This leaves us with one last failure to describe::
 
@@ -289,8 +313,8 @@ taking the encoding is the better option for two reasons:
    for different characters in multiple sequences.
 
    .. note::
-        :term:`UTF-8` is resistant to this character's sequence of bytes will
-        ever be a subset of another character's sequence of bytes.
+        :term:`UTF-8` is resistant to this as any character's sequence of
+        bytes will never be a subset of another character's sequence of bytes.
 
 With that in mind, here's how to improve the API::
 
@@ -307,7 +331,7 @@ With that in mind, here's how to improve the API::
             return csv_string
 
         if not is_unicode:
-            field = field.decode(encoding, errors)
+            field = field.encode(encoding, errors)
         return field
 
 .. note:: If you decide you'll never encounter a variable width encoding that
@@ -319,6 +343,104 @@ With that in mind, here's how to improve the API::
             except ValueError:
                 return csv_string
 
+------------------
+Separate functions
+------------------
+
+Sometimes you want to be able to take either byte :class:`str` or
+:class:`unicode` strings, perform similar operations on either one and then
+return data in the same format as was given.  Probably the easiest way to do
+that is to have separate functions for each and adopt a naming convention to
+show that one is for working with byte :class:`str` and the other is for
+working with :class:`unicode` strings::
+
+    def translate_b(msg, table):
+        '''Replace values in str with other byte values like unicode.translate'''
+        if not isinstance(msg, str):
+            raise TypeError('msg must be of type str')
+        str_table = [chr(s) for s in xrange(0,256)]
+        delete_chars = []
+        for chr_val in (k for k in table.keys() if isinstance(k, int)):
+            if chr_val > 255:
+                raise ValueError('Keys in table must not exceed 255)')
+            if table[chr_val] == None:
+                delete_chars.append(chr(chr_val))
+            elif isinstance(table[chr_val], int):
+                if table[chr_val] > 255:
+                    raise TypeError('table values cannot be more than 255 or less than 0')
+                str_table[chr_val] = chr(table[chr_val])
+            else:
+                if not isinstance(table[chr_val], str):
+                    raise TypeError('character mapping must return integer, None or str')
+                str_table[chr_val] = table[chr_val]
+        str_table = ''.join(str_table)
+        delete_chars = ''.join(delete_chars)
+        return msg.translate(str_table, delete_chars)
+
+    def translate(msg, table):
+        '''Replace values in a unicode string with other values'''
+        if not isinstance(msg, unicode):
+            raise TypeError('msg must be of type unicode')
+        return msg.translate(table)
+
+There's several things that we have to do in this API:
+
+* Because the function names might not be enough of a clue to the user of the
+  functions of the value types that are expected, we have to check that the
+  types are correct.
+
+* We keep the behaviour of the two functions as close to the same as possible,
+  just with byte :class:`str` and :class:`unicode` strings substituted for
+  each other.
+
+
+-----------------------------------------------------------------
+Deciding whether to take str or unicode when no value is returned
+-----------------------------------------------------------------
+
+Not all functions have a return value.  Sometimes a function is there to
+interact with something external to python, for instance, writing a file out
+to disk or a method exists to update the internal state of a data structure.
+One of the main questions with these APIs is whether to take byte
+:class:`str`, :class:`unicode` string, or both.  The answer depends on your
+use case but I'll give some examples here.
+
+Writing to external data
+========================
+
+When your information is going to an external data source like writing to
+a file you need to decide whether to take in :class:`unicode` strings or byte
+:class:`str`.  Remember that most external data sources are not going to be
+dealing with unicode directly.  Instead, they're going to be dealing with
+a sequence of bytes that may be interpreted as unicode.  With that in mind,
+you either need to have the user give you a byte :class:`str` or convert to
+a byte :class:`str` inside the function.
+
+Next you need to think about the type of data that you're receiving.  If it's
+textual data, (for instance, this is a chat client and the user is typing
+messages that they expect to be read by another person) it probably makes sense to
+take in :class:`unicode` strings and do the conversion inside your function.
+On the other hand, if this is a lower level function that's passing data into
+a network socket, it probably should be taking byte :class:`str` instead.
+
+Just as noted in the API notes above, you should specify an :attr:`encoding`
+and :attr:`errors` argument if you need to transform from :class:`unicode`
+string to byte :class:`str` and you are unable to guess the encoding from the
+data itself.
+
+Updating data structures
+========================
+
+Sometimes your API is just going to update a data structure and not
+immediately output that data anywhere.  Just as when writing external data,
+you should think about both what your function is going to do with the data
+eventually and what the caller of your function is thinking that they're
+giving you.  Most of the time, you'll want to take :class:`unicode` strings
+and enter them into the data structure as :class:`unicode` when the data is
+textual in nature.  You'll want to take byte :class:`str` and enter them into
+the data structure as byte :class:`str` when the data is not text.  Use
+a naming convention so the user knows what's expected.
+
 -------------
 APIs to Avoid
 -------------
@@ -329,7 +451,12 @@ that does one of these things, change it before anyone sees your code.
 Returning unicode unless a conversion fails
 ===========================================
 
-One example of this is present in the |stdlib|: :func:`os.listdir`::
+This type of API usually deals with byte :class:`str` at some point and
+converts it to :class:`unicode` because it's usually thought to be text.
+However, there are times when the bytes fail to convert to a :class:`unicode`
+string.  When that happens, this API returns the raw byte :class:`str` instead
+of a :class:`unicode` string.  One example of this is present in the |stdlib|_:
+python2's :func:`os.listdir`::
 
     >>> import os
     >>> import locale
@@ -358,3 +485,54 @@ that has filenames in multiple encodings the filenames returned by
 has a different :func:`string.translate` function that takes different values.
 So the code raises an exception where it's not immediately obvious that
 :func:`os.listdir` is at fault.
+
+Ignoring values with no chance of recovery
+==========================================
+
+An early version of python3 attempted to fix the :func:`os.listdir` problem
+pointed out in the last section by returning all values that were decodable to
+:class:`unicode` and omitting the filenames that were not.  This lead to the
+following output::
+
+    >>> import os
+    >>> import locale
+    >>> locale.getpreferredencoding()
+    'UTF-8'
+    >>> os.mkdir('/tmp/mine')
+    >>> os.chdir('/tmp/mine')
+    >>> open(b'nonsense_char_\xff', 'w').close()
+    >>> open('all_ascii', 'w').close()
+    >>> os.listdir('.')
+    ['all_ascii']
+
+The issue with this type of code is that it is silently doing something
+surprising.  The caller expects to get a full list of files back from
+:func:`os.listdir`.  Instead, it silently ignores some of the files, returning
+only a subset.  This leads to code that doesn't do what is expected that may
+go unnoticed until the code is in production and someone notices that
+something important is being missed.
+
+Raising a UnicodeException with no chance of recovery
+=====================================================
+
+Believe it or not, a few libraries exist that make it impossible to deal
+with unicode text without raising a :exc:`UnicodeError`.  What seems to occur
+in these libraries is that the library has functions that expect to receive
+a :class:`unicode` string.  However, internally, those functions call other
+functions that expect to receive a byte :class:`str`.  The programmer of the
+API was smart enough to convert from a :class:`unicode` string to a byte
+:class:`str` but they did not give the user the chance to specify the
+encodings to use or how to deal with errors.  This results in exceptions when
+the user passes in a byte :class:`str` because the initial function wants
+a :class:`unicode` string and exceptions when the user passes in
+a :class:`unicode` string because the function can't convert the string to
+bytes in the encoding that it's selected.
+
+Do not put the user in the position of not being able to use your API without
+raising a :exc:`UnicodeError` with certain values.  If you can only safely
+take :class:`unicode` strings, document that byte :class:`str` is not allowed
+and vice versa.  If you have to convert internally, make sure to give the
+caller of your function parameters to control the encoding and how to treat
+errors that may occur during the encoding/decoding process.  If your code will
+raise a :exc:`UnicodeError` with non-:term:`ASCII` values no matter what, you
+should probably rethink your API.
