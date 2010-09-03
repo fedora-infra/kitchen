@@ -227,9 +227,9 @@ class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
 
     def test_error_handlers(self):
         '''Test setting alternate error handlers'''
-        writer = converters.getwriter('lstin2')
+        writer = converters.getwriter('latin1')
         io = writer(self.io, errors='strict')
-        tools.assert_raises(io.write(self.u_japanese))
+        tools.assert_raises(UnicodeEncodeError, io.write, self.u_japanese)
 
 class TestDeprecatedConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def setUp(self):
