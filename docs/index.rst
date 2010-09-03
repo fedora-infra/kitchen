@@ -27,22 +27,24 @@ using newer |stdlib|_ modules on older python versions, text manipulation,
 :pep:`386` versioning, and initializing :mod:`gettext`.  With this package we're
 trying to provide a few useful features that don't have too many dependencies
 outside of the |stdlib|_.  We'll be releasing other modules that drop into the
-kitchen namespace to add other features (possibly with larger deps).
+kitchen namespace to add other features (possibly with larger deps) as time
+goes on.
 
 ------------
 Requirements
 ------------
 
-kitchen requires
+We've tried to keep the core kitchen module's requirements lightweight.  At the
+moment kitchen only requires
 
 :python: 2.3.1 or later
 
 Soft Requirements
 =================
 
-If found, these libraries will be used to make the implementation of something
-better in some way.  If they are not present, the API that they enable will
-still exist but may function in a different manner.
+If found, these libraries will be used to make the implementation of some part
+of kitchen better in some way.  If they are not present, the API that they
+enable will still exist but may function in a different manner.
 
 `chardet <http://chardet.feedparser.org/>`_
     Used in :func:`~kitchen.text.misc.guess_encoding` and
@@ -75,6 +77,9 @@ now, I just mention them here:
     present in the |stdlib|_ for Python 2.6 or less.  If you want to use those
     new functions but need your testing framework to be compatible with older
     Python the unittest2 library provides the update as an external module.
+`nose <http://somethingaboutorange.com/mrl/projects/nose/>`_
+    If you want to use a test discovery tool instead of the unittest
+    framework, nosetests provides a simple to use way to do that.
 
 -------
 License

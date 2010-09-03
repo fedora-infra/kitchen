@@ -19,6 +19,10 @@ NEWS
   - api-exceptions.rst
   - api-collections.rst
   - Add two tutorial sections for unicode
+* unittests
+  - kitchen.text.converters.getwriter()
+  - kitchen.iterutils
+  - tests for more input variations to str_eq
 
 Planned
 =======
@@ -31,8 +35,8 @@ Planned
     - Update utf8
     - Update misc?
     - Add display
-    - Add kitchen.text.conveerters.getwriter()
-* unittest kitchen.text.converters.getwriter()
+    - Add kitchen.text.converters.getwriter()
+  - Add iterutils
 * unittest kitchen.text.display.print_combining_table() ?
 
 -----
