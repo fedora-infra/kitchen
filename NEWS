@@ -3,8 +3,23 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 28 Jul 2010
+:Date: 2 Sep 2010
 :Version: 0.2.x
+
+-------
+Planned
+-------
+* Ensure that all deprecated functions used by yum are present
+: Update docs to include the new files
+  - api-using-kitchen-versions.rst
+    - Using kitchen.release
+    - Using kitchen.*.__version_info__
+  - api-text.rst::
+    - Update utf8
+    - Update misc?
+    - Add display
+    - Add kitchen.text.converters.getwriter()
+* unittest kitchen.text.display.print_combining_table() ?
 
 -----
 0.2.1a1
@@ -24,20 +39,6 @@ NEWS
   - kitchen.text.converters.getwriter()
   - kitchen.iterutils
   - tests for more input variations to str_eq
-
-Planned
-=======
-* Ensure that all deprecated functions used by yum are present
-: Update docs to include the new files
-  - api-using-kitchen-versions.rst
-    - Using kitchen.release
-    - Using kitchen.*.__version_info__
-  - api-text.rst::
-    - Update utf8
-    - Update misc?
-    - Add display
-    - Add kitchen.text.converters.getwriter()
-* unittest kitchen.text.display.print_combining_table() ?
 
 -----
 0.2a2
