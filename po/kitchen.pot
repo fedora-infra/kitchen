@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: kitchen 0.2a1\n"
+"Project-Id-Version: kitchen 0.2.1a1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-07-23 15:34-0400\n"
+"POT-Creation-Date: 2010-09-03 00:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,127 +56,129 @@ msgstr ""
 msgid "First argument must be callable"
 msgstr ""
 
-#: kitchen/text/converters.py:476
+#: kitchen/text/converters.py:483
 #, python-format
 msgid ""
 "to_unicode was given \"%(obj)s\" which is neither a byte string (str) or "
 "a unicode string"
 msgstr ""
 
-#: kitchen/text/converters.py:479 kitchen/text/converters.py:567
+#: kitchen/text/converters.py:486 kitchen/text/converters.py:574
 #, python-format
 msgid "non_string value, %(param)s, is not set to a valid action"
 msgstr ""
 
-#: kitchen/text/converters.py:564
+#: kitchen/text/converters.py:571
 #, python-format
 msgid ""
 "to_bytes was given \"%(obj)s\" which is neither a unicode string or a "
 "byte string (str)"
 msgstr ""
 
-#: kitchen/text/converters.py:575
+#: kitchen/text/converters.py:582
 msgid ""
 "kitchen.text.converters.to_utf8 is deprecated.  Use "
 "kitchen.text.converters.to_bytes(obj, encoding=\"utf8\", "
 "non_string=\"passthru\" instead."
 msgstr ""
 
-#: kitchen/text/converters.py:598
+#: kitchen/text/converters.py:605
 msgid ""
 "to_str is deprecated.  Use to_unicode or to_bytes instead.  See the "
 "to_str docstring for porting information."
 msgstr ""
 
-#: kitchen/text/converters.py:719
+#: kitchen/text/converters.py:732
 msgid ""
 "unicode_to_xml must have a unicode type as the first argument.  Use "
 "bytes_string_to_xml for byte strings."
 msgstr ""
 
-#: kitchen/text/converters.py:723
+#: kitchen/text/converters.py:736
 msgid ""
 "The control_chars argument to unicode_to_xml must be one of ignore, "
 "replace, or strict"
 msgstr ""
 
-#: kitchen/text/converters.py:814
+#: kitchen/text/converters.py:827
 msgid ""
 "byte_string_to_xml can only take a byte string as its first argument.  "
 "Use unicode_to_xml for unicode strings"
 msgstr ""
 
-#: kitchen/text/converters.py:934
+#: kitchen/text/converters.py:1012
 msgid ""
 "kitchen.text.converters.to_xml is deprecated.  Use "
 "kitchen.text.converters.guess_encoding_to_xml instead."
 msgstr ""
 
-#: kitchen/text/display.py:304
+#: kitchen/text/display.py:331
 msgid ""
 "_ucp_width does not understand how to assign a width value to control "
 "characters."
 msgstr ""
 
-#: kitchen/text/misc.py:73
+#: kitchen/text/misc.py:79
 msgid "byte_string must be a byte string (str)"
 msgstr ""
 
-#: kitchen/text/misc.py:137
+#: kitchen/text/misc.py:146
 msgid "process_control_char must have a unicode type as the first argument."
 msgstr ""
 
-#: kitchen/text/misc.py:148
+#: kitchen/text/misc.py:157
 msgid "ASCII control code present in string input"
 msgstr ""
 
-#: kitchen/text/misc.py:151
+#: kitchen/text/misc.py:160
 msgid ""
 "The strategy argument to process_control_chars must be one of ignore, "
 "replace, or strict"
 msgstr ""
 
-#: kitchen/text/misc.py:203
+#: kitchen/text/misc.py:216
 msgid "html_entities_unescape must have a unicode type for its first argument"
 msgstr ""
 
-#: kitchen/text/utf8.py:145
-msgid "Deprecated.  Use kitchen.text.misc.byte_string_valid_encoding(msg) instead"
+#: kitchen/text/utf8.py:65
+msgid ""
+"kitchen.text.utf8.utf8_valid is deprecated.  Use "
+"kitchen.text.misc.byte_string_valid_encoding(msg) instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:155
+#: kitchen/text/utf8.py:75
 msgid ""
 "kitchen.text.utf8.utf8_width is deprecated.  Use "
-"kitchen.text.utf8.textual_width(msg) instead"
+"kitchen.text.display.textual_width(msg) instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:177
+#: kitchen/text/utf8.py:97
 msgid ""
 "kitchen.text.utf8.utf8_width_chop is deprecated.  Use "
-"kitchen.text.utf8.textual_width_chop instead"
+"kitchen.text.display.textual_width_chop instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:196
+#: kitchen/text/utf8.py:116
 msgid ""
 "kitchen.text.utf8.utf8_width_fill is deprecated.  Use "
-"kitchen.text.utf8.byte_string_textual_width_fill instead"
+"kitchen.text.display.byte_string_textual_width_fill instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:208
+#: kitchen/text/utf8.py:128
 msgid ""
 "kitchen.text.utf8.utf8_text_wrap is deprecated.  Use "
 "kitchen.text.display.wrap instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:224
+#: kitchen/text/utf8.py:144
 msgid ""
 "kitchen.text.utf8.utf8_text_fill is deprecated.  Use "
 "kitchen.text.display.fill instead"
 msgstr ""
 
-#: kitchen/text/utf8.py:234
+#: kitchen/text/utf8.py:154
 msgid ""
 "kitchen.text.utf8._utf8_width_le is deprecated.  Use "
-"kitchen.text.utf8._textual_width_le instead"
+"kitchen.text.display._textual_width_le instead"
 msgstr ""
 
