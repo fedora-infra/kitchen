@@ -14,6 +14,7 @@ that may drag in more dependencies can be found on the `project webpage`_
     api-i18n
     api-text
     api-collections
+    api-iterutils
     api-versioning
     api-pycompat24
     api-pycompat25
