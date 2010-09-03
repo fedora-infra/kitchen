@@ -35,7 +35,7 @@ try:
 except ImportError:
     chardet = None
 
-from kitchen import _
+from kitchen import b_
 from kitchen.pycompat24 import sets
 from kitchen.text.exceptions import ControlCharError
 
@@ -76,7 +76,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     :exc:`UnicodeErrors` even if the output is mangled.
     '''
     if not isinstance(byte_string, str):
-        raise TypeError(_('byte_string must be a byte string (str)'))
+        raise TypeError(b_('byte_string must be a byte string (str)'))
     input_encoding = 'utf8'
     try:
         unicode(byte_string, input_encoding, 'strict')
@@ -143,7 +143,7 @@ def process_control_chars(string, strategy='replace'):
     :returns: unicode string with no control characters in it.
     '''
     if not isinstance(string, unicode):
-        raise TypeError(_('process_control_char must have a unicode type as'
+        raise TypeError(b_('process_control_char must have a unicode type as'
                 ' the first argument.'))
     if strategy == 'ignore':
         control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
@@ -154,10 +154,10 @@ def process_control_chars(string, strategy='replace'):
         # Test that there are no control codes present
         data = frozenset(string)
         if [c for c in _control_chars if c in data]:
-            raise ControlCharError(_('ASCII control code present in string'
+            raise ControlCharError(b_('ASCII control code present in string'
                     ' input'))
     else:
-        raise ValueError(_('The strategy argument to process_control_chars'
+        raise ValueError(b_('The strategy argument to process_control_chars'
                 ' must be one of ignore, replace, or strict'))
 
     if control_table:
@@ -213,7 +213,7 @@ def html_entities_unescape(string):
         return string # leave as is
 
     if not isinstance(string, unicode):
-        raise TypeError(_('html_entities_unescape must have a unicode type'
+        raise TypeError(b_('html_entities_unescape must have a unicode type'
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 

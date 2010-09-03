@@ -78,13 +78,13 @@ the defaultdict class provided by python-2.5 and above.
 
 import types
 
-from kitchen import _
+from kitchen import b_
 
 class defaultdict(dict):
     def __init__(self, default_factory=None, *args, **kwargs):
         if (default_factory is not None and
             not hasattr(default_factory, '__call__')):
-            raise TypeError(_('First argument must be callable'))
+            raise TypeError(b_('First argument must be callable'))
         dict.__init__(self, *args, **kwargs)
         self.default_factory = default_factory
 

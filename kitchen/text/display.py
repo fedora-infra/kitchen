@@ -39,7 +39,7 @@ have the same width so we need helper functions for displaying them.
 import itertools
 import unicodedata
 
-from kitchen import _
+from kitchen import b_
 from kitchen.text.converters import to_unicode, to_bytes
 from kitchen.text.exceptions import ControlCharError
 
@@ -328,7 +328,7 @@ def _ucp_width(ucs, control_chars='guess'):
     if ucs < 32 or (ucs < 0xa0 and ucs >= 0x7f):
         # Control character detected
         if control_chars == 'strict':
-            raise ControlCharError(_('_ucp_width does not understand how to'
+            raise ControlCharError(b_('_ucp_width does not understand how to'
                 ' assign a width value to control characters.'))
         if ucs in (0x08, 0x07F, 0x94):
             # Backspace, delete, and clear delete remove a single character

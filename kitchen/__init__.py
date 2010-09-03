@@ -26,7 +26,8 @@ Aggregate of a bunch of unrelated but helpful python modules.
 from kitchen import i18n
 from kitchen import versioning
 
-(_, P_) = i18n.easy_gettext_setup('kitchen.core')
+(_, N_) = i18n.easy_gettext_setup('kitchen.core')
+(b_, bN_) = i18n.easy_gettext_setup('kitchen.core', use_unicode=False)
 
 __version_info__ = ((0, 2, 1), ('a', 1))
 __version__ = versioning.version_tuple_to_string(__version_info__)
