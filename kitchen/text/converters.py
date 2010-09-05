@@ -198,7 +198,7 @@ of a value.  Here's a few hints to keep your sanity in these situations:
     for this purpose you might want to use::
 
         try:
-            b_input = to_bytes(input_should_be_bytes_already, errors='strict', non_string='strict')
+            b_input = to_bytes(input_should_be_bytes_already, errors='strict', nonstring='strict')
         except:
             handle_errors_somehow()
 
@@ -240,8 +240,8 @@ whether you need :class:`unicode` or :class:`str` to be returned.  Then use
 :func:`to_unicode` or :func:`to_bytes` to get the simple representation like
 this::
 
-    u_representation = to_unicode(obj, non_string='simplerepr')
-    b_representation = to_bytes(obj, non_string='simplerepr')
+    u_representation = to_unicode(obj, nonstring='simplerepr')
+    b_representation = to_bytes(obj, nonstring='simplerepr')
 
 print
 -----
@@ -401,22 +401,22 @@ import codecs
 import warnings
 import xml.sax.saxutils
 
-from kitchen import _
+from kitchen import _, b_
 from kitchen.text.exceptions import ControlCharError, XmlEncodeError
 from kitchen.text.misc import guess_encoding, html_entities_unescape, \
         process_control_chars
 
-def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
+def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_string=None):
     '''Convert an object into a unicode string
 
     Usually, this should be used on a byte string but it can take byte strings
-    and unicode strings intelligently.  non_string objects are handled in
-    different ways depending on the setting of the non_string parameter.
+    and unicode strings intelligently.  Nonstring objects are handled in
+    different ways depending on the setting of the nonstring parameter.
 
     The default values of this function are set so as to always return
     a unicode string and never raise an error when converting from bytes to
     unicode.  However, when you do not pass validly encoded text as the byte
-    string (or a non-string object), you may end up with output that you don't
+    string (or a nonstring object), you may end up with output that you don't
     expect.  Be sure you understand the requirements of your data, not just
     ignore errors by passing it through this function.
 
@@ -430,35 +430,53 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
         the unicode constructor, for instance 'strict' which raises an
         exception and 'ignore' which simply omits the non-decodable
         characters.
-    :kwargs non_string: How to treat non_string values.  Possible values are:
+    :kwargs nonstring: How to treat nonstring values.  Possible values are:
 
-        :empty: Return an empty string (default)
-        :strict: Raise a TypeError
-        :passthru: Return the object unchanged
         :simplerepr: Attempt to call the object's "simple representation"
             method and return that value.  Python-2.3+ has two methods
             that try to return a simple representation: __unicode__() and
             __str__().  We first try to get a usable value from
             __unicode__().  If that fails we try the same with __str__().
+        :empty: Return an empty string
+        :strict: Raise a TypeError
+        :passthru: Return the object unchanged
         :repr: Attempt to return a unicode string of the repr of the
             object
 
-    :raises TypeError: if :attr:`non_string` is 'strict' and a non-basestring
-        object is passed in or if :attr:`non_string` is set to an unknown value
-    :raises UnicodeDecodeError: if :attr:`errors` is 'strict' and the obj is
-        not decodable using the given encoding
-    :returns: unicode string or the original object depending on the value of
-        non_string.
+        Default is ``simplerepr``
+
+    :kwarg non_string: *Deprecated* Use nonstring instead.
+
+    :raises TypeError: if :attr:`nonstring` is ``strict`` and
+        a non-:class:`basestring` object is passed in or if :attr:`nonstring`
+        is set to an unknown value
+    :raises UnicodeDecodeError: if :attr:`errors` is ``strict`` and
+        :attr:`obj` is not decodable using the given encoding
+    :returns: :class:`unicode` string or the original object depending on the
+        value of :attr:`nonstring`.
+
+    .. versionchanged:: 0.2.1a2
+        Deprecated non_string in favor of nonstring parameter and changed
+        default value to ``simplerepr``
     '''
     if isinstance(obj, basestring):
         if isinstance(obj, unicode):
             return obj
         return unicode(obj, encoding=encoding, errors=errors)
-    if non_string == 'empty':
+    if non_string:
+        warnings.warn(b_('non_string is a deprecated parameter of'
+            ' to_unicode().  Use nonstring instead'), DeprecationWarning,
+            stacklevel=2)
+        if not nonstring:
+            nonstring = non_string
+
+    if not nonstring:
+        nonstring = 'simplerepr'
+    if nonstring == 'empty':
         return u''
-    elif non_string == 'passthru':
+    elif nonstring == 'passthru':
         return obj
-    elif non_string == 'simplerepr':
+    elif nonstring == 'simplerepr':
         try:
             simple = obj.__unicode__()
         except AttributeError:
@@ -474,24 +492,25 @@ def to_unicode(obj, encoding='utf8', errors='replace', non_string='empty'):
         if not isinstance(simple, unicode):
             return to_unicode(simple, 'utf8', 'replace')
         return simple
-    elif non_string in ('repr', 'strict'):
+    elif nonstring in ('repr', 'strict'):
         obj_repr = repr(obj)
         if not isinstance(obj_repr, unicode):
             unicode(obj_repr, encoding=encoding, errors=errors)
-        if non_string == 'repr':
+        if nonstring == 'repr':
             return obj_repr
         raise TypeError(_('to_unicode was given "%(obj)s" which is neither'
             ' a byte string (str) or a unicode string') % {'obj': obj_repr})
 
-    raise TypeError(_('non_string value, %(param)s, is not set to a valid'
-        ' action') % {'param': non_string})
+    raise TypeError(_('nonstring value, %(param)s, is not set to a valid'
+        ' action') % {'param': nonstring})
 
-def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
+def to_bytes(obj, encoding='utf8', errors='replace', nonstring=None, non_string=None):
     '''Convert an object into a byte string
 
     Usually, this should be used on a unicode string but it can take byte
-    strings and unicode strings intelligently.  non_string objects are handled
-    in different ways depending on the setting of the non_string parameter.
+    strings and unicode strings intelligently.  Nonstring objects are handled
+    in different ways depending on the setting of the :attr:`nonstring`
+    parameter.
 
     The default values of this function are set so as to always return
     a byte string and never raise an error when converting from unicode to
@@ -512,36 +531,52 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         that can be given to the :func:`str.encode`.  For instance
         'strict' which raises an exception and 'ignore' which simply omits the
         non-encodable characters.
-    :kwargs non_string: How to treat non_string values.  Possible values are:
+    :kwargs nonstring: How to treat nonstring values.  Possible values are:
 
-        :empty: Return an empty byte string (default)
-        :strict: Raise a TypeError
-        :passthru: Return the object unchanged
         :simplerepr: Attempt to call the object's "simple representation"
             method and return that value.  Python-2.3+ has two methods
             that try to return a simple representation: __unicode__() and
             __str__().  We first try to get a usable value from
             __str__().  If that fails we try the same with __unicode__().
+        :empty: Return an empty byte string
+        :strict: Raise a TypeError
+        :passthru: Return the object unchanged
         :repr: Attempt to return a byte string of the repr of the
             object
 
-    :raises TypeError: if :attr:`non_string` is strict and a non-basestring
-        object is passed in or if :attr:`non_string` is set to an unknown
-        value.
-    :raises UnicodeEncodeError: if :attr:`errors` is strict and all of the
-        bytes of obj are unable to be encoded using :attr:`encoding`.
-    :returns: byte string or the original object depending on the value of
-        non_string.
+        Default is ``simplerepr``.
+
+    :kwarg non_string: *Deprecated* Use :attr:`nonstring` instead.
+    :raises TypeError: if :attr:`nonstring` is ``strict`` and
+        a non-:class:`basestring` object is passed in or if :attr:`nonstring`
+        is set to an unknown value.
+    :raises UnicodeEncodeError: if :attr:`errors` is ``strict`` and all of the
+        bytes of :attr:`obj` are unable to be encoded using :attr:`encoding`.
+    :returns: byte :class:`str` or the original object depending on the value
+        of :attr:`nonstring`.
+
+    .. versionchanged:: 0.2.1a2
+        Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter
+        and changed default value to ``simplerepr``
     '''
     if isinstance(obj, basestring):
         if isinstance(obj, str):
             return obj
         return obj.encode(encoding, errors)
-    if non_string == 'empty':
+    if non_string:
+        warnings.warn(b_('non_string is a deprecated parameter of'
+            ' to_bytes().  Use nonstring instead'), DeprecationWarning,
+            stacklevel=2)
+        if not nonstring:
+            nonstring = non_string
+    if not nonstring:
+        nonstring = 'simplerepr'
+
+    if nonstring == 'empty':
         return ''
-    elif non_string == 'passthru':
+    elif nonstring == 'passthru':
         return obj
-    elif non_string == 'simplerepr':
+    elif nonstring == 'simplerepr':
         try:
             simple = str(obj)
         except UnicodeError:
@@ -557,7 +592,7 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
         if isinstance(simple, unicode):
             simple = simple.encode(encoding, 'replace')
         return simple
-    elif non_string in ('repr', 'strict'):
+    elif nonstring in ('repr', 'strict'):
         try:
             obj_repr = obj.__repr__()
         except (AttributeError, UnicodeError):
@@ -566,13 +601,13 @@ def to_bytes(obj, encoding='utf8', errors='replace', non_string='empty'):
             obj_repr =  obj_repr.encode(encoding, errors)
         else:
             obj_repr = str(obj_repr)
-        if non_string == 'repr':
+        if nonstring == 'repr':
             return obj_repr
         raise TypeError(_('to_bytes was given "%(obj)s" which is neither'
             ' a unicode string or a byte string (str)') % {'obj': obj_repr})
 
-    raise TypeError(_('non_string value, %(param)s, is not set to a valid'
-        ' action') % {'param': non_string})
+    raise TypeError(_('nonstring value, %(param)s, is not set to a valid'
+        ' action') % {'param': nonstring})
 
 def to_utf8(obj, errors='replace', non_string='passthru'):
     '''Deprecated.  Use to_bytes(obj, encoding='utf8', non_string='passthru')
@@ -581,9 +616,9 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
     '''
     warnings.warn(_('kitchen.text.converters.to_utf8 is deprecated.  Use'
         ' kitchen.text.converters.to_bytes(obj, encoding="utf8",'
-        ' non_string="passthru" instead.'), DeprecationWarning, stacklevel=2)
+        ' nonstring="passthru" instead.'), DeprecationWarning, stacklevel=2)
     return to_bytes(obj, encoding='utf8', errors='replace',
-            non_string=non_string)
+            nonstring=non_string)
 
 ### str is also the type name for byte strings so it's not a good name for
 ### something that can return unicode strings
@@ -596,17 +631,17 @@ def to_str(obj):
     You should be using :func:`to_unicode` or :func:`to_bytes` explicitly
     instead.  If you need unicode strings::
 
-        to_unicode(obj, non_string='simplerepr')
+        to_unicode(obj, nonstring='simplerepr')
 
     If you need byte strings::
 
-        to_bytes(obj, non_string='simplerepr')
+        to_bytes(obj, nonstring='simplerepr')
     '''
     warnings.warn(_('to_str is deprecated.  Use to_unicode or to_bytes'
         ' instead.  See the to_str docstring for'
         ' porting information.'),
         DeprecationWarning, stacklevel=2)
-    return to_bytes(obj, non_string='simplerepr')
+    return to_bytes(obj, nonstring='simplerepr')
 
 #
 # XML Related Functions
