@@ -27,3 +27,14 @@ class TestDeprecated(unittest.TestCase):
         tools.assert_raises(DeprecationWarning, utf8.utf8_text_wrap, 'test')
         tools.assert_raises(DeprecationWarning, utf8.utf8_text_fill, 'test')
         tools.assert_raises(DeprecationWarning, utf8._utf8_width_le, 'test')
+
+    def test_deprecated_parameters(self):
+        tools.assert_raises(DeprecationWarning, converters.to_unicode, *[5],
+                **{'non_string': 'simplerepr'})
+        tools.assert_raises(DeprecationWarning, converters.to_unicode, *[5],
+                **{'nonstring': 'simplerepr', 'non_string': 'simplerepr'})
+
+        tools.assert_raises(DeprecationWarning, converters.to_bytes, *[5],
+                **{'non_string': 'simplerepr'})
+        tools.assert_raises(DeprecationWarning, converters.to_bytes, *[5],
+                **{'nonstring': 'simplerepr', 'non_string': 'simplerepr'})
