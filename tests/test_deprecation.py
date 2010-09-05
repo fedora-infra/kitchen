@@ -3,12 +3,16 @@
 import unittest
 from nose import tools
 
+import sys
 import warnings
 from kitchen.text import converters
 from kitchen.text import utf8
 
 class TestDeprecated(unittest.TestCase):
     def setUp(self):
+        registry = sys._getframe(2).f_globals.get('__warningregistry__')
+        if registry:
+            registry.clear()
         warnings.simplefilter('error', DeprecationWarning)
 
     def tearDown(self):
