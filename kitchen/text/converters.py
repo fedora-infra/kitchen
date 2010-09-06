@@ -213,7 +213,7 @@ of a value.  Here's a few hints to keep your sanity in these situations:
     any other function calls (including gettext) are going to give you strings
     that are the same type.  For instance::
 
-        print to_bytes(_('Username: %(user)s'), 'utf8') % {'user': b_username}
+        print to_bytes(_('Username: %(user)s'), 'utf-8') % {'user': b_username}
 
 Gotchas and how to avoid them
 =============================
@@ -259,7 +259,7 @@ your terminal (ie, you're running the interpreter or running a script that
 prints to the screen) python is able to take the encoding value from your
 locale settings :envvar:`LC_ALL` or :envvar:`LC_CTYPE` and print the
 characters allowed by that encoding.  On most modern Unix systems, the
-encoding is 'utf8' which means that you can print any :class:`unicode`
+encoding is 'utf-8' which means that you can print any :class:`unicode`
 character without problem.
 
 There are two common cases of things going wrong:
@@ -342,7 +342,7 @@ byte :class:`str` evaluate unequally no matter what their character content or
 hash value::
 
     >>> u_string = u'ñ'
-    >>> b_string = u_string.encode('utf8')
+    >>> b_string = u_string.encode('utf-8')
     >>> print u_string
     ñ
     >>> print b_string
@@ -402,11 +402,22 @@ import warnings
 import xml.sax.saxutils
 
 from kitchen import _, b_
+from kitchen.pycompat24 import sets
+sets.add_builtin_set()
+
 from kitchen.text.exceptions import ControlCharError, XmlEncodeError
 from kitchen.text.misc import guess_encoding, html_entities_unescape, \
         process_control_chars
 
-def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_string=None):
+#: Aliases for the utf-8 codec
+_UTF8_ALIASES = frozenset(('utf-8', 'UTF-8', 'utf8', 'UTF8', 'utf_8', 'UTF_8',
+    'utf', 'UTF', 'u8', 'U8'))
+#: Aliases for the latin-1 codec
+_LATIN1_ALIASES = frozenset(('latin-1', 'LATIN-1', 'latin1', 'LATIN1',
+    'latin', 'LATIN', 'l1', 'L1', 'cp819', 'CP819', '8859', 'iso8859-1',
+    'ISO8859-1', 'iso-8859-1', 'ISO-8859-1'))
+
+def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None, non_string=None):
     '''Convert an object into a unicode string
 
     Usually, this should be used on a byte string but it can take byte strings
@@ -423,7 +434,7 @@ def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_strin
     :arg obj: Object to convert to a unicode string.  This should normally be
         a byte string
     :kwarg encoding: What encoding to try converting the byte string as.
-        Defaults to utf8
+        Defaults to ``utf-8``
     :kwarg errors: If errors are given, perform this action.  Defaults to
         'replace' which replaces the error with a character that means the bytes
         were unable to be decoded.  Other values are those that can be given to
@@ -462,7 +473,12 @@ def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_strin
     if isinstance(obj, basestring):
         if isinstance(obj, unicode):
             return obj
-        return unicode(obj, encoding=encoding, errors=errors)
+        if encoding in _UTF8_ALIASES:
+            return unicode(obj, 'utf-8', errors)
+        if encoding in _LATIN1_ALIASES:
+            return unicode(obj, 'latin-1', errors)
+        return obj.decode(encoding, errors)
+
     if non_string:
         warnings.warn(b_('non_string is a deprecated parameter of'
             ' to_unicode().  Use nonstring instead'), DeprecationWarning,
@@ -490,12 +506,12 @@ def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_strin
                 except (UnicodeError, AttributeError):
                     simple = u''
         if not isinstance(simple, unicode):
-            return to_unicode(simple, 'utf8', 'replace')
+            return unicode(simple, encoding, errors)
         return simple
     elif nonstring in ('repr', 'strict'):
         obj_repr = repr(obj)
         if not isinstance(obj_repr, unicode):
-            unicode(obj_repr, encoding=encoding, errors=errors)
+            obj_repr = unicode(obj_repr, encoding, errors)
         if nonstring == 'repr':
             return obj_repr
         raise TypeError(_('to_unicode was given "%(obj)s" which is neither'
@@ -504,7 +520,7 @@ def to_unicode(obj, encoding='utf8', errors='replace', nonstring=None, non_strin
     raise TypeError(_('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
 
-def to_bytes(obj, encoding='utf8', errors='replace', nonstring=None, non_string=None):
+def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None, non_string=None):
     '''Convert an object into a byte string
 
     Usually, this should be used on a unicode string but it can take byte
@@ -610,14 +626,14 @@ def to_bytes(obj, encoding='utf8', errors='replace', nonstring=None, non_string=
         ' action') % {'param': nonstring})
 
 def to_utf8(obj, errors='replace', non_string='passthru'):
-    '''Deprecated.  Use to_bytes(obj, encoding='utf8', non_string='passthru')
+    '''Deprecated.  Use to_bytes(obj, encoding='utf-8', non_string='passthru')
 
     Convert 'unicode' to an encoded utf-8 byte string
     '''
     warnings.warn(_('kitchen.text.converters.to_utf8 is deprecated.  Use'
-        ' kitchen.text.converters.to_bytes(obj, encoding="utf8",'
+        ' kitchen.text.converters.to_bytes(obj, encoding="utf-8",'
         ' nonstring="passthru" instead.'), DeprecationWarning, stacklevel=2)
-    return to_bytes(obj, encoding='utf8', errors='replace',
+    return to_bytes(obj, encoding='utf-8', errors='replace',
             nonstring=non_string)
 
 ### str is also the type name for byte strings so it's not a good name for
@@ -647,7 +663,7 @@ def to_str(obj):
 # XML Related Functions
 #
 
-def unicode_to_xml(string, encoding='utf8', attrib=False,
+def unicode_to_xml(string, encoding='utf-8', attrib=False,
         control_chars='replace'):
     '''Take a unicode string and turn it into a byte string suitable for xml
 
@@ -732,7 +748,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
     You can work around this with increased complexity in your application
     code::
 
-        encoding = 'utf8'
+        encoding = 'utf-8'
         u_string = u'String with unicode: と and control char: \u0007'
         try:
             # First attempt to encode to utf8
@@ -782,7 +798,7 @@ def unicode_to_xml(string, encoding='utf8', attrib=False,
         string = xml.sax.saxutils.escape(string)
     return string
 
-def xml_to_unicode(byte_string, encoding='utf8', errors='replace'):
+def xml_to_unicode(byte_string, encoding='utf-8', errors='replace'):
     '''Transform a byte string from an xml file into unicode
 
     :arg byte_string: byte string to decode
@@ -804,12 +820,12 @@ def xml_to_unicode(byte_string, encoding='utf8', errors='replace'):
     string = html_entities_unescape(string)
     return string
 
-def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
-        output_encoding='utf8', attrib=False, control_chars='replace'):
+def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
+        output_encoding='utf-8', attrib=False, control_chars='replace'):
     '''Make sure a byte string is validly encoded for xml output
 
     :arg byte_string: Byte string to make sure is valid xml output
-    :kwarg input_encoding: Encoding of byte_string.  Default 'utf8'
+    :kwarg input_encoding: Encoding of byte_string.  Default 'utf-8'
     :kwarg errors: How to handle errors encountered while decoding the
         byte_string into unicode at the beginning of the process.  Values are:
 
@@ -819,7 +835,7 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
             character
 
     :kwarg output_encoding: Encoding for the xml file that this string will go
-        into.  Default is 'utf8'.  If all the characters in byte_string are
+        into.  Default is 'utf-8'.  If all the characters in byte_string are
         not encodable in this encoding, the unknown characters will be
         entered into the output string using xml character references.
     :kwarg attrib: If True, quote the string for use in an xml attribute.
@@ -846,12 +862,12 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
     is the case.  For instance, if you need to transform some strings encoded
     in latin1 to utf8 for output::
 
-        utf8_string = byte_string_to_xml(latin1_string, input_encoding='latin1')
+        utf8_string = byte_string_to_xml(latin1_string, input_encoding='latin-1')
 
     If you already have strings in the proper encoding you may still want to
     use this function to remove control characters::
 
-        cleaned_string = byte_string_to_xml(string, input_encoding='utf8', output_encoding='utf8')
+        cleaned_string = byte_string_to_xml(string, input_encoding='utf-8', output_encoding='utf-8')
 
     .. seealso::
 
@@ -868,7 +884,7 @@ def byte_string_to_xml(byte_string, input_encoding='utf8', errors='replace',
     return unicode_to_xml(u_string, encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
 
-def xml_to_byte_string(byte_string, input_encoding='utf8', errors='replace', output_encoding='utf8'):
+def xml_to_byte_string(byte_string, input_encoding='utf-8', errors='replace', output_encoding='utf-8'):
     '''Transform a byte string from an xml file into unicode
 
     :arg byte_string: byte string to decode
@@ -949,7 +965,7 @@ def xml_to_bytes(byte_string, *args, **kwargs):
 # Same note here as for bytes_to_xml
 xml_to_bytes = b64decode
 
-def guess_encoding_to_xml(string, output_encoding='utf8', attrib=False,
+def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
         control_chars='replace'):
     '''Return a byte string suitable for inclusion in xml
 
@@ -1006,7 +1022,7 @@ def getwriter(encoding):
         $ LC_ALL=C python
         >>> import sys
         >>> from kitchen.text.converters import getwriter
-        >>> UTF8Writer = getwriter('utf8')
+        >>> UTF8Writer = getwriter('utf-8')
         >>> unwrapped_stdout = sys.stdout
         >>> sys.stdout = UTF8Writer(unwrapped_stdout)
         >>> print 'caf\\xc3\\xa9'
@@ -1041,7 +1057,7 @@ def getwriter(encoding):
     _StreamWriter.encoding = encoding
     return _StreamWriter
 
-def to_xml(string, encoding='utf8', attrib=False, control_chars='ignore'):
+def to_xml(string, encoding='utf-8', attrib=False, control_chars='ignore'):
     '''Deprecated: Use guess_encoding_to_xml() instead
     '''
     warnings.warn(_('kitchen.text.converters.to_xml is deprecated.  Use'

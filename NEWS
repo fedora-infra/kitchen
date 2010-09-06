@@ -11,6 +11,7 @@ NEWS
 -------
 
 * Fix exception messages that contain unicode characters
+* Speed up to_unicode for the common cases of utf-8 and latin-1.
 
 Planned
 =======
@@ -25,6 +26,8 @@ Planned
     - Add display
     - Add kitchen.text.converters.getwriter()
 * unittest kitchen.text.display.print_combining_table() ?
+* Change i18n functions to return either DummyTranslations or NewGNUTranslations so all strings returned are known to be unicode or str.
+* NewGNUTranslations object that always returns unicode for ugettext and ungettext and always returns str for the other gettext functions
 
 * (0.2.2) Add collections.DecodedDict that takes an encoding and decodes all str keys
   to unicode before doing a lookup
