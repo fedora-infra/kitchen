@@ -286,6 +286,153 @@ class DummyTranslations(gettext.NullTranslations):
             return unicode(message, self._charset, 'replace')
         return unicode(message, 'utf-8', 'replace')
 
+
+class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
+    def _parse(self, fp):
+        gettext.GNUTranslations._parse(self, fp)
+
+    def gettext(self, message):
+        tmsg = message
+        try:
+            tmsg = self._catalog[message]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.gettext(message)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning a str
+        if isinstance(tmsg, str):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return ''
+        if self._output_charset:
+            return tmsg.encode(self._output_charset, 'replace')
+        elif self._charset:
+            return tmsg.encode(self._charset, 'replace')
+        return tmsg.encode('utf-8', 'replace')
+
+    def ngettext(self, msgid1, msgid2, n):
+        if n == 1:
+            tmsg = msgid1
+        else:
+            tmsg = msgid2
+
+        try:
+            tmsg = self._catalog[(msgid1, self.plural(n))]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.ngettext(msgid1, msgid2, n)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning a str
+        if isinstance(tmsg, str):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return ''
+        if self._output_charset:
+            return tmsg.encode(self._output_charset, 'replace')
+        elif self._charset:
+            return tmsg.encode(self._charset, 'replace')
+        return tmsg.encode('utf-8', 'replace')
+
+    def lgettext(self, message):
+        tmsg = message
+        try:
+            tmsg = self._catalog[message]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.lgettext(message)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning a str
+        if isinstance(tmsg, str):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return ''
+        if self._output_charset:
+            return tmsg.encode(self._output_charset, 'replace')
+        return tmsg.encode(locale.getpreferredencoding(), 'replace')
+
+    def lngettext(self, msgid1, msgid2, n):
+        if n == 1:
+            tmsg = msgid1
+        else:
+            tmsg = msgid2
+
+        try:
+            tmsg = self._catalog[(msgid1, self.plural(n))]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.ngettext(msgid1, msgid2, n)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning a str
+        if isinstance(tmsg, str):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return ''
+        if self._output_charset:
+            return tmsg.encode(self._output_charset, 'replace')
+        return tmsg.encode(locale.getpreferredencoding(), 'replace')
+
+    def ugettext(self, message):
+        tmsg = message
+        try:
+            tmsg = self._catalog[message]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.ugettext(message)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning unicode
+        if isinstance(tmsg, unicode):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return u''
+        if self._charset:
+            return unicode(tmsg, self._charset, 'replace')
+        return unicode(tmsg, 'utf-8', 'replace')
+
+    def ungettext(self, msgid1, msgid2, n):
+        if n == 1:
+            tmsg = msgid1
+        else:
+            tmsg = msgid2
+        try:
+            tmsg = self._catalog[(msgid1, self.plural(n))]
+        except KeyError:
+            if self._fallback:
+                try:
+                    tmsg = self._fallback.ungettext(msgid1, msgid2, n)
+                except UnicodeError:
+                    # Ignore UnicodeErrors: We'll do our own encoding next
+                    pass
+
+        # Make sure that we're returning unicode
+        if isinstance(tmsg, unicode):
+            return tmsg
+        if not isinstance(tmsg, basestring):
+            return u''
+        if self._charset:
+            return unicode(tmsg, self._charset, 'replace')
+        return unicode(tmsg, 'utf-8', 'replace')
+
+
 def get_translation_object(domain, localedirs=tuple()):
     '''Get a translation object bound to the :term:`message catalogs`
 
@@ -356,17 +503,19 @@ def get_translation_object(domain, localedirs=tuple()):
     # installed on platforms where the module locales are in the module dir
 
     for localedir in localedirs:
-        if os.access(localedir, os.R_OK | os.X_OK) and os.path.isdir(localedir):
+        if os.access(localedir, os.R_OK | os.X_OK) \
+                and os.path.isdir(localedir):
             break
     else:  # Note: yes, this else is intended to go with the for
         localedir = os.path.join(sys.prefix, 'share', 'locale')
 
     try:
-        translations = gettext.translation(domain, localedir=localedir, fallback=True)
-    except:
-        translations = DummyTranslations()
-
-    if isinstance(translations, gettext.NullTranslations):
+        translations = gettext.translation(domain, localedir=localedir,
+                class_=NewGNUTranslations, fallback=False)
+    except IOError:
+        # basically, we're providing our own fallback here since
+        # gettext.NullTranslations doesn't guarantee that unicode and str is
+        # respected
         translations = DummyTranslations()
 
     return translations
