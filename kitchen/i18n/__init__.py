@@ -119,7 +119,7 @@ class DummyTranslations(gettext.NullTranslations):
            :meth:`set_output_charset` has been called then we encode the
            string using the :attr:`output_charset`
         4) If a :class:`unicode` string was given and this is :meth:`gettext`
-           or :meth:`ngettext` we encode it using 'utf8'.
+           or :meth:`ngettext` we encode it using 'utf-8'.
         5) If a :class:`unicode` string was given and this is :meth:`lgettext`
            or :meth:`lngettext` and we encode using the value of
            :func:`locale.getpreferredencoding`
@@ -130,7 +130,7 @@ class DummyTranslations(gettext.NullTranslations):
         * We transform byte :class:`str` into :class:`unicode` strings for
           these methods.
         * The encoding used to decode the byte :class:`str` is taken from
-          :attr:`_charset` if it's set, otherwise we decode using 'utf8'.
+          :attr:`_charset` if it's set, otherwise we decode using 'utf-8'.
 
         Any characters that aren't able to be transformed from a byte
         :class:`str` to :class:`unicode` string or vice versa will be replaced
@@ -142,11 +142,6 @@ class DummyTranslations(gettext.NullTranslations):
                 For information about what each of these methods do
 
         '''
-        # Import this here to avoid circular deps with kitchen.text
-        from kitchen.text.converters import to_unicode, to_bytes
-        self.to_unicode = to_unicode
-        self.to_bytes = to_bytes
-
         gettext.NullTranslations.__init__(self, fp)
 
         # Python 2.3 compat
@@ -166,81 +161,130 @@ class DummyTranslations(gettext.NullTranslations):
         return self._output_charset
 
     def gettext(self, message):
-        try:
-            message = gettext.NullTranslations.gettext(self, message)
-        except UnicodeError:
-            # Ignore UnicodeErrors: We'll do our own encoding next
-            pass
+        if self._fallback:
+            try:
+                message = self._fallback.gettext(message)
+            except UnicodeError:
+                # Ignore UnicodeErrors: We'll do our own encoding next
+                pass
 
+        # Make sure that we're returning a str
+        if isinstance(message, str):
+            return message
+        if not isinstance(message, basestring):
+            return ''
         if self._output_charset:
-            return self.to_bytes(message, encoding=self._output_charset)
-        return self.to_bytes(message)
+            return message.encode(self._output_charset, 'replace')
+        elif self._charset:
+            return message.encode(self._charset, 'replace')
+        return message.encode('utf-8', 'replace')
 
     def ngettext(self, msgid1, msgid2, n):
-        try:
-            message = gettext.NullTranslations.ngettext(self, msgid1, msgid2, n)
-        except UnicodeError:
-            # Ignore UnicodeErrors: We'll do our own encoding next
-            if n == 1:
-                message = msgid1
-            else:
-                message = msgid2
+        # Default
+        if n == 1:
+            message = msgid1
+        else:
+            message = msgid2
+        # The fallback method might return something different
+        if self._fallback:
+            try:
+                message = self._fallback.ngettext(msgid1, msgid2, n)
+            except UnicodeError:
+                # Ignore UnicodeErrors: We'll do our own encoding next
+                pass
 
+        # Make sure that we're returning a str
+        if isinstance(message, str):
+            return message
+        if not isinstance(message, basestring):
+            return ''
         if self._output_charset:
-            return self.to_bytes(message, encoding=self._output_charset)
-        return self.to_bytes(message)
+            return message.encode(self._output_charset, 'replace')
+        elif self._charset:
+            return message.encode(self._charset, 'replace')
+        return message.encode('utf-8', 'replace')
 
     def lgettext(self, message):
-        try:
-            message = gettext.NullTranslations.lgettext(self, message)
-        except (AttributeError, UnicodeError):
-            # Ignore UnicodeErrors: we'll do our own encoding next
-            # AttributeErrors happen on py2.3 where lgettext is not implemented
-            pass
+        if self._fallback:
+            try:
+                message = self._fallback.lgettext(message)
+            except (AttributeError, UnicodeError):
+                # Ignore UnicodeErrors: we'll do our own encoding next
+                # AttributeErrors happen on py2.3 where lgettext is not implemented
+                pass
 
+        # Make sure that we're returning a str
+        if isinstance(message, str):
+            return message
+        if not isinstance(message, basestring):
+            return ''
         if self._output_charset:
-            return self.to_bytes(message, encoding=self._output_charset)
-        return self.to_bytes(message, encoding=locale.getpreferredencoding())
+            return message.encode(self._output_charset, 'replace')
+        return message.encode(locale.getpreferredencoding(), 'replace')
 
     def lngettext(self, msgid1, msgid2, n):
-        try:
-            message = gettext.NullTranslations.lngettext(self, msgid1, msgid2, n)
-        except (AttributeError, UnicodeError):
-            # Ignore UnicodeErrors: we'll do our own encoding next
-            # AttributeError happens on py2.3 where lngettext is not implemented
-            if n == 1:
-               message = msgid1
-            else:
-                message = msgid2
+        # Default
+        if n == 1:
+           message = msgid1
+        else:
+            message = msgid2
+        # Fallback method might have something different
+        if self._fallback:
+            try:
+                message = self._fallback.lngettext(msgid1, msgid2, n)
+            except (AttributeError, UnicodeError):
+                pass
+                # Ignore UnicodeErrors: we'll do our own encoding next
+                # AttributeError happens on py2.3 where lngettext is not implemented
 
+        # Make sure that we're returning a str
+        if isinstance(message, str):
+            return message
+        if not isinstance(message, basestring):
+            return ''
         if self._output_charset:
-            return self.to_bytes(message, encoding=self._output_charset)
-        return self.to_bytes(message, encoding=locale.getpreferredencoding())
+            return message.encode(self._output_charset, 'replace')
+        return message.encode(locale.getpreferredencoding(), 'replace')
 
     def ugettext(self, message):
-        try:
-            message = gettext.NullTranslations.ugettext(self, message)
-        except UnicodeError:
-            # Ignore UnicodeErrors: We'll do our own decoding later
-            pass
+        if self._fallback:
+            try:
+                message = self._fallback.ugettext(message)
+            except UnicodeError:
+                # Ignore UnicodeErrors: We'll do our own decoding later
+                pass
 
+        # Make sure we're returning unicode
+        if isinstance(message, unicode):
+            return message
+        if not isinstance(message, basestring):
+            return u''
         if self._charset:
-            return self.to_unicode(message, encoding=self._charset)
-        return self.to_unicode(message)
+            return unicode(message, self._charset, 'replace')
+        return unicode(message, 'utf-8', 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
-        try:
-            message = gettext.NullTranslations.ungettext(self, msgid1, msgid2, n)
-        except UnicodeError:
-            if n == 1:
-                message = msgid1
-            else:
-                message = msgid2
+        # Default
+        if n == 1:
+            message = msgid1
+        else:
+            message = msgid2
+        # Fallback might override this
+        if self._fallback:
+            try:
+                message = self._fallback.ungettext(msgid1, msgid2, n)
+            except UnicodeError:
+                # Ignore UnicodeErrors: We'll do our own decoding later
+                pass
 
+        # Make sure we're returning unicode
+        if isinstance(message, unicode):
+            return message
+        if not isinstance(message, basestring):
+            return u''
         if self._charset:
-            return self.to_unicode(message, encoding=self._charset)
-        return self.to_unicode(message)
-
+            return unicode(message, self._charset, 'replace')
+        return unicode(message, 'utf-8', 'replace')
 
 def get_translation_object(domain, localedirs=tuple()):
     '''Get a translation object bound to the :term:`message catalogs`
@@ -321,6 +365,10 @@ def get_translation_object(domain, localedirs=tuple()):
         translations = gettext.translation(domain, localedir=localedir, fallback=True)
     except:
         translations = DummyTranslations()
+
+    if isinstance(translations, gettext.NullTranslations):
+        translations = DummyTranslations()
+
     return translations
 
 def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
@@ -371,4 +419,5 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
 
     return (_, N_)
 
-__all__ = ('DummyTranslations', 'easy_gettext_setup', 'get_translation_object')
+__all__ = ('DummyTranslations', 'NewGNUTranslations', 'easy_gettext_setup',
+        'get_translation_object')
