@@ -101,8 +101,7 @@ class DummyTranslations(gettext.NullTranslations):
         that you have around a call to :class:`DummyTranslations` might throw
         a :exc:`~exceptions.UnicodeError` but at least that will be in code
         you control and can fix.  Also, unlike
-        :class:`~gettext.NullTranslations` but similar to
-        :class:`gettext.GNUTranslations`, all of this Translation object's
+        :class:`~gettext.NullTranslations` all of this Translation object's
         methods guarantee to return byte :class:`str` except for
         :meth:`ugettext` and :meth:`ungettext` which guarantee to return
         :class:`unicode` strings.
@@ -119,9 +118,12 @@ class DummyTranslations(gettext.NullTranslations):
            :meth:`set_output_charset` has been called then we encode the
            string using the :attr:`output_charset`
         4) If a :class:`unicode` string was given and this is :meth:`gettext`
+           or :meth:`ngettext` and :attr:`_charset` was set output in that
+           charset.
+        5) If a :class:`unicode` string was given and this is :meth:`gettext`
            or :meth:`ngettext` we encode it using 'utf-8'.
-        5) If a :class:`unicode` string was given and this is :meth:`lgettext`
-           or :meth:`lngettext` and we encode using the value of
+        6) If a :class:`unicode` string was given and this is :meth:`lgettext`
+           or :meth:`lngettext` we encode using the value of
            :func:`locale.getpreferredencoding`
 
         For :meth:`ugettext` and :meth:`ungettext`, we go through the same
@@ -130,7 +132,18 @@ class DummyTranslations(gettext.NullTranslations):
         * We transform byte :class:`str` into :class:`unicode` strings for
           these methods.
         * The encoding used to decode the byte :class:`str` is taken from
-          :attr:`_charset` if it's set, otherwise we decode using 'utf-8'.
+          :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+
+        :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext`
+        that specifies what charset a message is encoded in when decoding a
+        message to :class:`unicode`.  This is used in the
+        :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
+        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods in case
+        a message is untranslated and needs to be converted to unicode.
+        This is different from the :attr`_charset` parameter that may be set
+        when a message catalog is loaded because :attr:`input_charset` is used
+        to describe an encoding used in a python source file while :attr:`_charset`
+        describes the encoding used in the message catalog file.
 
         Any characters that aren't able to be transformed from a byte
         :class:`str` to :class:`unicode` string or vice versa will be replaced
@@ -151,6 +164,9 @@ class DummyTranslations(gettext.NullTranslations):
             self.output_charset = self.__output_charset
         if not hasattr(self, 'set_output_charset'):
             self.set_output_charset = self.__set_output_charset
+
+        # Extension for making ugettext and ungettext more sane
+        self.input_charset = None
 
     def __set_output_charset(self, charset):
         ''' Compatibility for python2.3 which doesn't have output_charset'''
@@ -259,8 +275,8 @@ class DummyTranslations(gettext.NullTranslations):
             return message
         if not isinstance(message, basestring):
             return u''
-        if self._charset:
-            return unicode(message, self._charset, 'replace')
+        if self.input_charset:
+            return unicode(message, self.input_charset, 'replace')
         return unicode(message, 'utf-8', 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
@@ -282,12 +298,78 @@ class DummyTranslations(gettext.NullTranslations):
             return message
         if not isinstance(message, basestring):
             return u''
-        if self._charset:
-            return unicode(message, self._charset, 'replace')
+        if self.input_charset:
+            return unicode(message, self.input_charset, 'replace')
         return unicode(message, 'utf-8', 'replace')
 
 
 class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
+    '''Safer version of :class:`gettext.GNUTranslations`
+
+    :class:`gettext.GNUTranslations` suffers from two problems that this
+    class fixes.
+
+    1. :class:`gettext.GNUTranslations` can throw a
+       :exc:`~exceptions.UnicodeError` in
+       :meth:`gettext.GNUTranslations.ugettext` if the message being
+       translated has non-:term:`ASCII` characters and there is no translation
+       for it.
+    2. :class:`gettext.GNUTranslations` can return byte :class:`str` from
+       :meth:`gettext.GNUTranslations.ugettext` and :class:`unicode`
+       strings from the other :meth:`~gettext.GNUTranslations.gettext`
+       methods if the message being translated is the wrong type 
+
+    When byte :class:`str` are returned, the strings will be encoded
+    according to this algorithm:
+
+    1) If a fallback has been added, the fallback will be called first.
+       You'll need to consult the fallback to see whether it performs any
+       encoding changes.
+    2) If a byte :class:`str` was given, the same byte :class:`str` will
+       be returned.
+    3) If a :class:`unicode` string was given and
+       :meth:`set_output_charset` has been called then we encode the
+       string using the :attr:`output_charset`
+    4) If a :class:`unicode` string was given and this is :meth:`gettext`
+       or :meth:`ngettext` and a charset was detected when parsing the
+       message catalog, output in that charset.
+    5) If a :class:`unicode` string was given and this is :meth:`gettext`
+       or :meth:`ngettext` we encode it using 'utf-8'.
+    6) If a :class:`unicode` string was given and this is :meth:`lgettext`
+       or :meth:`lngettext` we encode using the value of
+       :func:`locale.getpreferredencoding`
+
+    For :meth:`ugettext` and :meth:`ungettext`, we go through the same set of
+    steps with the following differences:
+
+    * We transform byte :class:`str` into :class:`unicode` strings for these
+    methods.
+    * The encoding used to decode the byte :class:`str` is taken from
+    :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+
+    :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext` that
+    specifies what charset a message is encoded in when decoding a message to
+    :class:`unicode`.  This is used in the
+    :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
+    :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods in case
+    a message is untranslated and needs to be converted to unicode.  This is
+    different from the :attr`_charset` parameter that may be set when
+    a message catalog is loaded because :attr:`input_charset` is used to
+    describe an encoding used in a python source file while :attr:`_charset`
+    describes the encoding used in the message catalog file.
+
+    Any characters that aren't able to be transformed from a byte
+    :class:`str` to :class:`unicode` string or vice versa will be replaced
+    with a replacement character (ie: u'�' in unicode based encodings, '?'
+    in other :term:`ASCII` compatible encodings).
+
+    .. seealso::
+        :class:`gettext.GNUTranslations`
+            For information about what each of these methods do
+        :class:`kitchen.i18n.DummyTranslations`
+            For information about :attr:`input_charset`.
+
+    '''
     def _parse(self, fp):
         gettext.GNUTranslations._parse(self, fp)
 
@@ -404,8 +486,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             return tmsg
         if not isinstance(tmsg, basestring):
             return u''
-        if self._charset:
-            return unicode(tmsg, self._charset, 'replace')
+        if self.input_charset:
+            return unicode(tmsg, self.input_charset, 'replace')
         return unicode(tmsg, 'utf-8', 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
@@ -428,8 +510,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             return tmsg
         if not isinstance(tmsg, basestring):
             return u''
-        if self._charset:
-            return unicode(tmsg, self._charset, 'replace')
+        if self.input_charset:
+            return unicode(tmsg, self.input_charset, 'replace')
         return unicode(tmsg, 'utf-8', 'replace')
 
 
