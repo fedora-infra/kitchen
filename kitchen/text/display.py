@@ -366,7 +366,7 @@ def _ucp_width(ucs, control_chars='guess'):
         (ucs >= 0x30000 and ucs <= 0x3fffd))))
 
 # Wholly rewritten by me (LGPLv2+) -Toshio Kuratomi
-def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace'):
+def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'):
     '''Get the textual width of a string
 
     :arg msg: :class:`unicode` or byte :class:`str` to get the width of
@@ -437,7 +437,7 @@ def textual_width(msg, control_chars='guess', encoding='utf8', errors='replace')
                     itertools.repeat(control_chars))))
 
 # Wholly rewritten by me -Toshio Kuratomi
-def textual_width_chop(msg, chop, encoding='utf8', errors='replace'):
+def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
     '''Given as string, return it chopped to a given :term:`textual width`
 
     :arg msg: :class:`unicode` or byte :class:`str` to chop
@@ -653,7 +653,7 @@ def _textual_width_le(width, *args):
     return true_width <= width
 
 def wrap(text, width=70, initial_indent='', subsequent_indent='',
-        encoding='utf8', errors='replace'):
+        encoding='utf-8', errors='replace'):
     '''Works like we want textwrap.wrap() to work, uses utf-8 data and
     doesn't screw up lists/blocks/etc.
 
@@ -792,7 +792,7 @@ def fill(text, *args, **kwargs):
 #
 
 def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
-        suffix='', encoding='utf8', errors='replace'):
+        suffix='', encoding='utf-8', errors='replace'):
     '''Expand a byte :class:`str` to a specified "width" or chop to same.
 
     :arg msg: byte :class:`str` encoded in :term:`UTF-8` that we want formatted

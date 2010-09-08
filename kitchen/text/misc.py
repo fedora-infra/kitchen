@@ -77,7 +77,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     '''
     if not isinstance(byte_string, str):
         raise TypeError(b_('byte_string must be a byte string (str)'))
-    input_encoding = 'utf8'
+    input_encoding = 'utf-8'
     try:
         unicode(byte_string, input_encoding, 'strict')
     except UnicodeDecodeError:
@@ -93,20 +93,20 @@ def guess_encoding(byte_string, disable_chardet=False):
 
     return input_encoding
 
-def str_eq(str1, str2, encoding='utf8', errors='replace'):
+def str_eq(str1, str2, encoding='utf-8', errors='replace'):
     '''Compare two strings even if one is a byte string and one is unicode
 
     :arg str1: first string to compare
     :arg str2: second string to compare
     :kwarg encoding: If we need to convert one string into a byte string to
-        compare, the encoding to use.  Default is utf8.
+        compare, the encoding to use.  Default is utf-8.
     :kwarg errors: If we encounter errors when encoding the string, what to
         do.  See the :func:`to_bytes` documentation for possible values.
         The default is 'replace'
 
     This function prevents UnicodeErrors when we compare a unicode string to
     a byte string.  The errors normally arise because the conversion is done
-    to ASCII.  This function lets you convert to utf8 or another encoding
+    to ASCII.  This function lets you convert to utf-8 or another encoding
     instead.
 
     Note that when we need to convert one of the strings from unicode in order
@@ -217,11 +217,11 @@ def html_entities_unescape(string):
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 
-def byte_string_valid_xml(byte_string, encoding='utf8'):
+def byte_string_valid_xml(byte_string, encoding='utf-8'):
     '''Check that a byte string would be valid in xml
 
     :arg byte_string: Byte string to check
-    :arg encoding: Encoding of the xml file.  Default: utf8
+    :arg encoding: Encoding of the xml file.  Default: utf-8
     :returns: True if the string is valid, False if it would be invalid in the
         xml file
 
@@ -233,10 +233,10 @@ def byte_string_valid_xml(byte_string, encoding='utf8'):
         ARRAY_OF_MOSTLY_UTF8_STRINGS = [...]
         processed_array = []
         for string in ARRAY_OF_MOSTLY_UTF8_STRINGS:
-            if byte_string_valid_xml(string, 'utf8'):
+            if byte_string_valid_xml(string, 'utf-8'):
                 processed_array.append(string)
             else:
-                processed_array.append(guess_bytes_to_xml(string, encoding='utf8'))
+                processed_array.append(guess_bytes_to_xml(string, encoding='utf-8'))
         output_xml(processed_array)
     '''
     if not isinstance(byte_string, str):
@@ -257,12 +257,12 @@ def byte_string_valid_xml(byte_string, encoding='utf8'):
     # The byte string is compatible with this xml file
     return True
 
-def byte_string_valid_encoding(byte_string, encoding='utf8'):
+def byte_string_valid_encoding(byte_string, encoding='utf-8'):
     '''Detect if a byte string is valid in this encoding
 
     :arg byte_string: Byte string to test for bytes not valid in this encoding
-    :kwarg encoding: encoding to test against.  Defaults to 'utf8'.
-    :returns: True if there are no invalid utf8 characters.  False if an
+    :kwarg encoding: encoding to test against.  Defaults to 'utf-8'.
+    :returns: True if there are no invalid utf-8 characters.  False if an
         invalid character is detected.
 
     .. note:: This function checks whether the byte string is valid in the
