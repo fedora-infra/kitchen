@@ -134,16 +134,21 @@ class DummyTranslations(gettext.NullTranslations):
         * The encoding used to decode the byte :class:`str` is taken from
           :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
 
-        :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext`
-        that specifies what charset a message is encoded in when decoding a
-        message to :class:`unicode`.  This is used in the
-        :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
-        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods in case
-        a message is untranslated and needs to be converted to unicode.
-        This is different from the :attr`_charset` parameter that may be set
-        when a message catalog is loaded because :attr:`input_charset` is used
-        to describe an encoding used in a python source file while :attr:`_charset`
-        describes the encoding used in the message catalog file.
+        :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext` that
+        specifies what charset a message is encoded in when decoding a message to
+        :class:`unicode`.  This is used for two purposes:
+
+        1) If the message string is a byte :class:`str`, this is used to decode
+           the string to a :class:`unicode` string before looking it up in the
+           message catalog.
+        2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
+           :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
+           :class:`str` is given as the message and is untranslated his is used as
+           the encoding when decoding to :class:`unicode`.  This is different from
+           the :attr`_charset` parameter that may be set when a message catalog is
+           loaded because :attr:`input_charset` is used to describe an encoding
+           used in a python source file while :attr:`_charset` describes the
+           encoding used in the message catalog file.
 
         Any characters that aren't able to be transformed from a byte
         :class:`str` to :class:`unicode` string or vice versa will be replaced
@@ -166,7 +171,8 @@ class DummyTranslations(gettext.NullTranslations):
             self.set_output_charset = self.__set_output_charset
 
         # Extension for making ugettext and ungettext more sane
-        self.input_charset = None
+        # 'utf-8' is only a default here.  Users can override.
+        self.input_charset = 'utf-8'
 
     def __set_output_charset(self, charset):
         ''' Compatibility for python2.3 which doesn't have output_charset'''
@@ -178,8 +184,12 @@ class DummyTranslations(gettext.NullTranslations):
 
     def gettext(self, message):
         if self._fallback:
+            if not isinstance(message, unicode):
+                msg = unicode(message, self.input_charset, 'replace')
+            else:
+                msg = message
             try:
-                message = self._fallback.gettext(message)
+                message = self._fallback.gettext(msg)
             except UnicodeError:
                 # Ignore UnicodeErrors: We'll do our own encoding next
                 pass
@@ -203,6 +213,10 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # The fallback method might return something different
         if self._fallback:
+            if not isinstance(msgid1, unicode):
+                msgid1 = unicode(msgid1, self.input_charset, 'replace')
+            if not isinstance(msgid2, unicode):
+                msgid2 = unicode(msgid2, self.input_charset, 'replace')
             try:
                 message = self._fallback.ngettext(msgid1, msgid2, n)
             except UnicodeError:
@@ -222,8 +236,12 @@ class DummyTranslations(gettext.NullTranslations):
 
     def lgettext(self, message):
         if self._fallback:
+            if not isinstance(message, unicode):
+                msg = unicode(message, self.input_charset, 'replace')
+            else:
+                msg = message
             try:
-                message = self._fallback.lgettext(message)
+                message = self._fallback.lgettext(msg)
             except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: we'll do our own encoding next
                 # AttributeErrors happen on py2.3 where lgettext is not implemented
@@ -246,6 +264,10 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # Fallback method might have something different
         if self._fallback:
+            if not isinstance(msgid1, unicode):
+                msgid1 = unicode(msgid1, self.input_charset, 'replace')
+            if not isinstance(msgid2, unicode):
+                msgid2 = unicode(msgid2, self.input_charset, 'replace')
             try:
                 message = self._fallback.lngettext(msgid1, msgid2, n)
             except (AttributeError, UnicodeError):
@@ -264,8 +286,12 @@ class DummyTranslations(gettext.NullTranslations):
 
     def ugettext(self, message):
         if self._fallback:
+            if not isinstance(message, unicode):
+                msg = unicode(message, self.input_charset, 'replace')
+            else:
+                msg = message
             try:
-                message = self._fallback.ugettext(message)
+                message = self._fallback.ugettext(msg)
             except UnicodeError:
                 # Ignore UnicodeErrors: We'll do our own decoding later
                 pass
@@ -275,9 +301,7 @@ class DummyTranslations(gettext.NullTranslations):
             return message
         if not isinstance(message, basestring):
             return u''
-        if self.input_charset:
-            return unicode(message, self.input_charset, 'replace')
-        return unicode(message, 'utf-8', 'replace')
+        return unicode(message, self.input_charset, 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
         # Default
@@ -287,6 +311,10 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # Fallback might override this
         if self._fallback:
+            if not isinstance(msgid1, unicode):
+                msgid1 = unicode(msgid1, self.input_charset, 'replace')
+            if not isinstance(msgid2, unicode):
+                msgid2 = unicode(msgid2, self.input_charset, 'replace')
             try:
                 message = self._fallback.ungettext(msgid1, msgid2, n)
             except UnicodeError:
@@ -298,9 +326,7 @@ class DummyTranslations(gettext.NullTranslations):
             return message
         if not isinstance(message, basestring):
             return u''
-        if self.input_charset:
-            return unicode(message, self.input_charset, 'replace')
-        return unicode(message, 'utf-8', 'replace')
+        return unicode(message, self.input_charset, 'replace')
 
 
 class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
@@ -349,14 +375,19 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
     :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext` that
     specifies what charset a message is encoded in when decoding a message to
-    :class:`unicode`.  This is used in the
-    :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
-    :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods in case
-    a message is untranslated and needs to be converted to unicode.  This is
-    different from the :attr`_charset` parameter that may be set when
-    a message catalog is loaded because :attr:`input_charset` is used to
-    describe an encoding used in a python source file while :attr:`_charset`
-    describes the encoding used in the message catalog file.
+    :class:`unicode`.  This is used for two purposes:
+
+    1) If the message string is a byte :class:`str`, this is used to decode
+       the string to a :class:`unicode` string before looking it up in the
+       message catalog.
+    2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
+       :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
+       :class:`str` is given as the message and is untranslated his is used as
+       the encoding when decoding to :class:`unicode`.  This is different from
+       the :attr`_charset` parameter that may be set when a message catalog is
+       loaded because :attr:`input_charset` is used to describe an encoding
+       used in a python source file while :attr:`_charset` describes the
+       encoding used in the message catalog file.
 
     Any characters that aren't able to be transformed from a byte
     :class:`str` to :class:`unicode` string or vice versa will be replaced
@@ -375,6 +406,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
     def gettext(self, message):
         tmsg = message
+        if not isinstance(message, unicode):
+            message = unicode(message, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[message]
         except KeyError:
@@ -402,6 +435,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
+        if not isinstance(msgid1, unicode):
+            msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
@@ -425,6 +460,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
     def lgettext(self, message):
         tmsg = message
+        if not isinstance(message, unicode):
+            message = unicode(message, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[message]
         except KeyError:
@@ -450,6 +487,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
+        if not isinstance(msgid1, unicode):
+            msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
@@ -470,31 +509,33 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return tmsg.encode(locale.getpreferredencoding(), 'replace')
 
     def ugettext(self, message):
-        tmsg = message
+        if not isinstance(message, unicode):
+            message = unicode(message, self.input_charset, 'replace')
         try:
-            tmsg = self._catalog[message]
+            message = self._catalog[message]
         except KeyError:
             if self._fallback:
                 try:
-                    tmsg = self._fallback.ugettext(message)
+                    message = self._fallback.ugettext(message)
                 except UnicodeError:
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
         # Make sure that we're returning unicode
-        if isinstance(tmsg, unicode):
-            return tmsg
-        if not isinstance(tmsg, basestring):
+        if isinstance(message, unicode):
+            return message
+        if not isinstance(message, basestring):
             return u''
-        if self.input_charset:
-            return unicode(tmsg, self.input_charset, 'replace')
-        return unicode(tmsg, 'utf-8', 'replace')
+        return unicode(message, self.input_charset, 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
         if n == 1:
             tmsg = msgid1
         else:
             tmsg = msgid2
+
+        if not isinstance(msgid1, unicode):
+            msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
@@ -510,9 +551,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             return tmsg
         if not isinstance(tmsg, basestring):
             return u''
-        if self.input_charset:
-            return unicode(tmsg, self.input_charset, 'replace')
-        return unicode(tmsg, 'utf-8', 'replace')
+        return unicode(tmsg, self.input_charset, 'replace')
 
 
 def get_translation_object(domain, localedirs=tuple()):
