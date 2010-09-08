@@ -263,27 +263,24 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
         for message, value in self.test_data['unicode'][2]:
             yield self.check_ungettext, message, value, 'ascii'
 
-class TestNewGNUFallbackTranslations(TestDummyTranslations):
-    def setUp(self):
-        self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+    def test_nonbasestring(self):
+        tools.ok_(self.translations.gettext(dict(hi='there')) == '')
+        tools.ok_(self.translations.ngettext(dict(hi='there'), dict(hi='two'), 1) == '')
+        tools.ok_(self.translations.lgettext(dict(hi='there')) == '')
+        tools.ok_(self.translations.lngettext(dict(hi='there'), dict(hi='two'), 1) == '')
+        tools.ok_(self.translations.ugettext(dict(hi='there')) == u'')
+        tools.ok_(self.translations.ungettext(dict(hi='there'), dict(hi='two'), 1) == u'')
 
-class TestGNUTranslations(object):
+
+class TestNewGNUTranslationsFallback(TestDummyTranslations):
     def setUp(self):
         self.old_LC_ALL = os.environ['LC_ALL']
-        os.environ['LC_ALL'] = 'pt_BR'
+        os.environ['LC_ALL'] = 'pt_BR.utf8'
         self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
 
     def tearDown(self):
         os.environ['LC_ALL'] = self.old_LC_ALL
 
-    def test_gettext(self):
-        _ = self.translations.gettext
-        tools.ok_(_('kitchen sink')=='pia da cozinha')
-        tools.ok_(_('Kuratomi')=='くらとみ')
-        tools.ok_(_('くらとみ')=='Kuratomi')
-        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
-        tools.ok_(_(u'くらとみ')=='Kuratomi')
-        tools.ok_(_(u'Kuratomi')=='くらとみ')
 
 class TestNewGNURealTranslations(object):
     def setUp(self):

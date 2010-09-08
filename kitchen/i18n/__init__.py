@@ -183,6 +183,8 @@ class DummyTranslations(gettext.NullTranslations):
         return self._output_charset
 
     def gettext(self, message):
+        if not isinstance(message, basestring):
+            return ''
         if self._fallback:
             if not isinstance(message, unicode):
                 msg = unicode(message, self.input_charset, 'replace')
@@ -197,8 +199,6 @@ class DummyTranslations(gettext.NullTranslations):
         # Make sure that we're returning a str
         if isinstance(message, str):
             return message
-        if not isinstance(message, basestring):
-            return ''
         if self._output_charset:
             return message.encode(self._output_charset, 'replace')
         elif self._charset:
@@ -235,6 +235,8 @@ class DummyTranslations(gettext.NullTranslations):
         return message.encode('utf-8', 'replace')
 
     def lgettext(self, message):
+        if not isinstance(message, basestring):
+            return ''
         if self._fallback:
             if not isinstance(message, unicode):
                 msg = unicode(message, self.input_charset, 'replace')
@@ -250,8 +252,6 @@ class DummyTranslations(gettext.NullTranslations):
         # Make sure that we're returning a str
         if isinstance(message, str):
             return message
-        if not isinstance(message, basestring):
-            return ''
         if self._output_charset:
             return message.encode(self._output_charset, 'replace')
         return message.encode(locale.getpreferredencoding(), 'replace')
@@ -285,6 +285,8 @@ class DummyTranslations(gettext.NullTranslations):
         return message.encode(locale.getpreferredencoding(), 'replace')
 
     def ugettext(self, message):
+        if not isinstance(message, basestring):
+            return u''
         if self._fallback:
             if not isinstance(message, unicode):
                 msg = unicode(message, self.input_charset, 'replace')
@@ -299,8 +301,6 @@ class DummyTranslations(gettext.NullTranslations):
         # Make sure we're returning unicode
         if isinstance(message, unicode):
             return message
-        if not isinstance(message, basestring):
-            return u''
         return unicode(message, self.input_charset, 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
@@ -405,6 +405,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         gettext.GNUTranslations._parse(self, fp)
 
     def gettext(self, message):
+        if not isinstance(message, basestring):
+            return ''
         tmsg = message
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
@@ -421,8 +423,6 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         # Make sure that we're returning a str
         if isinstance(tmsg, str):
             return tmsg
-        if not isinstance(tmsg, basestring):
-            return ''
         if self._output_charset:
             return tmsg.encode(self._output_charset, 'replace')
         elif self._charset:
@@ -436,6 +436,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             tmsg = msgid2
 
         if not isinstance(msgid1, unicode):
+            if not isinstance(msgid1, basestring):
+                return ''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
@@ -459,6 +461,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return tmsg.encode('utf-8', 'replace')
 
     def lgettext(self, message):
+        if not isinstance(message, basestring):
+            return ''
         tmsg = message
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
@@ -475,8 +479,6 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         # Make sure that we're returning a str
         if isinstance(tmsg, str):
             return tmsg
-        if not isinstance(tmsg, basestring):
-            return ''
         if self._output_charset:
             return tmsg.encode(self._output_charset, 'replace')
         return tmsg.encode(locale.getpreferredencoding(), 'replace')
@@ -488,6 +490,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             tmsg = msgid2
 
         if not isinstance(msgid1, unicode):
+            if not isinstance(msgid1, basestring):
+                return ''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
@@ -509,6 +513,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return tmsg.encode(locale.getpreferredencoding(), 'replace')
 
     def ugettext(self, message):
+        if not isinstance(message, basestring):
+            return u''
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
         try:
@@ -524,8 +530,6 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         # Make sure that we're returning unicode
         if isinstance(message, unicode):
             return message
-        if not isinstance(message, basestring):
-            return u''
         return unicode(message, self.input_charset, 'replace')
 
     def ungettext(self, msgid1, msgid2, n):
@@ -535,6 +539,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             tmsg = msgid2
 
         if not isinstance(msgid1, unicode):
+            if not isinstance(msgid1, basestring):
+                return u''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
             tmsg = self._catalog[(msgid1, self.plural(n))]
