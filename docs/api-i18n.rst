@@ -18,14 +18,20 @@ needs more control.
 Translation Objects
 ===================
 
-The :class:`DummyTranslations` object is an implementation detail that most
-people don't need to know about.  It is a fallback in case no real translation
-objects work on your system.  Unlike the :class:`gettext.NullTranslations`
-object included in the |stdlib|_, :class:`DummyTranslations` makes sure that
-any given function will only return byte :class:`str` or :class:`unicode`
-strings.  No function will return both.
+The standard translation objects from the :mod:`gettext` module suffer from
+several problems:
+
+* Can throw :exc:`UnicodeError`
+* Can't find non-:term:`ASCII` byte :class:`str`
+* May return either :class:`unicode` string or byte :class:`str` from the same
+  function even though the functions say they will only return
+  :class:`unicode` or only return byte :class:`str`.
+
+The :class:`DummyTranslations` and :class:`NewGNUTranslations` were written to
+fix these issues.
 
 .. autoclass:: kitchen.i18n.DummyTranslations
     :members:
-    :undoc-members:
 
+.. autoclass:: kitchen.i18n.NewGNUTranslations
+    :members:

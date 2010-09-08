@@ -87,79 +87,78 @@ import os
 import sys
 
 class DummyTranslations(gettext.NullTranslations):
-    def __init__(self, fp=None):
-        '''Safer version of :class:`gettext.NullTranslations`
+    '''Safer version of :class:`gettext.NullTranslations`
 
-        This Translations class doesn't translate the strings and is intended
-        to be used as a fallback when there were errors setting up a real
-        Translations object.  It's safer than
-        :class:`gettext.NullTranslations` in its handling of byte :class:`str`
-        vs :class:`unicode` strings.
+    This Translations class doesn't translate the strings and is intended to
+    be used as a fallback when there were errors setting up a real
+    Translations object.  It's safer than :class:`gettext.NullTranslations` in
+    its handling of byte :class:`str` vs :class:`unicode` strings.
 
-        Unlike :class:`~gettext.NullTranslations`, this Translation class will
-        never throw a :exc:`~exceptions.UnicodeError`.  Note that the code
-        that you have around a call to :class:`DummyTranslations` might throw
-        a :exc:`~exceptions.UnicodeError` but at least that will be in code
-        you control and can fix.  Also, unlike
-        :class:`~gettext.NullTranslations` all of this Translation object's
-        methods guarantee to return byte :class:`str` except for
-        :meth:`ugettext` and :meth:`ungettext` which guarantee to return
-        :class:`unicode` strings.
+    Unlike :class:`~gettext.NullTranslations`, this Translation class will
+    never throw a :exc:`~exceptions.UnicodeError`.  Note that the code that
+    you have around a call to :class:`DummyTranslations` might throw
+    a :exc:`~exceptions.UnicodeError` but at least that will be in code you
+    control and can fix.  Also, unlike :class:`~gettext.NullTranslations` all
+    of this Translation object's methods guarantee to return byte :class:`str`
+    except for :meth:`ugettext` and :meth:`ungettext` which guarantee to
+    return :class:`unicode` strings.
 
-        When byte :class:`str` are returned, the strings will be encoded
-        according to this algorithm:
+    When byte :class:`str` are returned, the strings will be encoded according
+    to this algorithm:
 
-        1) If a fallback has been added, the fallback will be called first.
-           You'll need to consult the fallback to see whether it performs any
-           encoding changes.
-        2) If a byte :class:`str` was given, the same byte :class:`str` will
-           be returned.
-        3) If a :class:`unicode` string was given and
-           :meth:`set_output_charset` has been called then we encode the
-           string using the :attr:`output_charset`
-        4) If a :class:`unicode` string was given and this is :meth:`gettext`
-           or :meth:`ngettext` and :attr:`_charset` was set output in that
-           charset.
-        5) If a :class:`unicode` string was given and this is :meth:`gettext`
-           or :meth:`ngettext` we encode it using 'utf-8'.
-        6) If a :class:`unicode` string was given and this is :meth:`lgettext`
-           or :meth:`lngettext` we encode using the value of
-           :func:`locale.getpreferredencoding`
+    1) If a fallback has been added, the fallback will be called first.
+       You'll need to consult the fallback to see whether it performs any
+       encoding changes.
+    2) If a byte :class:`str` was given, the same byte :class:`str` will
+       be returned.
+    3) If a :class:`unicode` string was given and :meth:`set_output_charset`
+       has been called then we encode the string using the
+       :attr:`output_charset`
+    4) If a :class:`unicode` string was given and this is :meth:`gettext` or
+       :meth:`ngettext` and :attr:`_charset` was set output in that charset.
+    5) If a :class:`unicode` string was given and this is :meth:`gettext`
+       or :meth:`ngettext` we encode it using 'utf-8'.
+    6) If a :class:`unicode` string was given and this is :meth:`lgettext`
+       or :meth:`lngettext` we encode using the value of
+       :func:`locale.getpreferredencoding`
 
-        For :meth:`ugettext` and :meth:`ungettext`, we go through the same
-        set of steps with the following differences:
+    For :meth:`ugettext` and :meth:`ungettext`, we go through the same set of
+    steps with the following differences:
 
-        * We transform byte :class:`str` into :class:`unicode` strings for
-          these methods.
-        * The encoding used to decode the byte :class:`str` is taken from
-          :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+    * We transform byte :class:`str` into :class:`unicode` strings for
+      these methods.
+    * The encoding used to decode the byte :class:`str` is taken from
+      :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
 
-        :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext` that
-        specifies what charset a message is encoded in when decoding a message to
+    .. attribute:: input_charset
+    
+        is an extension to the |stdlib|_ :mod:`gettext` that specifies what
+        charset a message is encoded in when decoding a message to
         :class:`unicode`.  This is used for two purposes:
 
-        1) If the message string is a byte :class:`str`, this is used to decode
-           the string to a :class:`unicode` string before looking it up in the
-           message catalog.
-        2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
-           :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
-           :class:`str` is given as the message and is untranslated his is used as
-           the encoding when decoding to :class:`unicode`.  This is different from
-           the :attr`_charset` parameter that may be set when a message catalog is
-           loaded because :attr:`input_charset` is used to describe an encoding
-           used in a python source file while :attr:`_charset` describes the
-           encoding used in the message catalog file.
+    1) If the message string is a byte :class:`str`, this is used to decode
+       the string to a :class:`unicode` string before looking it up in the
+       message catalog.
+    2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
+       :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
+       :class:`str` is given as the message and is untranslated his is used as
+       the encoding when decoding to :class:`unicode`.  This is different from
+       the :attr`_charset` parameter that may be set when a message catalog is
+       loaded because :attr:`input_charset` is used to describe an encoding
+       used in a python source file while :attr:`_charset` describes the
+       encoding used in the message catalog file.
 
-        Any characters that aren't able to be transformed from a byte
-        :class:`str` to :class:`unicode` string or vice versa will be replaced
-        with a replacement character (ie: u'�' in unicode based encodings, '?'
-        in other :term:`ASCII` compatible encodings).
+    Any characters that aren't able to be transformed from a byte :class:`str`
+    to :class:`unicode` string or vice versa will be replaced with
+    a replacement character (ie: u'�' in unicode based encodings, '?' in other
+    :term:`ASCII` compatible encodings).
 
-        .. seealso::
-            :class:`gettext.NullTranslations`
-                For information about what each of these methods do
+    .. seealso::
+        :class:`gettext.NullTranslations`
+            For information about what each of these methods do
 
-        '''
+    '''
+    def __init__(self, fp=None):
         gettext.NullTranslations.__init__(self, fp)
 
         # Python 2.3 compat
@@ -335,12 +334,12 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     :class:`gettext.GNUTranslations` suffers from two problems that this
     class fixes.
 
-    1. :class:`gettext.GNUTranslations` can throw a
+    1) :class:`gettext.GNUTranslations` can throw a
        :exc:`~exceptions.UnicodeError` in
        :meth:`gettext.GNUTranslations.ugettext` if the message being
        translated has non-:term:`ASCII` characters and there is no translation
        for it.
-    2. :class:`gettext.GNUTranslations` can return byte :class:`str` from
+    2) :class:`gettext.GNUTranslations` can return byte :class:`str` from
        :meth:`gettext.GNUTranslations.ugettext` and :class:`unicode`
        strings from the other :meth:`~gettext.GNUTranslations.gettext`
        methods if the message being translated is the wrong type 
@@ -369,13 +368,15 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     steps with the following differences:
 
     * We transform byte :class:`str` into :class:`unicode` strings for these
-    methods.
+      methods.
     * The encoding used to decode the byte :class:`str` is taken from
-    :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+      :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
 
-    :attr:`input_charset` is an extension to the |stdib|_ :mod:`gettext` that
-    specifies what charset a message is encoded in when decoding a message to
-    :class:`unicode`.  This is used for two purposes:
+    .. attribute:: input_charset
+    
+        an extension to the |stdlib|_ :mod:`gettext` that specifies what
+        charset a message is encoded in when decoding a message to
+        :class:`unicode`.  This is used for two purposes:
 
     1) If the message string is a byte :class:`str`, this is used to decode
        the string to a :class:`unicode` string before looking it up in the
@@ -395,10 +396,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     in other :term:`ASCII` compatible encodings).
 
     .. seealso::
-        :class:`gettext.GNUTranslations`
+
+        :class:`gettext.GNUTranslations.gettext`
             For information about what each of these methods do
-        :class:`kitchen.i18n.DummyTranslations`
-            For information about :attr:`input_charset`.
 
     '''
     def _parse(self, fp):

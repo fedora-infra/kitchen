@@ -48,7 +48,7 @@ copyright = kitchen.release.COPYRIGHT
 # built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '0.2'
 # The full version, including alpha/beta/rc tags.
 release = kitchen.__version__
 
@@ -201,7 +201,7 @@ latex_documents = [
 #latex_use_modindex = True
 
 automodule_skip_lines = 4
-autoclass_content = "both"
+autoclass_content = "class"
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None,
