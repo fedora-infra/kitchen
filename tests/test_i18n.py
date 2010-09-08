@@ -3,7 +3,6 @@
 import unittest
 from nose import tools
 
-from gettext import NullTranslations
 import os
 import types
 
@@ -12,29 +11,56 @@ from kitchen import i18n
 import base_classes
 
 class TestI18N(unittest.TestCase):
+    def setUp(self):
+        self.old_LC_ALL = os.environ['LC_ALL']
+        os.environ['LC_ALL'] = 'pt_BR'
+
+    def tearDown(self):
+        os.environ['LC_ALL'] = self.old_LC_ALL
+
     def test_easy_gettext_setup(self):
         '''Test that the eay_gettext_setup function works
         '''
-        _, N_ = i18n.easy_gettext_setup('foo')
+        _, N_ = i18n.easy_gettext_setup('foo', localedirs=
+                ['%s/data/locale/' % os.path.dirname(__file__)])
         tools.ok_(isinstance(_, types.MethodType))
         tools.ok_(isinstance(N_, types.MethodType))
         tools.ok_(_.im_func.func_name == 'ugettext')
         tools.ok_(N_.im_func.func_name == 'ungettext')
 
+        tools.ok_(_('café') == u'café')
+        tools.ok_(_(u'café') == u'café')
+        tools.ok_(N_('café', 'cafés', 1) == u'café')
+        tools.ok_(N_('café', 'cafés', 2) == u'cafés')
+        tools.ok_(N_(u'café', u'cafés', 1) == u'café')
+        tools.ok_(N_(u'café', u'cafés', 2) == u'cafés')
+
     def test_easy_gettext_setup_non_unicode(self):
         '''Test that the eay_gettext_setup function works
         '''
-        _, N_ = i18n.easy_gettext_setup('foo', use_unicode=False)
-        tools.ok_(isinstance(_, types.MethodType))
-        tools.ok_(isinstance(N_, types.MethodType))
-        tools.ok_(_.im_func.func_name == 'gettext')
-        tools.ok_(N_.im_func.func_name == 'ngettext')
+        b_, bN_ = i18n.easy_gettext_setup('foo', localedirs=
+                ['%s/data/locale/' % os.path.dirname(__file__)],
+                use_unicode=False)
+        tools.ok_(isinstance(b_, types.MethodType))
+        tools.ok_(isinstance(bN_, types.MethodType))
+        tools.ok_(b_.im_func.func_name == 'gettext')
+        tools.ok_(bN_.im_func.func_name == 'ngettext')
+
+        tools.ok_(b_('café') == 'café')
+        tools.ok_(b_(u'café') == 'café')
+        tools.ok_(bN_('café', 'cafés', 1) == 'café')
+        tools.ok_(bN_('café', 'cafés', 2) == 'cafés')
+        tools.ok_(bN_(u'café', u'cafés', 1) == 'café')
+        tools.ok_(bN_(u'café', u'cafés', 2) == 'cafés')
 
     def test_get_translation_object(self):
         '''Test that the get_translation_object function works
         '''
-        translations = i18n.get_translation_object('foo')
-        tools.ok_(isinstance(translations, NullTranslations))
+        translations = i18n.get_translation_object('foo', ['%s/data/locale/' % os.path.dirname(__file__)])
+        tools.ok_(translations.__class__==i18n.DummyTranslations)
+
+        translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+        tools.ok_(translations.__class__==i18n.NewGNUTranslations)
 
     def test_dummy_translation(self):
         '''Test that we can create a DummyTranslation obejct
@@ -121,7 +147,7 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
     def check_ugettext(self, message, value, charset=None):
         '''ugettext method with default values'''
         if charset:
-            self.translations._charset = charset
+            self.translations.input_charset = charset
         tools.ok_(self.translations.ugettext(message) == value)
 
     def check_ngettext(self, message, value, charset=None):
@@ -143,7 +169,7 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
 
     def check_ungettext(self, message, value, charset=None):
         if charset:
-            self.translations._charset = charset
+            self.translations.input_charset = charset
         tools.ok_(self.translations.ungettext(message, 'blank', 1) == value)
         tools.ok_(self.translations.ungettext('blank', message, 2) == value)
         tools.ok_(self.translations.ungettext(message, 'blank', 2) != value)
@@ -236,3 +262,100 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
     def test_ungettext_charset_ascii(self):
         for message, value in self.test_data['unicode'][2]:
             yield self.check_ungettext, message, value, 'ascii'
+
+class TestNewGNUFallbackTranslations(TestDummyTranslations):
+    def setUp(self):
+        self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+
+class TestGNUTranslations(object):
+    def setUp(self):
+        self.old_LC_ALL = os.environ['LC_ALL']
+        os.environ['LC_ALL'] = 'pt_BR'
+        self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+
+    def tearDown(self):
+        os.environ['LC_ALL'] = self.old_LC_ALL
+
+    def test_gettext(self):
+        _ = self.translations.gettext
+        tools.ok_(_('kitchen sink')=='pia da cozinha')
+        tools.ok_(_('Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='くらとみ')
+
+class TestNewGNURealTranslations(object):
+    def setUp(self):
+        self.old_LC_ALL = os.environ['LC_ALL']
+        os.environ['LC_ALL'] = 'pt_BR.utf8'
+        self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+
+    def tearDown(self):
+        os.environ['LC_ALL'] = self.old_LC_ALL
+
+    def test_gettext(self):
+        _ = self.translations.gettext
+        tools.ok_(_('kitchen sink')=='pia da cozinha')
+        tools.ok_(_('Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='くらとみ')
+
+    def test_ngettext(self):
+        _ = self.translations.ngettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)=='一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)=='1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+    def test_lgettext(self):
+        _ = self.translations.lgettext
+        tools.ok_(_('kitchen sink')=='pia da cozinha')
+        tools.ok_(_('Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='くらとみ')
+
+    def test_lngettext(self):
+        _ = self.translations.lngettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)=='一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)=='1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+    def test_ugettext(self):
+        _ = self.translations.ugettext
+        tools.ok_(_('kitchen sink')==u'pia da cozinha')
+        tools.ok_(_('Kuratomi')==u'くらとみ')
+        tools.ok_(_('くらとみ')==u'Kuratomi')
+
+        tools.ok_(_(u'kitchen sink')==u'pia da cozinha')
+        tools.ok_(_(u'くらとみ')==u'Kuratomi')
+        tools.ok_(_(u'Kuratomi')==u'くらとみ')
+
+    def test_ungettext(self):
+        _ = self.translations.ungettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)==u'一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)==u'1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)==u'一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)==u'1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)==u'四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)==u'4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)==u'四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)==u'4 lemons')
