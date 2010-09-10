@@ -17,6 +17,8 @@ NEWS
   and doesn't throw UnicodeError.
 * Change i18n functions to return either DummyTranslations or
   NewGNUTranslations so all strings returned are known to be unicode or str.
+* unittest NewGNUTranslations
+* unittest that easy_gettext_setup returns the correct objects
 
 Planned
 =======
@@ -31,8 +33,6 @@ Planned
     - Add display
     - Add kitchen.text.converters.getwriter()
 * unittest kitchen.text.display.print_combining_table() ?
-* unittest NewGNUTranslations
-* unittest that easy_gettext_setup returns the correct objects
 * update tutorial docs to say -- use kitchen.i18n so that gettext behaves reasonably
 * (0.2.2) Add collections.DecodedDict that takes an encoding and decodes all str keys
   to unicode before doing a lookup

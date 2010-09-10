@@ -120,14 +120,18 @@ I18N
 ----
 
 All strings that are used as feedback for users need to be translated.
-:mod:`kitchen` sets up the function :func:`_` to do this marking and
-translation for any message in the main kitchen package::
+:mod:`kitchen` sets up several functions for this.  :func:`_` is used for
+marking things that are shown to users via print, GUIs, or other "standard"
+methods.  Strings for exceptions are marked with :func:`b_`.  This function
+returns a byte :class:`str` which is needed for use with exceptions::
 
-    from kitchen import _
+    from kitchen import _, b_
 
     def print_message(msg, username):
         print _('%(user)s, your message of the day is:  %(message)s') % {
                 'message': msg, 'user': username}
+
+        raise Exception b_('Test message')
 
 This serves several purposes:
 

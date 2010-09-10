@@ -314,6 +314,32 @@ strings to byte :class:`str` manually before outputting::
     still having working exceptions, use
     :func:`kitchen.text.converters.getwriter`.
 
+-------------------------------------------
+Frustration #6: Inconsistent APIs Part deux
+-------------------------------------------
+Sometimes you do everything right in your code but other people's code fails
+you.  With unicode issues this happens more often than we want.  A glaring
+example of this is when you get values back from a function that aren't
+consistently :class:`unicode` string or byte :class:`str`.
+
+An example from the |stdlib|_ is :mod:`gettext`.  The :mod:`gettext` functions
+are used to help translate messages that you display to users in the users'
+native languages.  Since most languages contain letters outside of the
+:term:`ASCII` range, the values that are returned contain unicode characters.
+:mod:`gettext` provides you with separate functions to return these
+translations as byte :class:`str` or as :class:`unicode` strings.
+Unfortunately, even though they're documented to return only one or the other,
+the implementation has corner cases where the other type can be returned.
+
+This means that even if you separate your :class:`unicode` string and byte
+:class:`str` correctly before you pass your strings to a :mod:`gettext`
+function, afterwards, you might have to check that you have the right sort of
+string type again.
+
+.. note::
+    :mod:`kitchen.i18n` provides alternate gettext translation objects that
+    are sure to only return byte :class:`str` or :class:`unicode` string.
+
 ---------------
 A few solutions
 ---------------
@@ -427,7 +453,8 @@ a short example that uses many kitchen functions to do its work::
     from kitchen.i18n import get_translation_object
 
     if __name__ == '__main__':
-        # Setup translations via gettext
+        # Setup gettext driven translations but use the kitchen functions so
+        # we don't have the mismatched bytes-unicode issues.
         translations = get_translation_object('example')
         # We use _() for marking strings that we operate on as unicode
         # This is pretty much everything
@@ -496,7 +523,7 @@ a short example that uses many kitchen functions to do its work::
             # might not convert
             b_line = '%s\0%s\n' % (b_filename, to_bytes(line))
 
-            # Just to demonstrate that getwriter will pass this through fine
+            # Just to demonstrate that getwriter will pass bytes through fine
             print _b('Wrote: %s') % b_line
             datafile.write(b_line)
         datafile.close()
@@ -505,11 +532,10 @@ a short example that uses many kitchen functions to do its work::
         # Note two things about this:
         # 1) We use the _b() function to translate the string.  This returns a
         #    byte string instead of a unicode string
-        # 2) We send a byte string in.  Unfortunately, python's lgettext()
-        #    functions will return a unicode string if a unicode string was given
-        #    and no translation for that string is found in the message catalog.
-        #    We should always enter byte strings for this reason.
+        # 2) We're using the b_() function returned by kitchen.  If we had
+        #    used the one from gettext we would need to convert the message to
+        #    a byte str first
         message = u'Demonstrate the proper way to raise exceptions.  Sincerely,  \u3068\u3057\u304a'
-        raise Exception(_b(to_bytes(message)))
+        raise Exception(_b(bmessage))
 
 .. seealso:: :mod:`kitchen.text.converters`
