@@ -326,10 +326,15 @@ An example from the |stdlib|_ is :mod:`gettext`.  The :mod:`gettext` functions
 are used to help translate messages that you display to users in the users'
 native languages.  Since most languages contain letters outside of the
 :term:`ASCII` range, the values that are returned contain unicode characters.
-:mod:`gettext` provides you with separate functions to return these
-translations as byte :class:`str` or as :class:`unicode` strings.
-Unfortunately, even though they're documented to return only one or the other,
-the implementation has corner cases where the other type can be returned.
+:mod:`gettext` provides you with :meth:`~gettext.GNUTranslations.ugettext` and
+:meth:`~gettext.GNUTranslations.ungettext` to return these translations as
+:class:`unicode` strings and :meth:`~gettext.GNUTranslations.gettext`,
+:meth:`~gettext.GNUTranslations.ngettext`,
+:meth:`~gettext.GNUTranslations.lgettext`, and
+:meth:`~gettext.GNUTranslations.lngettext` to return them as encoded byte
+:class:`str`.  Unfortunately, even though they're documented to return only
+one type of string or the other, the implementation has corner cases where the
+wrong type can be returned.
 
 This means that even if you separate your :class:`unicode` string and byte
 :class:`str` correctly before you pass your strings to a :mod:`gettext`
@@ -338,7 +343,7 @@ string type again.
 
 .. note::
     :mod:`kitchen.i18n` provides alternate gettext translation objects that
-    are sure to only return byte :class:`str` or :class:`unicode` string.
+    return only byte :class:`str` or only :class:`unicode` string.
 
 ---------------
 A few solutions
@@ -433,7 +438,17 @@ Similarly, unless you know that that portion of your code will only be given
 :class:`unicode` strings or only byte :class:`str` be sure to try variables
 of both types in your unittests.  When doing this, make sure that the
 variables are also non-:term:`ASCII` as python's implicit conversion will mask
-problems with pure :term:`ASCII` data.
+problems with pure :term:`ASCII` data.  In many cases, it makes sense to check
+what happens if byte :class:`str` and :class:`unicode` strings that won't
+decode in the present locale are given.
+
+Be vigilant about spotting poor APIs
+====================================
+
+Make sure that the libraries you use return only :class:`unicode` strings or
+byte :class:`str`.  Unittests can help you spot issues here by running many
+variations of data through your functions and still getting the types of
+string that you expect.
 
 Example: Putting this all together with kitchen
 ===============================================
