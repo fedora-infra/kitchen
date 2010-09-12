@@ -21,14 +21,15 @@ Translation Objects
 The standard translation objects from the :mod:`gettext` module suffer from
 several problems:
 
-* Can throw :exc:`UnicodeError`
-* Can't find non-:term:`ASCII` byte :class:`str`
-* May return either :class:`unicode` string or byte :class:`str` from the same
-  function even though the functions say they will only return
+* They can throw :exc:`UnicodeError`
+* They can't find translations for non-:term:`ASCII` byte :class:`str`
+  messages
+* They may return either :class:`unicode` string or byte :class:`str` from the
+  same function even though the functions say they will only return
   :class:`unicode` or only return byte :class:`str`.
 
-The :class:`DummyTranslations` and :class:`NewGNUTranslations` were written to
-fix these issues.
+:class:`DummyTranslations` and :class:`NewGNUTranslations` were written to fix
+these issues.
 
 .. autoclass:: kitchen.i18n.DummyTranslations
     :members:

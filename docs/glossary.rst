@@ -20,15 +20,15 @@ Glossary
 
         .. seealso:: http://en.wikipedia.org/wiki/ASCII
 
+    code points
+        :term:`code point`
+
     code point
         A number that maps to a particular abstract character.  Code points
         make it so that we have a number pointing to a character without
         worrying about implementation details of how those numbers are stored
         for the computer to read.  Encodings define how the code points map to
         particular sequences of bytes on disk  and in memory.
-
-    code points
-        :term:`code point`
 
     control character
         The set of characters in unicode that are used, not to display glyphs
@@ -49,6 +49,9 @@ Glossary
         for people who speak another language than yourself.
 
     message catalogs
+        :term:`message catalog`
+
+    message catalog
         Message catalogs contain translations for user-visible strings that
         are present in your code.  Normally, you need to mark the strings to
         be translated by wrapping them in one of several :mod:`gettext`

@@ -69,11 +69,11 @@ See the documentation of :func:`easy_gettext_setup` and
     .. seealso::
 
         :mod:`gettext`
-            for more information on how the python gettext facilities work
+            for details of how the python gettext facilities work
         `babel <http://babel.edgewall.org>`_
             The babel module for in depth information on gettext, :term:`message
             catalogs`, and translating your app.  babel provides some nice
-            features for :term:`i18n` on top of gettext
+            features for :term:`i18n` on top of :mod:`gettext`
 '''
 
 from kitchen.versioning import version_tuple_to_string
@@ -95,8 +95,8 @@ class DummyTranslations(gettext.NullTranslations):
     its handling of byte :class:`str` vs :class:`unicode` strings.
 
     Unlike :class:`~gettext.NullTranslations`, this Translation class will
-    never throw a :exc:`~exceptions.UnicodeError`.  Note that the code that
-    you have around a call to :class:`DummyTranslations` might throw
+    never throw a :exc:`~exceptions.UnicodeError`.  The code that you have
+    around a call to :class:`DummyTranslations` might throw
     a :exc:`~exceptions.UnicodeError` but at least that will be in code you
     control and can fix.  Also, unlike :class:`~gettext.NullTranslations` all
     of this Translation object's methods guarantee to return byte :class:`str`
@@ -128,7 +128,8 @@ class DummyTranslations(gettext.NullTranslations):
     * We transform byte :class:`str` into :class:`unicode` strings for
       these methods.
     * The encoding used to decode the byte :class:`str` is taken from
-      :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+      :attr:`input_charset` if it's set, otherwise we decode using
+      :term:`UTF-8`.
 
     .. attribute:: input_charset
     
@@ -138,24 +139,24 @@ class DummyTranslations(gettext.NullTranslations):
 
     1) If the message string is a byte :class:`str`, this is used to decode
        the string to a :class:`unicode` string before looking it up in the
-       message catalog.
+       :term:`message catalog`.
     2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
-       :class:`str` is given as the message and is untranslated his is used as
-       the encoding when decoding to :class:`unicode`.  This is different from
-       the :attr`_charset` parameter that may be set when a message catalog is
-       loaded because :attr:`input_charset` is used to describe an encoding
+       :class:`str` is given as the message and is untranslated this is used
+       as the encoding when decoding to :class:`unicode`.  This is different
+       from :attr:`_charset` which may be set when a :term:`message catalog`
+       is loaded because :attr:`input_charset` is used to describe an encoding
        used in a python source file while :attr:`_charset` describes the
-       encoding used in the message catalog file.
+       encoding used in the :term:`message catalog` file.
 
     Any characters that aren't able to be transformed from a byte :class:`str`
     to :class:`unicode` string or vice versa will be replaced with
-    a replacement character (ie: u'�' in unicode based encodings, '?' in other
+    a replacement character (ie: ``u'�'`` in unicode based encodings, ``'?'`` in other
     :term:`ASCII` compatible encodings).
 
     .. seealso::
         :class:`gettext.NullTranslations`
-            For information about what each of these methods do
+            For information about what methods are available and what they do.
 
     '''
     def __init__(self, fp=None):
@@ -357,9 +358,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
        string using the :attr:`output_charset`
     4) If a :class:`unicode` string was given and this is :meth:`gettext`
        or :meth:`ngettext` and a charset was detected when parsing the
-       message catalog, output in that charset.
+       :term:`message catalog`, output in that charset.
     5) If a :class:`unicode` string was given and this is :meth:`gettext`
-       or :meth:`ngettext` we encode it using 'utf-8'.
+       or :meth:`ngettext` we encode it using :term:`UTF-8`.
     6) If a :class:`unicode` string was given and this is :meth:`lgettext`
        or :meth:`lngettext` we encode using the value of
        :func:`locale.getpreferredencoding`
@@ -370,7 +371,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     * We transform byte :class:`str` into :class:`unicode` strings for these
       methods.
     * The encoding used to decode the byte :class:`str` is taken from
-      :attr:`input_charset` if it's set, otherwise we decode using 'utf-8'.
+      :attr:`input_charset` if it's set, otherwise we decode using
+      :term:`UTF-8`
 
     .. attribute:: input_charset
     
@@ -380,25 +382,25 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
     1) If the message string is a byte :class:`str`, this is used to decode
        the string to a :class:`unicode` string before looking it up in the
-       message catalog.
+       :term:`message catalog`.
     2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
        :class:`str` is given as the message and is untranslated his is used as
        the encoding when decoding to :class:`unicode`.  This is different from
-       the :attr`_charset` parameter that may be set when a message catalog is
-       loaded because :attr:`input_charset` is used to describe an encoding
-       used in a python source file while :attr:`_charset` describes the
-       encoding used in the message catalog file.
+       the :attr:`_charset` parameter that may be set when a :term:`message
+       catalog` is loaded because :attr:`input_charset` is used to describe an
+       encoding used in a python source file while :attr:`_charset` describes
+       the encoding used in the :term:`message catalog` file.
 
     Any characters that aren't able to be transformed from a byte
     :class:`str` to :class:`unicode` string or vice versa will be replaced
-    with a replacement character (ie: u'�' in unicode based encodings, '?'
-    in other :term:`ASCII` compatible encodings).
+    with a replacement character (ie: ``u'�'`` in unicode based encodings,
+    ``'?'`` in other :term:`ASCII` compatible encodings).
 
     .. seealso::
 
         :class:`gettext.GNUTranslations.gettext`
-            For information about what each of these methods do
+            For information about what methods this class has and what they do
 
     '''
     def _parse(self, fp):
@@ -563,13 +565,14 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 def get_translation_object(domain, localedirs=tuple()):
     '''Get a translation object bound to the :term:`message catalogs`
 
-    :arg domain: Name of the message domain
+    :arg domain: Name of the message domain.  This should be a unique name
+        that can be used to lookup the :term:`message catalog` for this app.
     :kwarg localedirs: Iterator of directories to look for :term:`message
         catalogs` under.  The first directory to exist is used regardless of
         whether messages for this domain are present.  If none of the
         directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
         Default: No directories to search; just use the fallback.
-    :return: Translation object to get gettext methods from
+    :return: Translation object to get :mod:`gettext` methods from
 
     If you need more flexibility than :func:`easy_gettext_setup`, use this
     function.  It sets up a :mod:`gettext` Translation object and returns it
@@ -624,6 +627,9 @@ def get_translation_object(domain, localedirs=tuple()):
         the existence of before system directories that will exist whether or
         not the :term:`message catalogs` are present in them.
 
+    .. note:: This function returns either :class:`DummyTranslations` or
+        :class:`NewGNUTranslations`.  These classes are superior to their
+        :mod:`gettext` equivalents as described in their documentation.
     '''
     # Look for the message catalogs in several places.  This allows for use
     # with uninstalled modules, installed modules on Linux, and modules
@@ -648,16 +654,18 @@ def get_translation_object(domain, localedirs=tuple()):
     return translations
 
 def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
-    ''' Setup translation domain for an app.
+    ''' Setup translation functions for an application
 
-    :arg domain: Name of the message domain
+    :arg domain: Name of the message domain.  This should be a unique name
+        that can be used to lookup the :term:`message catalog` for this app.
     :kwarg localedirs: Iterator of directories to look for :term:`message
         catalogs` under.  The first directory to exist is used regardless of
         whether messages for this domain are present.  If none of the
         directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
         Default: No directories to search so we just use the fallback.
-    :kwarg use_unicode: If True return :class:`unicode` strings else return
-        byte :class:`str` for the translations.  Default is True
+    :kwarg use_unicode: If :data:`True` return :class:`unicode` strings else
+        return byte :class:`str` for the translations.  Default is
+        :data:`True`.
     :return: tuple of the :mod:`gettext` function and :mod:`gettext` function
         for plurals
 
@@ -684,6 +692,11 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
             for information on how to use :attr:`localedirs` to get the
             proper :term:`message catalogs` both when in development and when
             installed to FHS compliant directories on Linux.
+
+    .. note:: The gettext functions returned from this function should be
+        superior to the ones returned from :mod:`gettext`.  The traits that
+        make them better are described in the :class:`DummyTranslations` and
+        :class:`NewGNUTranslations` documentation.
     '''
     translations = get_translation_object(domain, localedirs=localedirs)
     if use_unicode:

@@ -2,6 +2,10 @@
 Python 2.7 Compatibility
 ========================
 
+--------------------------
+Subprocess from Python 2.7
+--------------------------
+
 The subprocess module included here is a direct import from python-2.7's
 |stdlib|_.  You can access it via::
 

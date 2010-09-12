@@ -23,7 +23,7 @@
 '''
 Functions to manipulate iterables
 
-.. versionadded:: 0.2.1a1
+.. versionadded:: Kitchen: 0.2.1a1
 
 .. moduleauthor:: Toshio Kuratomi <toshio@fedoraproject.org>
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
@@ -35,14 +35,14 @@ __version_info__ = ((0, 0, 1),)
 __version__ = version_tuple_to_string(__version_info__)
 
 def isiterable(obj, include_string=False):
-    '''Check whether an object is an iterable.
+    '''Check whether an object is an iterable
 
     :arg obj: Object to test whether it is an iterable
-    :include_string: If True  and :attr:`obj` is a byte :class:`str` or
-        :class:`unicode` string this function will return True.  If set to
-        False, byte :class:`str` and :class:`unicode` strings will cause this
-        function to return False.  Default False.
-    :returns: True if `obj` is iterable, otherwise False.
+    :kwarg include_string: If True and :attr:`obj` is a byte :class:`str` or
+        :class:`unicode` string this function will return data:`True`.  If set
+        to :data:`False`, byte :class:`str` and :class:`unicode` strings will
+        cause this function to return :data:`False`.  Default :data:`False`.
+    :returns: :data:`True` if `obj` is iterable, otherwise :data:`False`.
     '''
     if include_string or not isinstance(obj, basestring):
         try:
@@ -56,32 +56,26 @@ def isiterable(obj, include_string=False):
 def iterate(obj, include_string=False):
     '''Generator that can be used to iterate over anything
 
+    :arg obj: The object to iterate over
+    :kwarg include_string: if True, treat strings as iterables.  Otherwise
+        treat them as a single scalar value.  Default False
+
     This function will create an iterator out of any scalar or iterable.  It
     is useful for making a value given to you an iterable before operating on it.
     Iterables have their items returned.  scalars are transformed into iterables.
-    A string is treated as a scalar value unless the :attr:include_string:
+    A string is treated as a scalar value unless the :attr:`include_string`
     parameter is set to :data:`True`.  Example usage::
 
         >>> list(iterate(None))
         [None]
         >>> list(iterate([None]))
         [None]
-        >>> list(iterate(False))
-        [False]
-        >>> list(iterate(0))
-        [0]
-        >>> list(iterate(set()))
-        []
-        >>> list(iterate(tuple()))
-        []
-        >>> list(iterate(dict()))
-        []
         >>> list(iterate([1, 2, 3]))
         [1, 2, 3]
         >>> list(iterate(set([1, 2, 3])))
         [1, 2, 3]
-        >>> list(iterate(dict(a='b')))
-        ['a']
+        >>> list(iterate(dict(a='1', b='2)))
+        ['a', 'b']
         >>> list(iterate(1))
         [1]
         >>> list(iterate(iter([1, 2, 3])))
@@ -90,10 +84,6 @@ def iterate(obj, include_string=False):
         ['abc']
         >>> list(iterate('abc', include_string=True'))
         ['a', 'b', 'c']
-
-    :arg obj: The object to iterate over
-    :kwarg include_string: if True, treat strings as iterables.  Otherwise
-        treat them as a single scalar value.  Default False
     '''
     if isiterable(obj, include_string=include_string):
         for item in obj:

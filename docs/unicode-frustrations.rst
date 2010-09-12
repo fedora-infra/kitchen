@@ -484,7 +484,8 @@ a short example that uses many kitchen functions to do its work::
         sys.stdout = Writer(sys.stdout)
 
         # Load data.  Format is filename\0description
-        # description should be utf8 but filename can be any legal filename on the filesystem
+        # description should be utf-8 but filename can be any legal filename
+        # on the filesystem
         # Sample datafile.txt:
         #   /etc/shells\x00Shells available on caf\xc3\xa9.lan
         #   /var/tmp/file\xff\x00File with non-utf8 data in the filename
@@ -494,22 +495,25 @@ a short example that uses many kitchen functions to do its work::
         datafile = open('datafile.txt', 'r')
         data = {}
         for line in datafile:
-            # We're going to keep filename as bytes because we will need the exact
-            # bytes to access files on a POSIX operating system.  description,
-            # we'll immediately transform into unicode type.
+            # We're going to keep filename as bytes because we will need the
+            # exact bytes to access files on a POSIX operating system.
+            # description, we'll immediately transform into unicode type.
             b_filename, description = line.split('\0', 1)
-            # to_unicode defaults to decoding output from utf8 and replacing any
-            # problematic bytes with the unicode replacement character
+
+            # to_unicode defaults to decoding output from utf-8 and replacing
+            # any problematic bytes with the unicode replacement character
             # We accept mangling of the description here knowing that our file
-            # format is supposed to use utf8 in that field.
-            description = to_unicode(description, 'utf8').strip()
+            # format is supposed to use utf-8 in that field and that the
+            # description will only be displayed to the user, not used as
+            # a key value.
+            description = to_unicode(description, 'utf-8').strip()
             data[b_filename] = description
         datafile.close()
 
         # We're going to add a pair of extra fields onto our data to show the
-        # length of the description and the filesize.  We put those between the
-        # filename and description because we haven't checked that the description
-        # is free of NULLs.
+        # length of the description and the filesize.  We put those between
+        # the filename and description because we haven't checked that the
+        # description is free of NULLs.
         datafile = open('newdatafile.txt', 'w')
 
         # Name filename with a b_ prefix to denote byte string of unknown encoding
@@ -526,6 +530,11 @@ a short example that uses many kitchen functions to do its work::
             length = len(unicodedata.normalize('NFC', description))
 
             # Print a summary to the screen
+            # Note that we do not let implici type conversion from str to
+            # unicode transform b_filename into a unicode string.  That might
+            # fail as python would use the ASCII filename.  Instead we use
+            # to_unicode() to explictly transform in a way that we know will
+            # not traceback.
             print _(u'filename: %s') % to_unicode(b_filename)
             print _(u'file size: %s') % size
             print _(u'desc length: %s') % length
