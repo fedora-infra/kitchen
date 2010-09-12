@@ -23,7 +23,7 @@ PEP-386 compliant versioning
 ----------------------------
 
 :pep:`386` defines a standard format for version strings.  This module
-contains a function for creating those.
+contains a function for creating strings in that format.
 '''
 __version_info__ = ((1, 0, 0),)
 
@@ -93,7 +93,7 @@ def version_tuple_to_string(version_info):
                     (values[0], '.'.join(itertools.imap(str, values[1:])) or str(0)))
         else:
             v.append('.%s%s' % (values[0], values[1]))
-    return ''.join(v)
+    return u''.join(v)
 
 __version__ = version_tuple_to_string(__version_info__)
 

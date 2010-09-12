@@ -38,11 +38,13 @@ def isiterable(obj, include_string=False):
     '''Check whether an object is an iterable
 
     :arg obj: Object to test whether it is an iterable
-    :kwarg include_string: If True and :attr:`obj` is a byte :class:`str` or
-        :class:`unicode` string this function will return data:`True`.  If set
-        to :data:`False`, byte :class:`str` and :class:`unicode` strings will
-        cause this function to return :data:`False`.  Default :data:`False`.
-    :returns: :data:`True` if `obj` is iterable, otherwise :data:`False`.
+    :kwarg include_string: If :data:`True` and :attr:`obj` is a byte
+        :class:`str` or :class:`unicode` string this function will return
+        :data:`True`.  If set to :data:`False`, byte :class:`str` and
+        :class:`unicode` strings will cause this function to return
+        :data:`False`.  Default :data:`False`.
+    :returns: :data:`True` if :attr:`obj` is iterable, otherwise
+        :data:`False`.
     '''
     if include_string or not isinstance(obj, basestring):
         try:
@@ -57,8 +59,8 @@ def iterate(obj, include_string=False):
     '''Generator that can be used to iterate over anything
 
     :arg obj: The object to iterate over
-    :kwarg include_string: if True, treat strings as iterables.  Otherwise
-        treat them as a single scalar value.  Default False
+    :kwarg include_string: if :data:`True`, treat strings as iterables.
+        Otherwise treat them as a single scalar value.  Default :data:`False`
 
     This function will create an iterator out of any scalar or iterable.  It
     is useful for making a value given to you an iterable before operating on it.

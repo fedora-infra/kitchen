@@ -22,7 +22,7 @@
 StrictDict
 ----------
 
-:class:`kitchen.collections.StrictDict` provides a dictionary treats
+:class:`kitchen.collections.StrictDict` provides a dictionary that treats
 :class:`str` and :class:`unicode` as distinct key values.
 '''
 try:
@@ -34,19 +34,24 @@ class StrictDict(defaultdict):
     '''
     Map class that considers :class:`unicode` and :class:`str` different keys
 
-    Ordinarily when you are dealing with data you want to have keys that have
-    the same characters end up in the same bucket even if one key is
-    :class:`unicode` and the other is a byte :class:`str`.  The normal
-    :class:`dict` type does this for .  If you cannot do
-    that, then this class will help you by making all :class:`unicode` strings
-    evaluate to a different key than all :class:`str` keys.
+    Ordinarily when you are dealing with a :class:`dict` keyed on strings you
+    want to have keys that have the same characters end up in the same bucket
+    even if one key is :class:`unicode` and the other is a byte :class:`str`.
+    The normal :class:`dict` type does this for :term:`ASCII` characters (but
+    not for anything outside of the :term:`ASCII` range.)
+
+    Sometimes, however, you want to keep the two string classes strictly
+    separate, for instance, if you're creating a single table that can map
+    from :class:`unicode` characters to :class:`str` characters and vice
+    versa.  This class will help you do that by making all :class:`unicode`
+    keys evaluate to a different key than all :class:`str` keys.
 
     .. seealso::
         :class:`dict`
-            for all the documentation on this classes methods.  This class
-            implements all the standard :class:`dict` methods.  Its
-            treatment of :class:`unicode` and :class:`str` keys as separate is
-            the only difference.
+            for documentation on this class's methods.  This class implements
+            all the standard :class:`dict` methods.  Its treatment of
+            :class:`unicode` and :class:`str` keys as separate is the only
+            difference.
 
     '''
     def __getitem__(self, key):
