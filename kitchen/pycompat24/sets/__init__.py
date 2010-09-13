@@ -21,8 +21,9 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 
 '''
-In python-2.4, a builtin set type was added to python.  This module provides
-a function to emulate that on python-2.3 by using the :mod:`sets` module.
+In python-2.4, a builtin :class:`set` type was added to python.  This module
+provides a function to emulate that on python-2.3 by using the :mod:`sets`
+module.
 
 :func:`set`
     Create a set.  If running on python 2.4+ this is the :class:`set`
@@ -31,9 +32,9 @@ a function to emulate that on python-2.3 by using the :mod:`sets` module.
 :func:`frozenset`
     Create a frozenset.  If running on python2.4+ this is the
     :class:`frozenset` constructor.  If using python-2.3, it's
-    sets.ImmutableSet.
+    :class:`sets.ImmutableSet`.
 
-.. versionchanged:: Release: kitchen 0.2 0, API: kitchen.pycompat24 1.0.0
+.. versionchanged:: 0.2.0 API: kitchen.pycompat24 1.0.0
     Added set and frozenset
 '''
 import __builtin__
@@ -52,25 +53,26 @@ else:
     frozenset = frozenset
 
 def add_builtin_set():
-    '''If there's no set builtin, add the implementations from the sets module
+    '''If there's no set builtin, add the implementation from the :mod:`sets` module
 
-    This function makes sure that a set and frozenset type are available in
-    the __builtin__ namespace.  Since the function checks whether set and
-    frozenset are already present in the :mod:`__builtin__` namespace and
-    refuses to overwrite those if found, it's safe to call this in multiple
-    places and in scripts run under python-2.4+, where a more efficient set
-    implementation is already present in the :mod:`__builtin__` namespace.
+    This function makes sure that a :class:`set` and :class:`frozenset` type
+    are available in the :mod:`__builtin__` namespace.  Since the function
+    checks whether :class:`set` and :class:`frozenset` are already present in
+    the :mod:`__builtin__` namespace and refuses to overwrite those if found,
+    it's safe to call this in multiple places and in scripts run under
+    python-2.4+, where a more efficient set implementation is already present
+    in the :mod:`__builtin__` namespace.
 
-    However, since this function modifies __builtin__ there's no need to call
-    it more than once  so you likely want to do something like this when your
-    program loads::
+    However, since this function modifies :mod:`__builtin__` there's no need
+    to call it more than once  so you likely want to do something like this
+    when your program loads::
 
         myprogram/__init__.py:
 
         from kitchen.pycompat24 import sets
         builtinset.add_builtin_set()
 
-    Then you can use :func:`set` and :func:`frozenset` anywhere in your code::
+    You can then use :func:`set` and :func:`frozenset` anywhere in your code::
 
         myprogram/compute.py:
 
