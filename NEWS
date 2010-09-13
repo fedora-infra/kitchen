@@ -7,7 +7,7 @@ NEWS
 :Version: 0.2.x
 
 -------
-0.2.1a2
+0.2.2a1
 -------
 
 * Fix exception messages that contain unicode characters
@@ -17,8 +17,11 @@ NEWS
   and doesn't throw UnicodeError.
 * Change i18n functions to return either DummyTranslations or
   NewGNUTranslations so all strings returned are known to be unicode or str.
+* kitchen.pycompat24.base64 now synced from upstream python so it implements
+  all of the python-2.4 API
 * unittest NewGNUTranslations
 * unittest that easy_gettext_setup returns the correct objects
+
 
 Planned
 =======

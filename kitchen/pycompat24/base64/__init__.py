@@ -21,9 +21,14 @@
 #   Toshio Kuratomi <toshio@fedoraproject.org>
 
 '''
-Implement the modern base64 interface.  Note that this only implements the
-base64 functions.  Specifically, it does not implement b32encode, b32decode,
-b16encode, or b16decode.
+Implement the modern base64 interface.
+
+Python-2.4 and above have a new API for the base64 module.  This is a backport
+of that module for use on python-2.3.
+
+.. seealso::
+    :mod:`base64`
+        for information about using the functions provided here.
 '''
 import sys
 
