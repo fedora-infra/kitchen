@@ -25,87 +25,12 @@ Implement the modern base64 interface.  Note that this only implements the
 base64 functions.  Specifically, it does not implement b32encode, b32decode,
 b16encode, or b16decode.
 '''
-import base64
+import sys
 
-def _b64encode(s, altchars=None):
-    '''Compatibility function for python-2.4's base64.b64encode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    s = base64.encodestring(s)
-    if altchars:
-        for chars in zip(('+','/'), altchars):
-            s = s.replace(chars[0], chars[1])
-    return ''.join(s.split())
-
-def _b64decode(s, altchars=None):
-    '''Compatibility function for python-2.4's base64.b64decode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    if altchars:
-        for chars in zip(altchars, ('+', '/')):
-            s = s.replace(chars[0], chars[1])
-    s = base64.decodestring(s)
-    return s
-
-def _standard_b64encode(s):
-    '''Compatibility function for python-2.4's base64.standard_b64encode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    return b64encode(s)
-
-def _standard_b64decode(s):
-    '''Compatibility function for python-2.4's base64.standard_b64decode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    return b64decode(s)
-
-def _urlsafe_b64encode(s):
-    '''Compatibility function for python-2.4's base64.urlsafe_b64encode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    return b64encode(s, altchars='-_')
-
-def _urlsafe_b64decode(s):
-    '''Compatibility function for python-2.4's base64.urlsafe_b64decode
-
-    .. seealso:: http://docs.python.org/library/base64.html
-    '''
-    return b64decode(s, altchars='-_')
-
-if hasattr(base64, 'b64encode'):
-    b64encode = base64.b64encode
+if sys.version_info >= (2, 4):
+    from base64 import *
 else:
-    b64encode = _b64encode
-
-if hasattr(base64, 'b64decode'):
-    b64decode = base64.b64decode
-else:
-    b64decode = _b64decode
-
-if hasattr(base64, 'standard_b64encode'):
-    standard_b64encode = base64.standard_b64encode
-else:
-    standard_b64encode = _standard_b64encode
-
-if hasattr(base64, 'standard_b64decode'):
-    standard_b64decode = base64.standard_b64decode
-else:
-    standard_b64decode = _standard_b64decode
-
-if hasattr(base64, 'urlsafe_b64encode'):
-    urlsafe_b64encode = base64.urlsafe_b64encode
-else:
-    urlsafe_b64encode = _urlsafe_b64encode
-
-if hasattr(base64, 'urlsafe_b64decode'):
-    urlsafe_b64decode = base64.urlsafe_b64decode
-else:
-    urlsafe_b64decode = _urlsafe_b64decode
+    from _base64 import *
 
 __all__ = ( 'b64decode', 'b64encode', 'standard_b64decode',
         'standard_b64encode', 'urlsafe_b64decode', 'urlsafe_b64encode',)

@@ -9,7 +9,7 @@ files = {
 'kitchen/pycompat27/_subprocess.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/subprocess.py',
 'tests/test_subprocess.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/test/test_subprocess.py',
 'tests/test_defaultdict.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/test/test_defaultdict.py',
-'kitchen/pycompat24/base64/__init__.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/base64.py',
+'kitchen/pycompat24/base64/_base64.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/base64.py',
 'tests/test_base64.py': 'http://svn.python.org/view/*checkout*/python/trunk/Lib/test/test_base64.py',
 }
 if __name__ == '__main__':
