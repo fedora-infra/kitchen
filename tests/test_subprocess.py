@@ -559,8 +559,6 @@ class ProcessTestCase(BaseTestCase):
                          '"a\\\\b\\ c" d e')
         self.assertEqual(subprocess.list2cmdline(['ab', '']),
                          'ab ""')
-        self.assertEqual(subprocess.list2cmdline(['echo', 'foo|bar']),
-                         'echo "foo|bar"')
 
 
     def test_poll(self):
@@ -971,17 +969,18 @@ class HelperFunctionTests(unittest.TestCase):
                          subprocess._eintr_retry_call(fake_os_func, 666))
         self.assertEqual([(256, 999), (666,), (666,)], record_calls)
 
-
-def test_main():
-    unit_tests = (ProcessTestCase,
-                  #POSIXProcessTestCase,
-                  #Win32ProcessTestCase,
-                  #ProcessTestCaseNoPoll,
-                  #HelperFunctionTests
-                  )
-
-    test_support.run_unittest(*unit_tests)
-    test_support.reap_children()
-
-if __name__ == "__main__":
-    test_main()
+# We're using nosetests so we don't need this.  This just leads to tests being
+# run twice
+#def test_main():
+#    unit_tests = (ProcessTestCase,
+#                  POSIXProcessTestCase,
+#                  Win32ProcessTestCase,
+#                  ProcessTestCaseNoPoll,
+#                  HelperFunctionTests
+#                  )
+#
+#    test_support.run_unittest(*unit_tests)
+#    test_support.reap_children()
+#
+#if __name__ == "__main__":
+#    test_main()
