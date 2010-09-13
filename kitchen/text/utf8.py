@@ -42,7 +42,7 @@ Functions for operating on byte :class:`str` encoded as :term:`UTF-8`
 .. warning:: All of the functions in this module are deprecated.  Most of
     them have been replaced with functions that operate on unicode values in
     :mod:`kitchen.text.display`.  :func:`kitchen.text.utf8.utf8_valid` has
-    been replaced with a function in :mod:`kichen.text.misc`.
+    been replaced with a function in :mod:`kitchen.text.misc`.
 '''
 import warnings
 
@@ -58,7 +58,7 @@ from kitchen.text.display import _textual_width_le, \
 #
 
 def utf8_valid(msg):
-    '''Deprecated.  Detect if a string is valid utf8.
+    '''**Deprecated** Detect if a string is valid :term:`utf-8`
 
     Use :func:`kitchen.text.misc.byte_string_valid_encoding` instead.
     '''
@@ -68,9 +68,9 @@ def utf8_valid(msg):
     return byte_string_valid_encoding(msg)
 
 def utf8_width(msg):
-    '''Deprecated
+    '''**Deprecated** Get the :term:`textual width` of a :term:`utf-8` string
 
-    Use :func:`~kitchen.text.utf8.textual_width` instead.
+    Use :func:`kitchen.text.display.textual_width` instead.
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_width is deprecated.  Use'
         ' kitchen.text.display.textual_width(msg) instead'),
@@ -79,7 +79,7 @@ def utf8_width(msg):
 
 
 def utf8_width_chop(msg, chop=None):
-    '''Deprecated
+    '''**Deprecated** Return a string chopped to a given :term:`textual width`
 
     Use :func:`~kitchen.text.display.textual_width_chop` and
     :func:`~kitchen.text.display.textual_width` instead::
@@ -109,7 +109,7 @@ def utf8_width_chop(msg, chop=None):
     return textual_width(chopped_msg), chopped_msg
 
 def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Deprecated.
+    '''**Deprecated** Pad a :term:`utf-8` string to fill a specified width
 
     Use :func:`~kitchen.text.display.byte_string_textual_width_fill` instead
     '''
@@ -121,9 +121,10 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
             prefix=prefix, suffix=suffix)
 
 def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
-    '''Deprecated.
+    '''**Deprecated** Similar to :func:`textwrap.wrap` but understands
+    :term:`utf-8` data and doesn't screw up lists/blocks/etc
 
-    Use :func:`~kitchen.text.display.wrap` instead
+    Use :func:`kitchen.text.display.wrap` instead
     '''
     warnings.warn(_('kitchen.text.utf8.utf8_text_wrap is deprecated.  Use'
         ' kitchen.text.display.wrap instead'),
@@ -140,7 +141,11 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
     return lines
 
 def utf8_text_fill(text, *args, **kwargs):
-    '''**Deprecated**  Use :func:`kitchen.text.display.fill` instead.'''
+    '''**Deprecated** Similar to :func:`textwrap.fill` but understands
+    :term:`utf-8` strings and doesn't screw up lists/blocks/etc.
+
+    Use :func:`kitchen.text.display.fill` instead.
+    '''
     warnings.warn(_('kitchen.text.utf8.utf8_text_fill is deprecated.  Use'
         ' kitchen.text.display.fill instead'),
         DeprecationWarning, stacklevel=2)

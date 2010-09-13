@@ -30,9 +30,12 @@ Glossary
         for the computer to read.  Encodings define how the code points map to
         particular sequences of bytes on disk  and in memory.
 
+    control characters
+        :term:`control character`
+
     control character
         The set of characters in unicode that are used, not to display glyphs
-        o nthe screen, but to tell the displayin program to do something.
+        on the screen, but to tell the display in program to do something.
 
         .. seealso:: http://en.wikipedia.org/wiki/Control_character
 
@@ -83,7 +86,7 @@ Glossary
         takes the place of.
 
     UTF-8
-        A character encoding that maps all unicode :term:`code point` s to a sequence
+        A character encoding that maps all unicode :term:`code points` to a sequence
         of bytes.  It is compatible with :term:`ASCII`.  It uses a variable
         number of bytes to encode all of unicode.  ASCII characters take one
         byte.  Characters from other parts of unicode take two to four bytes.

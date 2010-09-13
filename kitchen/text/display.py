@@ -34,7 +34,7 @@ Format Text for Display
 Functions related to displaying unicode text.  Unicode characters don't all
 have the same width so we need helper functions for displaying them.
 
-.. versionadded:: kitchen 0.2, kitchen.display API 1.0.0
+.. versionadded:: 0.2, kitchen.display API 1.0.0
 '''
 import itertools
 import unicodedata
@@ -654,7 +654,7 @@ def _textual_width_le(width, *args):
 
 def wrap(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf-8', errors='replace'):
-    '''Works like we want textwrap.wrap() to work, uses utf-8 data and
+    '''Works like we want :func:`textwrap.wrap` to work, uses :term:`utf-8` data and
     doesn't screw up lists/blocks/etc.
 
     :arg text: string to wrap
@@ -771,19 +771,19 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
     return ret
 
 def fill(text, *args, **kwargs):
-    '''Works like we want textwrap.fill() to work, uses utf-8 data and
-        doesn't screw up lists/blocks/etc.
+    '''Works like we want :func:`textwrap.fill` to work, uses :term:`utf-8`
+    data and doesn't screw up lists/blocks/etc.
 
     :arg text: string to process
     :returns: string with each line separated by a newline.
 
     .. seealso::
-        :func:`kitchen.display.wrap`
+        :func:`kitchen.text.display.wrap`
             for other parameters that you can give this command.
 
-    This function is a light wrapper around :func:`kitchen.display.wrap`.  Where
-    that function returns a list of lines, this function returns one string
-    with each line separated by a newline.
+    This function is a light wrapper around :func:`kitchen.text.display.wrap`.
+    Where that function returns a list of lines, this function returns one
+    string with each line separated by a newline.
     '''
     return u'\n'.join(wrap(text, *args, **kwargs))
 
@@ -799,8 +799,8 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
     :arg fill: pad :attr:`msg` until the :term:`textual width` is this long
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all
-    :kwarg left: If True (default) left justify the string and put the padding
-        on the right.  If False, pad on the left side.
+    :kwarg left: If :data:`True` (default) left justify the string and put the
+        padding on the right.  If :data:`False`, pad on the left side.
     :kwarg prefix: Attach this byte :class:`str` before the field we're
         filling
     :kwarg suffix: Append this byte :class:`str` to the end of the field we're
@@ -822,10 +822,10 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
             For example usage.  This function has only two differences.
 
             1. it takes byte strings for :attr:`prefix` and :attr:`suffix` so
-                you can pass in arbitrary sequences of bytes, not just unicode
-                characters.
+               you can pass in arbitrary sequences of bytes, not just unicode
+               characters.
             2. it returns a byte :class:`str` instead of a :class:`unicode`
-                string.
+               string.
     '''
     prefix = to_bytes(prefix, encoding=encoding, errors=errors)
     suffix = to_bytes(suffix, encoding=encoding, errors=errors)

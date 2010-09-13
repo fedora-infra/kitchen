@@ -98,6 +98,9 @@ This python module is distributed under the terms of the
         :file:`subprocess.py`, :file:`test_subprocess.py`,
         :file:`defaultdict.py`, and :file:`test_defaultdict.py`.
 
+    `Public Domain <http://effbot.org/zone/copyright.htm`_
+        :func:`kitchen.text.misc.html_entities_unescape`
+
 --------
 Contents
 --------
