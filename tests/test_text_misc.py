@@ -20,10 +20,10 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
         # Test that unicode strings are not allowed
         tools.assert_raises(TypeError, misc.guess_encoding, self.u_spanish)
 
-        tools.ok_(misc.guess_encoding(self.utf8_spanish, disable_chardet=True) == 'utf8')
-        tools.ok_(misc.guess_encoding(self.latin1_spanish, disable_chardet=True) == 'latin1')
-        tools.ok_(misc.guess_encoding(self.utf8_japanese, disable_chardet=True) == 'utf8')
-        tools.ok_(misc.guess_encoding(self.euc_jp_japanese, disable_chardet=True) == 'latin1')
+        tools.ok_(misc.guess_encoding(self.utf8_spanish, disable_chardet=True) == 'utf-8')
+        tools.ok_(misc.guess_encoding(self.latin1_spanish, disable_chardet=True) == 'latin-1')
+        tools.ok_(misc.guess_encoding(self.utf8_japanese, disable_chardet=True) == 'utf-8')
+        tools.ok_(misc.guess_encoding(self.euc_jp_japanese, disable_chardet=True) == 'latin-1')
 
     def test_guess_encoding_with_chardet(self):
         # We go this slightly roundabout way because multiple encodings can
