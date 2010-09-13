@@ -12,11 +12,14 @@ import base_classes
 
 class TestI18N(unittest.TestCase):
     def setUp(self):
-        self.old_LC_ALL = os.environ['LC_ALL']
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
         os.environ['LC_ALL'] = 'pt_BR'
 
     def tearDown(self):
-        os.environ['LC_ALL'] = self.old_LC_ALL
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
 
     def test_easy_gettext_setup(self):
         '''Test that the eay_gettext_setup function works
@@ -134,25 +137,23 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
         self.translations = i18n.DummyTranslations()
 
     def check_gettext(self, message, value, charset=None):
-        if charset:
-            self.translations.set_output_charset(charset)
+        self.translations.set_output_charset(charset)
         tools.ok_(self.translations.gettext(message) == value)
 
     def check_lgettext(self, message, value, charset=None, locale='en_US.UTF-8'):
         os.environ['LC_ALL'] = locale
-        if charset:
-            self.translations.set_output_charset(charset)
+        self.translations.set_output_charset(charset)
         tools.ok_(self.translations.lgettext(message) == value)
 
-    def check_ugettext(self, message, value, charset=None):
+    # Note: charset has a default value because nose isn't invoking setUp and
+    # tearDown each time check_* is run.
+    def check_ugettext(self, message, value, charset='utf-8'):
         '''ugettext method with default values'''
-        if charset:
-            self.translations.input_charset = charset
+        self.translations.input_charset = charset
         tools.ok_(self.translations.ugettext(message) == value)
 
     def check_ngettext(self, message, value, charset=None):
-        if charset:
-            self.translations.set_output_charset(charset)
+        self.translations.set_output_charset(charset)
         tools.ok_(self.translations.ngettext(message, 'blank', 1) == value)
         tools.ok_(self.translations.ngettext('blank', message, 2) == value)
         tools.ok_(self.translations.ngettext(message, 'blank', 2) != value)
@@ -160,16 +161,16 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
 
     def check_lngettext(self, message, value, charset=None, locale='en_US.UTF-8'):
         os.environ['LC_ALL'] = locale
-        if charset:
-            self.translations.set_output_charset(charset)
+        self.translations.set_output_charset(charset)
         tools.ok_(self.translations.lngettext(message, 'blank', 1) == value)
         tools.ok_(self.translations.lngettext('blank', message, 2) == value)
         tools.ok_(self.translations.lngettext(message, 'blank', 2) != value)
         tools.ok_(self.translations.lngettext('blank', message, 1) != value)
 
-    def check_ungettext(self, message, value, charset=None):
-        if charset:
-            self.translations.input_charset = charset
+    # Note: charset has a default value because nose isn't invoking setUp and
+    # tearDown each time check_* is run.
+    def check_ungettext(self, message, value, charset='utf-8'):
+        self.translations.input_charset = charset
         tools.ok_(self.translations.ungettext(message, 'blank', 1) == value)
         tools.ok_(self.translations.ungettext('blank', message, 2) == value)
         tools.ok_(self.translations.ungettext(message, 'blank', 2) != value)
@@ -274,22 +275,28 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
 
 class TestNewGNUTranslationsFallback(TestDummyTranslations):
     def setUp(self):
-        self.old_LC_ALL = os.environ['LC_ALL']
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
         os.environ['LC_ALL'] = 'pt_BR.utf8'
         self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
 
     def tearDown(self):
-        os.environ['LC_ALL'] = self.old_LC_ALL
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
 
 
 class TestNewGNURealTranslations(object):
     def setUp(self):
-        self.old_LC_ALL = os.environ['LC_ALL']
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
         os.environ['LC_ALL'] = 'pt_BR.utf8'
         self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
 
     def tearDown(self):
-        os.environ['LC_ALL'] = self.old_LC_ALL
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
 
     def test_gettext(self):
         _ = self.translations.gettext
