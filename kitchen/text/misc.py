@@ -91,7 +91,7 @@ def guess_encoding(byte_string, disable_chardet=False):
             input_encoding = detection_info['encoding']
 
     if not input_encoding:
-        input_encoding = 'latin1'
+        input_encoding = 'latin-1'
 
     return input_encoding
 
