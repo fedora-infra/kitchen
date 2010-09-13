@@ -173,8 +173,8 @@ class TestDefaultDict(unittest.TestCase):
             os.remove(tfn)
 
 
-def test_main():
-    test_support.run_unittest(TestDefaultDict)
-
-if __name__ == "__main__":
-    test_main()
+#def test_main():
+#    test_support.run_unittest(TestDefaultDict)
+#
+#if __name__ == "__main__":
+#    test_main()
