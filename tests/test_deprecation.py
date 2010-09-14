@@ -13,6 +13,9 @@ class TestDeprecated(unittest.TestCase):
         registry = sys._getframe(2).f_globals.get('__warningregistry__')
         if registry:
             registry.clear()
+        registry = sys._getframe(1).f_globals.get('__warningregistry__')
+        if registry:
+            registry.clear()
         warnings.simplefilter('error', DeprecationWarning)
 
     def tearDown(self):
