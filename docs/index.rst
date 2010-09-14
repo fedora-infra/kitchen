@@ -99,9 +99,6 @@ This python module is distributed under the terms of the
         :file:`defaultdict.py`, :file:`test_defaultdict.py`,
         :file:`_base64.py`, and :file:`test_base64.py`
 
-    `Public Domain <http://effbot.org/zone/copyright.html>`_
-        :func:`kitchen.text.misc.html_entities_unescape`
-
 --------
 Contents
 --------
