@@ -546,7 +546,7 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
 # I made some adjustments for using unicode but largely unchanged from JA's
 # port of MK's code -Toshio
 def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Expand a :term:`unicode` string to a specified "width" or chop to same.
+    '''Expand a :class:`unicode` string to a specified "width" or chop to same.
 
     :arg msg: :class:`unicode` string to format
     :arg fill: pad string until the :term:`textual width` of the string is

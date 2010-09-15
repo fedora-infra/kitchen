@@ -29,5 +29,5 @@ them useful.
 
 .. autofunction:: kitchen.text.display._ucp_width
 
-.. autofunction:: kitchen.text.display._textual_wdith_le
+.. autofunction:: kitchen.text.display._textual_width_le
 
