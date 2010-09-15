@@ -34,7 +34,7 @@ Format Text for Display
 Functions related to displaying unicode text.  Unicode characters don't all
 have the same width so we need helper functions for displaying them.
 
-.. versionadded:: 0.2, kitchen.display API 1.0.0
+.. versionadded:: 0.2 kitchen.display API 1.0.0
 '''
 import itertools
 import unicodedata
@@ -288,6 +288,13 @@ def _generate_combining_table():
 
 # New function from Toshio Kuratomi (LGPLv2+)
 def _print_combining_table():
+    '''Print out a new combining tbale
+
+    This will print a new combining table in the format used in
+    :file:`kitchen/text/display.py`.  It's useful for updating the combining
+    table with updated data from a new python as the format won't change
+    from what's already in the file.
+    '''
     table = _generate_combining_table()
     entries = 0
     print '_COMBINING = ('
@@ -305,23 +312,24 @@ def _print_combining_table():
 # Handling of control chars rewritten.  Rest is JA's port of MK's C code.
 # -Toshio Kuratomi
 def _ucp_width(ucs, control_chars='guess'):
-    '''Get the textual width of a ucs character.
+    '''Get the textual width of a ucs character
 
     :arg ucs: integer representing a single unicode :term:`code point`
     :kwarg control_chars: specify how to deal with control chars.  Possible
         values are:
-            :guess: (default) will take a guess for control code widths.  Most
-                codes will return 0 width.  backspace, delete, and clear
-                delete return -1.  escape currently returns -1 as well but
-                this is not guaranteed as it's not always correct
-            :strict: will raise
-                :exc:`~kitchen.text.exceptions.ControlCharError` if
-                a control code is encountered
+
+        :guess: (default) will take a guess for control code widths.  Most
+            codes will return 0 width.  backspace, delete, and clear delete
+            return -1.  escape currently returns -1 as well but this is not
+            guaranteed as it's not always correct
+        :strict: will raise :exc:`~kitchen.text.exceptions.ControlCharError`
+            if a :term:`control character` is encountered
+
     :raises ControlCharError: if the :term:`code point` is a unicode
         control character and :attr:`control_chars` is set to 'strict'
     :returns: :term:`textual width` of the character.
 
-    .. note: It's important to remember this is :term:`textual width` and not
+    .. note:: It's important to remember this is :term:`textual width` and not
         the number of characters or bytes.
     '''
     # test for 8-bit control characters
@@ -367,23 +375,25 @@ def _ucp_width(ucs, control_chars='guess'):
 
 # Wholly rewritten by me (LGPLv2+) -Toshio Kuratomi
 def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'):
-    '''Get the textual width of a string
+    '''Get the :term:`textual width` of a string
 
     :arg msg: :class:`unicode` or byte :class:`str` to get the width of
-    :kwarg control_chars: specify how to deal with control chars.  Possible
-        values are:
-            :guess: (default) will take a guess for control code widths.
-            :strict: will raise
-                a :exc:`~kitchen.text.exceptions.ControlCharError` if
-                a control code is encountered
-    :kwarg encoding: If we are given a byte :class:`str`, this is used to
+    :kwarg control_chars: specify how to deal with :term:`control characters`.
+        Possible values are:
+
+        :guess: (default) will take a guess for :term:`control character`
+            widths
+        :strict: will raise a :exc:`~kitchen.text.exceptions.ControlCharError`
+            if a :term:`control character` is encountered
+
+    :kwarg encoding: If we are given a byte :class:`str` this is used to
         decode it into :class:`unicode`.  Any characters that are not
         decodable in this encoding will be assigned a width of 1.
     :kwarg errors: How to treat errors encoding the byte :class:`str` to
         :class:`unicode`.  Legal values are the same as for
         :func:`kitchen.text.converters.to_unicode`
-    :raises ControlCharError: if :attr:`msg` contains a control character and
-        control_chars is 'strict'.
+    :raises ControlCharError: if :attr:`msg` contains a :term:`control
+        character` and :attr:`control_chars` is ``strict``.
     :returns: :term:`Textual width` of the :attr:`msg`.  This is the amount of
         space that the string will consume on a monospace display.  It's
         measured in the number of cell positions or columns it will take up on
@@ -453,10 +463,10 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
         :term:`textual width`
 
     This is what you want to use instead of ``%.*s``, as it does the "right"
-    thing with regard to :term:`UTF-8` sequences, :term:`control character` s,
+    thing with regard to :term:`UTF-8` sequences, :term:`control characters`,
     and characters that take more than one cell position. Eg::
 
-        >>> # Only displays 8 characters because it is operating on bytes
+        >>> # Wrong: only displays 8 characters because it is operating on bytes
         >>> print "%.*s" % (10, 'café ñunru!')
         café ñun
         >>> # Properly operates on graphemes
@@ -536,15 +546,15 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
 # I made some adjustments for using unicode but largely unchanged from JA's
 # port of MK's code -Toshio
 def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Expand a unicode string to a specified "width" or chop to same.
+    '''Expand a :term:`unicode` string to a specified "width" or chop to same.
 
     :arg msg: :class:`unicode` string to format
     :arg fill: pad string until the :term:`textual width` of the string is
         this length
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all
-    :kwarg left: If True (default) left justify the string and put the padding
-        on the right.  If False, pad on the left side.
+    :kwarg left: If :data:`True` (default) left justify the string and put the
+        padding on the right.  If :data:`False`, pad on the left side.
     :kwarg prefix: Attach this string before the field we're filling
     :kwarg suffix: Append this string to the end of the field we're filling
     :rtype: :class:`unicode` string
@@ -554,10 +564,10 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         characters, the string could be longer than fill width.
 
     .. warning:: :attr:`prefix` and :attr:`suffix` should be used for
-        "invisible" characters, like highlighting, color changing escape
-        codes, etc.  The fill characters are appended outside of any
-        :attr:`prefix` or :attr:`suffix` elements.  This allows you to only
-        highlight :attr:`msg` inside of the field you're filling.
+        "invisible" characters like highlighting, color changing escape codes,
+        etc.  The fill characters are appended outside of any :attr:`prefix`
+        or :attr:`suffix` elements.  This allows you to only highlight
+        :attr:`msg` inside of the field you're filling.
 
     .. warning:: :attr:`msg`, :attr:`prefix`, and :attr:`suffix` should all be
         representable as unicode characters.  In particular, any escape
@@ -568,7 +578,7 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
 
     This function expands a string to fill a field of a particular width.  Use
     it instead of ``%*.*s``, as it does the "right" thing with regard to
-    :term:`UTF-8` sequences, :term:`control character` s, and characters that
+    :term:`UTF-8` sequences, :term:`control characters`, and characters that
     take more than one cell position in a display.  Example usage::
 
         >>> msg = u'一二三四五六七八九十'
@@ -614,7 +624,7 @@ def _textual_width_le(width, *args):
     '''Optimize the common case when deciding which textual width is larger
 
     :arg width: :term:`textual width` to compare against.
-    :arg *args: :class:`unicode` strings to check the total :term:`textual
+    :arg \*args: :class:`unicode` strings to check the total :term:`textual
         width` of
     :returns: True if the total length of :attr:`args` are less than or equal
         to :attr:`width`.
@@ -629,6 +639,7 @@ def _textual_width_le(width, *args):
        the true :term:`textual width` cannot be less than width.
     2) If the number of canonically composed characters * 2 is less than the
        width then the textual width must be ok.
+
     :term:`textual width` of a canonically composed :class:`unicode` string
     will always be greater than or equal to the the number of :class:`unicode`
     characters.  So we can first check if the number of composed
