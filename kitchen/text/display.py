@@ -312,16 +312,16 @@ def _print_combining_table():
 # Handling of control chars rewritten.  Rest is JA's port of MK's C code.
 # -Toshio Kuratomi
 def _ucp_width(ucs, control_chars='guess'):
-    '''Get the textual width of a ucs character
+    '''Get the :term:`textual width` of a ucs character
 
     :arg ucs: integer representing a single unicode :term:`code point`
-    :kwarg control_chars: specify how to deal with control chars.  Possible
-        values are:
+    :kwarg control_chars: specify how to deal with :term:`control characters`.
+        Possible values are:
 
-        :guess: (default) will take a guess for control code widths.  Most
-            codes will return 0 width.  backspace, delete, and clear delete
-            return -1.  escape currently returns -1 as well but this is not
-            guaranteed as it's not always correct
+        :guess: (default) will take a guess for :term:`control character`
+            widths.  Most codes will return 0 width.  backspace, delete, and
+            clear delete return -1.  escape currently returns -1 as well but
+            this is not guaranteed as it's not always correct
         :strict: will raise :exc:`~kitchen.text.exceptions.ControlCharError`
             if a :term:`control character` is encountered
 
