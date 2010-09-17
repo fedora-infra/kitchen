@@ -84,16 +84,16 @@ def version_tuple_to_string(version_info):
             print 'We need at least version 0.2.1 and less than 0.3.0'
             print 'Currently found: kitchen-%s' % __version__
     '''
-    v = []
+    ver_components = []
     for values in version_info:
         if isinstance(values[0], int):
-            v.append('.'.join(itertools.imap(str, values)))
+            ver_components.append('.'.join(itertools.imap(str, values)))
         elif values[0] in ('a', 'b', 'c', 'rc'):
-            v.append('%s%s' %
-                    (values[0], '.'.join(itertools.imap(str, values[1:])) or str(0)))
+            ver_components.append('%s%s' % (values[0],
+                '.'.join(itertools.imap(str, values[1:])) or str(0)))
         else:
-            v.append('.%s%s' % (values[0], values[1]))
-    return u''.join(v)
+            ver_components.append('.%s%s' % (values[0], values[1]))
+    return u''.join(ver_components)
 
 __version__ = version_tuple_to_string(__version_info__)
 
