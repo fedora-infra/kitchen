@@ -25,7 +25,15 @@ StrictDict
 :class:`kitchen.collections.StrictDict` provides a dictionary that treats
 :class:`str` and :class:`unicode` as distinct key values.
 '''
+
+# Pylint disabled messages:
+# :C0111: We're implementing the dict interface so just reference the dict
+#   documentation rather than having our own docstrings
+
 try:
+    # :E0611: Pylint false positive.  We try to import from the stdlib but we
+    #   have a fallback so this is okay.
+    #pylint:disable-msg=E0611
     from collections import defaultdict
 except ImportError:
     from kitchen.pycompat25.collections import defaultdict
@@ -54,6 +62,7 @@ class StrictDict(defaultdict):
             difference.
 
     '''
+    #pylint:disable-msg=C0111
     def __getitem__(self, key):
         return defaultdict.__getitem__(self, (repr(key), key))
 
