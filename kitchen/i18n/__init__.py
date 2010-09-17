@@ -76,6 +76,11 @@ See the documentation of :func:`easy_gettext_setup` and
             features for :term:`i18n` on top of :mod:`gettext`
 '''
 # Pylint disabled messages:
+# :E1101: NewGNUTranslations is modeled as a replacement for GNUTranslations.
+#   That module invokes the _parse message to create some of its attributes.
+#   Pylint doesn't see those attributes being defined since it doesn't know
+#   when _parse() is called.  We disable E1101 when accessing self._catalog
+#   and self.plural for this reason.
 # :C0103: We're replicating the gettext API here so we need to use method and
 #   parameter names that mirror gettext.
 # :C0111: We're replicating the gettext API here so for the gettext
@@ -420,7 +425,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
         try:
-            tmsg = self._catalog[message]
+            tmsg = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
             if self._fallback:
                 try:
@@ -449,6 +454,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                 return ''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
+            #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
@@ -476,7 +482,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
         try:
-            tmsg = self._catalog[message]
+            tmsg = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
             if self._fallback:
                 try:
@@ -503,6 +509,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                 return ''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
+            #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
@@ -527,7 +534,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, unicode):
             message = unicode(message, self.input_charset, 'replace')
         try:
-            message = self._catalog[message]
+            message = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
             if self._fallback:
                 try:
@@ -552,6 +559,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                 return u''
             msgid1 = unicode(msgid1, self.input_charset, 'replace')
         try:
+            #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
@@ -650,6 +658,9 @@ def get_translation_object(domain, localedirs=tuple()):
         localedir = os.path.join(sys.prefix, 'share', 'locale')
 
     try:
+        # localedir is always initialized in the above code.  pylint doesn't
+        # recognize that the for: else will initialize it.
+        #pylint:disable-msg=W0631
         translations = gettext.translation(domain, localedir=localedir,
                 class_=NewGNUTranslations, fallback=False)
     except IOError:
@@ -707,13 +718,8 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     '''
     translations = get_translation_object(domain, localedirs=localedirs)
     if use_unicode:
-        _ = translations.ugettext
-        N_ = translations.ungettext
-    else:
-        _ = translations.gettext
-        N_ = translations.ngettext
-
-    return (_, N_)
+        return(translations.ugettext, translations.ungettext)
+    return(translations.gettext, translations.ngettext)
 
 __all__ = ('DummyTranslations', 'NewGNUTranslations', 'easy_gettext_setup',
         'get_translation_object')
