@@ -23,11 +23,17 @@ Kitchen
 
 Aggregate of a bunch of unrelated but helpful python modules.
 '''
+
+# Pylint disabled messages:
+# :C0103: We need gettext aliases for both unicode strings and byte strings.
+#   The byte string one (b_) triggers this warning.
 from kitchen import i18n
 from kitchen import versioning
 
 (_, N_) = i18n.easy_gettext_setup('kitchen.core')
+#pylint: disable-msg=C0103
 (b_, bN_) = i18n.easy_gettext_setup('kitchen.core', use_unicode=False)
+#pylint: enable-msg=C0103
 
 __version_info__ = ((0, 2, 2), ('a', 1))
 __version__ = versioning.version_tuple_to_string(__version_info__)
