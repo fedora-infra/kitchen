@@ -75,6 +75,11 @@ See the documentation of :func:`easy_gettext_setup` and
             catalogs`, and translating your app.  babel provides some nice
             features for :term:`i18n` on top of :mod:`gettext`
 '''
+# Pylint disabled messages:
+# :C0103: We're replicating the gettext API here so we need to use method and
+#   parameter names that mirror gettext.
+# :C0111: We're replicating the gettext API here so for the gettext
+#   translation object methods we point people at the stdlib docs
 
 from kitchen.versioning import version_tuple_to_string
 
@@ -159,6 +164,7 @@ class DummyTranslations(gettext.NullTranslations):
             For information about what methods are available and what they do.
 
     '''
+    #pylint: disable-msg=C0103,C0111
     def __init__(self, fp=None):
         gettext.NullTranslations.__init__(self, fp)
 
@@ -178,7 +184,7 @@ class DummyTranslations(gettext.NullTranslations):
         ''' Compatibility for python2.3 which doesn't have output_charset'''
         self._output_charset = charset
 
-    def __output_charset(self, charset):
+    def __output_charset(self):
         '''Compatibility for python2.3 which doesn't have output_charset'''
         return self._output_charset
 
@@ -403,6 +409,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             For information about what methods this class has and what they do
 
     '''
+    #pylint: disable-msg=C0103,C0111
     def _parse(self, fp):
         gettext.GNUTranslations._parse(self, fp)
 
