@@ -382,8 +382,10 @@ def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'
         Possible values are:
 
         :guess: (default) will take a guess for :term:`control character`
-            widths
-        :strict: will raise a :exc:`~kitchen.text.exceptions.ControlCharError`
+            widths.  Most codes will return 0 width.  backspace, delete, and
+            clear delete return -1.  escape currently returns -1 as well but
+            this is not guaranteed as it's not always correct
+        :strict: will raise :exc:`kitchen.text.exceptions.ControlCharError`
             if a :term:`control character` is encountered
 
     :kwarg encoding: If we are given a byte :class:`str` this is used to
