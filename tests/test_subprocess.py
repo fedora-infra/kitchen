@@ -1,7 +1,7 @@
 import unittest
 from nose.plugins.skip import SkipTest
 from test import test_support
-from kitchen.pycompat27 import _subprocess as subprocess
+from kitchen.pycompat27.subprocess import _subprocess as subprocess
 import sys
 import signal
 import os
