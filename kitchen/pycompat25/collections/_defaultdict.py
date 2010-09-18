@@ -80,6 +80,12 @@ import types
 
 from kitchen import b_
 
+# :C0103, W0613: We're implementing the python-2.5 defaultdict API so
+#   we have to use the same names as python.
+# :C0111: We point people at the stdlib API docs for defaultdict rather than
+#   reproduce it here.
+#pylint:disable-msg=C0103,W0613,C0111
+
 class defaultdict(dict):
     def __init__(self, default_factory=None, *args, **kwargs):
         if (default_factory is not None and

@@ -1,3 +1,7 @@
+'''
+The :mod:`kitchen.pycompat27` module contains implementations of functionality
+introduced in python-2.7 for use on earlier versions of python.
+'''
 from kitchen.versioning import version_tuple_to_string
 
 __version_info__ = ((1, 0, 0),)

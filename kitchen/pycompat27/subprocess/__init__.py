@@ -32,11 +32,12 @@ a backport of that module for use on earlier python versions.
 '''
 import sys
 
+# :W0401,W0611,W0614: We're importing compatibility to the python-2.7 version
+#   of subprocess.
+#pylint:disable-msg=W0401,W0611,W0614
 if sys.version_info >= (2, 7):
-    import subprocess
     from subprocess import *
-    __all__ = subprocess.__all__
+    from subprocess import __all__
 else:
-    import _subprocess
-    from _subprocess import *
-    __all__ = _subprocess.__all__
+    from kitchen.pycompat27.subprocess._subprocess import *
+    from kitchen.pycompat27.subprocess._subprocess import __all__
