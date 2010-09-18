@@ -1,5 +1,3 @@
-import sys
-
 from kitchen.versioning import version_tuple_to_string
 
 __version_info__ = ((1, 0, 0),)
