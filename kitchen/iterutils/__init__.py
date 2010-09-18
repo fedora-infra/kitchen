@@ -76,7 +76,7 @@ def iterate(obj, include_string=False):
         [1, 2, 3]
         >>> list(iterate(set([1, 2, 3])))
         [1, 2, 3]
-        >>> list(iterate(dict(a='1', b='2)))
+        >>> list(iterate(dict(a='1', b='2')))
         ['a', 'b']
         >>> list(iterate(1))
         [1]
@@ -84,7 +84,7 @@ def iterate(obj, include_string=False):
         [1, 2, 3]
         >>> list(iterate('abc'))
         ['abc']
-        >>> list(iterate('abc', include_string=True'))
+        >>> list(iterate('abc', include_string=True))
         ['a', 'b', 'c']
     '''
     if isiterable(obj, include_string=include_string):
