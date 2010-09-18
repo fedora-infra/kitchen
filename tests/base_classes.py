@@ -109,6 +109,6 @@ It has lots of other features though:
     utf8_mixed_para_57_initial_subsequent_out = map(to_bytes, u_mixed_para_57_initial_subsequent_out)
 
     u_ascii_chars = u' '.join(map(unichr, range(0, 256)))
-    u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in misc._control_codes])
-    u_ascii_ctrl_replace = u_ascii_chars.translate(dict([(c, u'?') for c in misc._control_codes]))
+    u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in misc._CONTROL_CODES])
+    u_ascii_ctrl_replace = u_ascii_chars.translate(dict([(c, u'?') for c in misc._CONTROL_CODES]))
     utf8_ascii_chars = u_ascii_chars.encode('utf8')
