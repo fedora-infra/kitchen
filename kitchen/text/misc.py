@@ -226,8 +226,8 @@ def html_entities_unescape(string):
                     try:
                         return unichr(int(entity[2:-1]))
                     except ValueError:
-                        # If the value is outside the unicode codepoint range, leave
-                        # it in the output as is
+                        # If the value is outside the unicode codepoint range,
+                        # leave it in the output as is
                         pass
                 else:
                     return unicode(entity, "iso-8859-1")
@@ -302,5 +302,6 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
     # byte string is valid in this encoding
     return True
 
-__all__ = ('byte_string_valid_encoding', 'byte_string_valid_xml', 'guess_encoding',
-        'html_entities_unescape', 'process_control_chars', 'str_eq')
+__all__ = ('byte_string_valid_encoding', 'byte_string_valid_xml',
+        'guess_encoding', 'html_entities_unescape', 'process_control_chars',
+        'str_eq')

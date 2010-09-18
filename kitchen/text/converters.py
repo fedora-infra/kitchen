@@ -157,7 +157,8 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     raise TypeError(_('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
 
-def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None, non_string=None):
+def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
+        non_string=None):
     '''Convert an object into a byte string
 
     Usually, this should be used on a unicode string but it can take byte

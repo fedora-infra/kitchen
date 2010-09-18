@@ -53,7 +53,7 @@ else:
     frozenset = frozenset
 
 def add_builtin_set():
-    '''If there's no set builtin, add the implementation from the :mod:`sets` module
+    '''If there's no set builtin, us the :mod:`sets` module to make one
 
     This function makes sure that a :class:`set` and :class:`frozenset` type
     are available in the :mod:`__builtin__` namespace.  Since the function

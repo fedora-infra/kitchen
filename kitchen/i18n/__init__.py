@@ -257,7 +257,8 @@ class DummyTranslations(gettext.NullTranslations):
                 message = self._fallback.lgettext(msg)
             except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: we'll do our own encoding next
-                # AttributeErrors happen on py2.3 where lgettext is not implemented
+                # AttributeErrors happen on py2.3 where lgettext is not
+                # implemented
                 pass
 
         # Make sure that we're returning a str
@@ -270,7 +271,7 @@ class DummyTranslations(gettext.NullTranslations):
     def lngettext(self, msgid1, msgid2, n):
         # Default
         if n == 1:
-           message = msgid1
+            message = msgid1
         else:
             message = msgid2
         # Fallback method might have something different
@@ -282,9 +283,10 @@ class DummyTranslations(gettext.NullTranslations):
             try:
                 message = self._fallback.lngettext(msgid1, msgid2, n)
             except (AttributeError, UnicodeError):
-                pass
                 # Ignore UnicodeErrors: we'll do our own encoding next
-                # AttributeError happens on py2.3 where lngettext is not implemented
+                # AttributeError happens on py2.3 where lngettext is not
+                # implemented
+                pass
 
         # Make sure that we're returning a str
         if isinstance(message, str):
