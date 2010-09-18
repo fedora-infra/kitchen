@@ -53,7 +53,8 @@ _LATIN1_ALIASES = frozenset(('latin-1', 'LATIN-1', 'latin1', 'LATIN1',
     'latin', 'LATIN', 'l1', 'L1', 'cp819', 'CP819', '8859', 'iso8859-1',
     'ISO8859-1', 'iso-8859-1', 'ISO-8859-1'))
 
-def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None, non_string=None):
+def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
+        non_string=None):
     '''Convert an object into a unicode string
 
     Usually, this should be used on a byte string but it can take byte strings
@@ -269,7 +270,7 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
     warnings.warn(_('kitchen.text.converters.to_utf8 is deprecated.  Use'
         ' kitchen.text.converters.to_bytes(obj, encoding="utf-8",'
         ' nonstring="passthru" instead.'), DeprecationWarning, stacklevel=2)
-    return to_bytes(obj, encoding='utf-8', errors='replace',
+    return to_bytes(obj, encoding='utf-8', errors=errors,
             nonstring=non_string)
 
 ### str is also the type name for byte strings so it's not a good name for
@@ -422,8 +423,8 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     except ValueError:
         raise ValueError(_('The control_chars argument to unicode_to_xml'
                 ' must be one of ignore, replace, or strict'))
-    except ControlCharError, e:
-        raise XmlEncodeError(e.args[0])
+    except ControlCharError, exc:
+        raise XmlEncodeError(exc.args[0])
 
     string = string.encode(encoding, 'xmlcharrefreplace')
 
@@ -520,7 +521,8 @@ def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
     return unicode_to_xml(u_string, encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
 
-def xml_to_byte_string(byte_string, input_encoding='utf-8', errors='replace', output_encoding='utf-8'):
+def xml_to_byte_string(byte_string, input_encoding='utf-8', errors='replace',
+        output_encoding='utf-8'):
     '''Transform a byte string from an xml file into unicode
 
     :arg byte_string: byte string to decode
@@ -570,9 +572,10 @@ def bytes_to_xml(byte_string, *args, **kwargs):
     # Can you do this yourself?  Yes, you can.
     return b64encode(byte_string, *args, **kwargs)
 
-# Why do this?  Function calls in CPython are rather expensive.  We start by
-# defining this as a function so we can get a docstring.  Then we redefine it
-# as an attribute to save one useless function call.
+# :C0103: Why do this?  Function calls in CPython are rather expensive.  We
+#   start by defining this as a function so we can get a docstring.  Then we
+#   redefine it as an attribute to save one useless function call.
+#pylint:disable-msg=C0103
 bytes_to_xml = b64encode
 
 def xml_to_bytes(byte_string, *args, **kwargs):
@@ -598,7 +601,10 @@ def xml_to_bytes(byte_string, *args, **kwargs):
     '''
     return b64decode(byte_string, *args, **kwargs)
 
-# Same note here as for bytes_to_xml
+# :C0103: Why do this?  Function calls in CPython are rather expensive.  We
+#   start by defining this as a function so we can get a docstring.  Then we
+#   redefine it as an attribute to save one useless function call.
+#pylint:disable-msg=C0103
 xml_to_bytes = b64decode
 
 def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
@@ -683,12 +689,18 @@ def getwriter(encoding):
     .. versionadded:: kitchen 0.2a2, API: kitchen.text 1.1.0
     '''
     class _StreamWriter(codecs.StreamWriter):
-
+        # :W0223: We don't need to implement all methods of StreamWriter.
+        #   This is not the actual class that gets used but a replacement for
+        #   the actual class.
+        # :C0111: We're implementing an API from the stdlib.  Just point
+        #   people at that documentation instead of writing docstrings here.
+        #pylint:disable-msg=W0223,C0111
         def __init__(self, stream, errors='replace'):
             codecs.StreamWriter.__init__(self, stream, errors)
 
         def encode(self, msg, errors='replace'):
-            return to_bytes(msg, encoding=self.encoding, errors=errors), len(msg)
+            return (to_bytes(msg, encoding=self.encoding, errors=errors),
+                    len(msg))
 
     _StreamWriter.encoding = encoding
     return _StreamWriter
