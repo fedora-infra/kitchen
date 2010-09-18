@@ -33,8 +33,10 @@ a backport of that module for use on earlier python versions.
 import sys
 
 if sys.version_info >= (2, 7):
+    import subprocess
     from subprocess import *
     __all__ = subprocess.__all__
 else:
+    import _subprocess
     from _subprocess import *
     __all__ = _subprocess.__all__
