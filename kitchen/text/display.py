@@ -281,6 +281,9 @@ def _generate_combining_table():
 
     if in_interval:
         # If we're at the end and the interval is open, close it.
+        # :W0631: We looped through a static range so we know codepoint is
+        #   defined here
+        #pylint:disable-msg=W0631
         interval.append(codepoint)
         combining.append(interval)
 
@@ -374,7 +377,8 @@ def _ucp_width(ucs, control_chars='guess'):
         (ucs >= 0x30000 and ucs <= 0x3fffd))))
 
 # Wholly rewritten by me (LGPLv2+) -Toshio Kuratomi
-def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'):
+def textual_width(msg, control_chars='guess', encoding='utf-8',
+        errors='replace'):
     '''Get the :term:`textual width` of a string
 
     :arg msg: :class:`unicode` or byte :class:`str` to get the width of
@@ -413,14 +417,16 @@ def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'
     # On python 2.6.4, x86_64, I've benchmarked a few alternate
     # implementations::
     #
-    #   timeit.repeat('display.textual_width(data)', 'from __main__ import display, data',
-    #       number=100)
-    # I varied data by size and content (1MB of ascii, a few words, 43K utf8, unicode type
+    #   timeit.repeat('display.textual_width(data)',
+    #       'from __main__ import display, data', number=100)
+    # I varied data by size and content (1MB of ascii, a few words, 43K utf8,
+    # unicode type
     #
     # :this implementation: fastest across the board
     #
     # :list comprehension: 6-16% slower
-    #   return sum([_ucp_width(ord(c), control_chars=control_chars) for c in msg])
+    #   return sum([_ucp_width(ord(c), control_chars=control_chars)
+    #       for c in msg])
     #
     # :generator expression: 9-18% slower
     #   return sum((_ucp_width(ord(c), control_chars=control_chars) for c in
@@ -652,7 +658,6 @@ def _textual_width_le(width, *args):
     can return True immediately.  If not, then we must do a full textual width
     lookup.
     '''
-    chars = 0
     string = ''.join(args)
     string = unicodedata.normalize('NFC', string)
     if len(string) > width:
@@ -670,8 +675,8 @@ def _textual_width_le(width, *args):
 
 def wrap(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf-8', errors='replace'):
-    '''Works like we want :func:`textwrap.wrap` to work, uses :term:`utf-8` data and
-    doesn't screw up lists/blocks/etc.
+    '''Works like we want :func:`textwrap.wrap` to work, uses :term:`utf-8`
+    data and doesn't screw up lists/blocks/etc.
 
     :arg text: string to wrap
     :kwarg width: width at which to wrap.  Default 70
@@ -748,8 +753,8 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
             force_nl = True
         if wrap_last and cur_sab == len(line):# is empty line
             force_nl = True
-        if wrap_last and not last_spc_indent:  # if line doesn't continue a list and
-            if cur_sab >= 4 and cur_sab != last_sab: # is "block indented"
+        if wrap_last and not last_spc_indent: # if we don't continue a list
+            if cur_sab >= 4 and cur_sab != last_sab: # and is "block indented"
                 force_nl = True
         if force_nl:
             ret.append(indent.rstrip(u' '))
