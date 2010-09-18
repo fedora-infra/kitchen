@@ -32,10 +32,13 @@ of that module for use on python-2.3.
 '''
 import sys
 
+# :W0401,W0614: The purpose of this module is to create a backport of base64 so we ignore
+# these pylint warnings
+#pylint:disable-msg=W0401,W0614
 if sys.version_info >= (2, 4):
     from base64 import *
 else:
-    from _base64 import *
+    from kitchen.pycompat24.base64._base64 import *
 
 __all__ = ( 'b64decode', 'b64encode', 'standard_b64decode',
         'standard_b64encode', 'urlsafe_b64decode', 'urlsafe_b64encode',)

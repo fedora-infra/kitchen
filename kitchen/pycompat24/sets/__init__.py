@@ -40,6 +40,9 @@ module.
 import __builtin__
 
 # Setup set and frozenset on this module
+# :W0622,C0103: The purpose of this module is to define set and frozenset if they aren't
+# in builtins already so we disregard these pylint warnings
+#pylint:disable-msg=W0622,C0103
 if not hasattr(__builtin__, 'set'):
     import sets
     set = sets.Set
@@ -51,6 +54,7 @@ if not hasattr(__builtin__, 'frozenset'):
     frozenset = sets.ImmutableSet
 else:
     frozenset = frozenset
+#pylint:enable-msg=W0622,C0103
 
 def add_builtin_set():
     '''If there's no set builtin, us the :mod:`sets` module to make one
