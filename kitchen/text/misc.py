@@ -45,11 +45,11 @@ sets.add_builtin_set()
 
 # Define a threshold for chardet confidence.  If we fall below this we decode
 # byte strings we're guessing about as latin1
-_chardet_threshhold = 0.6
+_CHARDET_THRESHHOLD = 0.6
 
 # ASCII control codes that are illegal in xml 1.0
-_control_codes = frozenset(range(0, 8) + [11, 12] + range(14, 32))
-_control_chars = frozenset(itertools.imap(unichr, _control_codes))
+_CONTROL_CODES = frozenset(range(0, 8) + [11, 12] + range(14, 32))
+_CONTROL_CHARS = frozenset(itertools.imap(unichr, _CONTROL_CODES))
 
 # _ENTITY_RE
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
@@ -87,7 +87,7 @@ def guess_encoding(byte_string, disable_chardet=False):
 
     if not input_encoding and chardet and not disable_chardet:
         detection_info = chardet.detect(byte_string)
-        if detection_info['confidence'] >= _chardet_threshhold:
+        if detection_info['confidence'] >= _CHARDET_THRESHHOLD:
             input_encoding = detection_info['encoding']
 
     if not input_encoding:
@@ -167,14 +167,14 @@ def process_control_chars(string, strategy='replace'):
         raise TypeError(b_('process_control_char must have a unicode type as'
                 ' the first argument.'))
     if strategy == 'ignore':
-        control_table = dict(zip(_control_codes, [None] * len(_control_codes)))
+        control_table = dict(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES)))
     elif strategy == 'replace':
-        control_table = dict(zip(_control_codes, [u'?'] * len(_control_codes)))
+        control_table = dict(zip(_CONTROL_CODES, [u'?'] * len(_CONTROL_CODES)))
     elif strategy == 'strict':
         control_table = None
         # Test that there are no control codes present
         data = frozenset(string)
-        if [c for c in _control_chars if c in data]:
+        if [c for c in _CONTROL_CHARS if c in data]:
             raise ControlCharError(b_('ASCII control code present in string'
                     ' input'))
     else:
@@ -205,8 +205,8 @@ def html_entities_unescape(string):
     :rtype: :class:`unicode` string
     :returns: The plain text without html entities
     '''
-    def fixup(m):
-        string = m.group(0)
+    def fixup(match):
+        string = match.group(0)
         if string[:1] == "<":
             return "" # ignore tags
         if string[:2] == "&#":
@@ -271,7 +271,7 @@ def byte_string_valid_xml(byte_string, encoding='utf-8'):
         return False
 
     data = frozenset(byte_string)
-    if data.intersection(_control_chars):
+    if data.intersection(_CONTROL_CHARS):
         # Contains control codes
         return False
 
