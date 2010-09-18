@@ -390,10 +390,13 @@ def textual_width(msg, control_chars='guess', encoding='utf-8', errors='replace'
 
     :kwarg encoding: If we are given a byte :class:`str` this is used to
         decode it into :class:`unicode`.  Any characters that are not
-        decodable in this encoding will be assigned a width of 1.
+        decodable in this encoding will get a value dependent on the
+        :attr:`errors` parameter.
     :kwarg errors: How to treat errors encoding the byte :class:`str` to
         :class:`unicode`.  Legal values are the same as for
-        :func:`kitchen.text.converters.to_unicode`
+        :func:`kitchen.text.converters.to_unicode`.  The default value of
+        ``replace`` will cause undecodable byte sequences to have a width of
+        one. ``ignore`` will have a width of 0.
     :raises ControlCharError: if :attr:`msg` contains a :term:`control
         character` and :attr:`control_chars` is ``strict``.
     :returns: :term:`Textual width` of the :attr:`msg`.  This is the amount of
