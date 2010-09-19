@@ -6,7 +6,7 @@ from nose.plugins.skip import SkipTest
 
 import __builtin__
 import base64 as py_b64
-import sets as py_sets
+import warnings
 
 from kitchen.pycompat24 import sets
 from kitchen.pycompat24.base64 import _base64 as base64
@@ -39,6 +39,7 @@ class TestSetsNoOverwrite(unittest.TestCase):
 
 class TestDefineSets(unittest.TestCase):
     def setUp(self):
+        warnings.simplefilter('ignore', DeprecationWarning)
         self.set_val = None
         self.frozenset_val = None
         if hasattr(__builtin__, 'set'):
@@ -49,6 +50,7 @@ class TestDefineSets(unittest.TestCase):
             del(__builtin__.frozenset)
 
     def tearDown(self):
+        warnings.simplefilter('default', DeprecationWarning)
         if self.set_val:
             __builtin__.set = self.set_val
         else:
@@ -61,6 +63,7 @@ class TestDefineSets(unittest.TestCase):
     def test_pycompat_defines_set(self):
         '''Test that calling pycompat24.add_builtin_set() adds set and frozenset to __builtin__
         '''
+        import sets as py_sets
         sets.add_builtin_set()
         if self.set_val:
             tools.ok_(__builtin__.set == self.set_val)
