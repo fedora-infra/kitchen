@@ -1,3 +1,5 @@
+.. _overcoming-frustration:
+
 ==========================================================
 Overcoming frustration: Correctly using unicode in python2
 ==========================================================
