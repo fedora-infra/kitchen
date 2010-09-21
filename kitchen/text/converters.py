@@ -73,12 +73,13 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     :kwarg encoding: What encoding to try converting the byte string as.
         Defaults to ``utf-8``
     :kwarg errors: If errors are given, perform this action.  Defaults to
-        'replace' which replaces the error with a character that means the bytes
-        were unable to be decoded.  Other values are those that can be given to
-        the unicode constructor, for instance 'strict' which raises an
-        exception and 'ignore' which simply omits the non-decodable
-        characters.
-    :kwargs nonstring: How to treat nonstring values.  Possible values are:
+        ``replace`` which replaces the error with a character that means the
+        bytes were unable to be decoded.  Other values are the same as the
+        error handling schemes in the `codec base classes
+        <http://docs.python.org/library/codecs.html#codec-base-classes>_`.
+        For instance ``strict`` which raises an exception and ``ignore`` which
+        simply omits the non-decodable characters.
+    :kwarg nonstring: How to treat nonstring values.  Possible values are:
 
         :simplerepr: Attempt to call the object's "simple representation"
             method and return that value.  Python-2.3+ has two methods

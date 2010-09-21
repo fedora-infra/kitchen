@@ -84,16 +84,16 @@ from kitchen.text.exceptions import ControlCharError
 def _interval_bisearch(value, table):
     '''Binary search in an interval table.
 
-    This function checks whether a numeric value is present within a table
-    of intervals.  It checks using a binary search algorithm, dividing the
-    list of values in half and checking against the values until it determines
-    whether the value is in the table.
-
     :arg value: numeric value to search for
     :arg table: Ordered list of intervals.  This is a list of two-tuples.  The
         elements of the two-tuple define an interval's start and end points.
     :returns: If :attr:`value` is found within an interval in the :attr:`table`
-        return True.  Otherwise, False
+        return :data:`True`.  Otherwise, :data:`False`
+
+    This function checks whether a numeric value is present within a table
+    of intervals.  It checks using a binary search algorithm, dividing the
+    list of values in half and checking against the values until it determines
+    whether the value is in the table.
     '''
     minimum = 0
     maximum = len(table) - 1
@@ -111,19 +111,6 @@ def _interval_bisearch(value, table):
 
     return False
 
-#: Internal table, provided by this module to list :term:`code points` which
-# combine with other characters and therefore should have no :term:`textual
-# width`.  This is a sorted tuple of non-overlapping intervals.  Each interval
-# is a tuple listing a starting :term:`code point` and ending
-# :term:`code point`.  Every :term:`code point` between the two end points is
-# a combining character.
-#
-# .. seealso::
-#   `~kitchen.text.display._generate_combining_table`
-#       for how this table is generated
-#
-# This table was last regenerated on python-2.6.4 with
-# :data:`unicodedata.unicodedata_version` 5.1.0
 _COMBINING = (
         (0x300, 0x36f), (0x483, 0x489), (0x591, 0x5bd),
         (0x5bf, 0x5bf), (0x5c1, 0x5c2), (0x5c4, 0x5c5),
@@ -184,16 +171,32 @@ _COMBINING = (
         (0x1d16d, 0x1d182), (0x1d185, 0x1d18b), (0x1d1aa, 0x1d1ad),
         (0x1d242, 0x1d244), (0xe0001, 0xe0001), (0xe0020, 0xe007f),
         (0xe0100, 0xe01ef), )
+'''
+Internal table, provided by this module to list :term:`code points` which
+combine with other characters and therefore should have no :term:`textual
+width`.  This is a sorted :class:`tuple` of non-overlapping intervals.  Each
+interval is a :class:`tuple` listing a starting :term:`code point` and ending
+:term:`code point`.  Every :term:`code point` between the two end points is
+a combining character.
+
+.. seealso::
+    :func:`~kitchen.text.display._generate_combining_table`
+        for how this table is generated
+
+This table was last regenerated on python-2.7.0 with
+:data:`unicodedata.unidata_version` 5.1.0
+'''
 
 # New function from Toshio Kuratomi (LGPLv2+)
 def _generate_combining_table():
-    '''Combine Markus Kuhn's data with unicodedata to make combining char list
+    '''Combine Markus Kuhn's data with :mod:`unicodedata` to make combining
+    char list
 
-    :rtype: tuple of tuples
-    :returns: A list of intervals of :term:`code points` that are combining
-        character.  Each interval is a 2-tuple of the starting
-        :term:`code point` and the ending :term:`code point` for the combining
-        characters.
+    :rtype: :class:`tuple` of tuples
+    :returns: :class:`tuple` of intervals of :term:`code points` that are
+        combining character.  Each interval is a 2-:class:`tuple` of the
+        starting :term:`code point` and the ending :term:`code point` for the
+        combining characters.
 
     In normal use, this function serves to tell how we're generating the
     combining char list.  For speed reasons, we use this to generate a static
@@ -203,13 +206,8 @@ def _generate_combining_table():
     the python :mod:`unicodedata` library but the python :mod:`unicodedata` is
     synced against later versions of the unicode database
 
-    This is used to generate the :data:`~kitchen.text.display._COMBINING` table
-    using roughly the following code::
-
-        from kitchen.text.display import _generate_combining_table
-        table = _generate_combining_table()
-        for interval in table:
-            print '( %s, %s ),' % (hex(interval[0]), hex(interval[1]))
+    This is used to generate the :data:`~kitchen.text.display._COMBINING`
+    table.
     '''
     # Marcus Kuhn's sorted list of non-overlapping intervals of non-spacing
     # characters generated ifrom Unicode 5.0 data by:
@@ -291,12 +289,12 @@ def _generate_combining_table():
 
 # New function from Toshio Kuratomi (LGPLv2+)
 def _print_combining_table():
-    '''Print out a new combining tbale
+    '''Print out a new :data:`_COMBINING` table
 
-    This will print a new combining table in the format used in
-    :file:`kitchen/text/display.py`.  It's useful for updating the combining
-    table with updated data from a new python as the format won't change
-    from what's already in the file.
+    This will print a new :data:`_COMBINING` table in the format used in
+    :file:`kitchen/text/display.py`.  It's useful for updating the
+    :data:`_COMBINING` table with updated data from a new python as the format
+    won't change from what's already in the file.
     '''
     table = _generate_combining_table()
     entries = 0
@@ -322,14 +320,15 @@ def _ucp_width(ucs, control_chars='guess'):
         Possible values are:
 
         :guess: (default) will take a guess for :term:`control character`
-            widths.  Most codes will return 0 width.  backspace, delete, and
-            clear delete return -1.  escape currently returns -1 as well but
-            this is not guaranteed as it's not always correct
+            widths.  Most codes will return zero width.  ``backspace``,
+            ``delete``, and ``clear delete`` return -1.  ``escape`` currently
+            returns -1 as well but this is not guaranteed as it's not always
+            correct
         :strict: will raise :exc:`~kitchen.text.exceptions.ControlCharError`
             if a :term:`control character` is encountered
 
     :raises ControlCharError: if the :term:`code point` is a unicode
-        control character and :attr:`control_chars` is set to 'strict'
+        :term:`control character` and :attr:`control_chars` is set to 'strict'
     :returns: :term:`textual width` of the character.
 
     .. note:: It's important to remember this is :term:`textual width` and not
@@ -381,26 +380,27 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
         errors='replace'):
     '''Get the :term:`textual width` of a string
 
-    :arg msg: :class:`unicode` or byte :class:`str` to get the width of
+    :arg msg: :class:`unicode` string or byte :class:`str` to get the width of
     :kwarg control_chars: specify how to deal with :term:`control characters`.
         Possible values are:
 
         :guess: (default) will take a guess for :term:`control character`
-            widths.  Most codes will return 0 width.  backspace, delete, and
-            clear delete return -1.  escape currently returns -1 as well but
-            this is not guaranteed as it's not always correct
+            widths.  Most codes will return zero width.  ``backspace``,
+            ``delete``, and ``clear delete`` return -1.  ``escape`` currently
+            returns -1 as well but this is not guaranteed as it's not always
+            correct
         :strict: will raise :exc:`kitchen.text.exceptions.ControlCharError`
             if a :term:`control character` is encountered
 
     :kwarg encoding: If we are given a byte :class:`str` this is used to
-        decode it into :class:`unicode`.  Any characters that are not
+        decode it into :class:`unicode` string.  Any characters that are not
         decodable in this encoding will get a value dependent on the
         :attr:`errors` parameter.
     :kwarg errors: How to treat errors encoding the byte :class:`str` to
-        :class:`unicode`.  Legal values are the same as for
+        :class:`unicode` string.  Legal values are the same as for
         :func:`kitchen.text.converters.to_unicode`.  The default value of
         ``replace`` will cause undecodable byte sequences to have a width of
-        one. ``ignore`` will have a width of 0.
+        one. ``ignore`` will have a width of zero.
     :raises ControlCharError: if :attr:`msg` contains a :term:`control
         character` and :attr:`control_chars` is ``strict``.
     :returns: :term:`Textual width` of the :attr:`msg`.  This is the amount of
@@ -412,7 +412,7 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
     .. note:: This function can be wrong sometimes because Unicode does not
         specify a strict width value for all of the :term:`code points`.  In
         particular, we've found that some Tamil characters take up to
-        4 character cells but are represented with a lesser amount.
+        four character cells but we return a lesser amount.
     '''
     # On python 2.6.4, x86_64, I've benchmarked a few alternate
     # implementations::
@@ -459,13 +459,13 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
 
 # Wholly rewritten by me -Toshio Kuratomi
 def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
-    '''Given as string, return it chopped to a given :term:`textual width`
+    '''Given a string, return it chopped to a given :term:`textual width`
 
-    :arg msg: :class:`unicode` or byte :class:`str` to chop
-    :arg chop: Chop the string if it exceeds this :term:`textual width`
+    :arg msg: :class:`unicode` string or byte :class:`str` to chop
+    :arg chop: Chop :attr:`msg` if it exceeds this :term:`textual width`
     :kwarg encoding: If we are given a byte :class:`str`, this is used to
-        decode it into :class:`unicode`.  Any characters that are not
-        decodable in this encoding will be assigned a width of 1.
+        decode it into a :class:`unicode` string.  Any characters that are not
+        decodable in this encoding will be assigned a width of one.
     :kwarg errors: How to treat errors encoding the byte :class:`str` to
         :class:`unicode`.  Legal values are the same as for
         :func:`kitchen.text.converters.to_unicode`
@@ -557,7 +557,8 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
 # I made some adjustments for using unicode but largely unchanged from JA's
 # port of MK's code -Toshio
 def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Expand a :class:`unicode` string to a specified "width" or chop to same.
+    '''Expand a :class:`unicode` string to a specified :term:`textual width`
+    or chop to same
 
     :arg msg: :class:`unicode` string to format
     :arg fill: pad string until the :term:`textual width` of the string is
@@ -569,12 +570,12 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     :kwarg prefix: Attach this string before the field we're filling
     :kwarg suffix: Append this string to the end of the field we're filling
     :rtype: :class:`unicode` string
-    :returns: :attr:`msg`, formatted to fill the specified width.  If no
+    :returns: :attr:`msg` formatted to fill the specified width.  If no
         :attr:`chop` is specified, the string could exceed the fill length
         when completed.  If :attr:`prefix` or :attr:`suffix` are printable
-        characters, the string could be longer than fill width.
+        characters, the string could be longer than the fill width.
 
-    .. warning:: :attr:`prefix` and :attr:`suffix` should be used for
+    .. note:: :attr:`prefix` and :attr:`suffix` should be used for
         "invisible" characters like highlighting, color changing escape codes,
         etc.  The fill characters are appended outside of any :attr:`prefix`
         or :attr:`suffix` elements.  This allows you to only highlight
@@ -587,32 +588,35 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         than unicode characters, use
         :func:`~kitchen.text.display.byte_string_textual_width_fill` instead.
 
-    This function expands a string to fill a field of a particular width.  Use
-    it instead of ``%*.*s``, as it does the "right" thing with regard to
-    :term:`UTF-8` sequences, :term:`control characters`, and characters that
-    take more than one cell position in a display.  Example usage::
+    This function expands a string to fill a field of a particular
+    :term:`textual width`.  Use it instead of ``%*.*s``, as it does the
+    "right" thing with regard to :term:`UTF-8` sequences, :term:`control
+    characters`, and characters that take more than one cell position in
+    a display.  Example usage::
 
         >>> msg = u'一二三四五六七八九十'
-        >>> # This uses 10 characters instead of 10 cells:
+        >>> # Wrong: This uses 10 characters instead of 10 cells:
         >>> u":%-*.*s:" % (10, 10, msg[:9])
         :一二三四五六七八九 :
         >>> # This uses 10 cells like we really want:
         >>> u":%s:" % (textual_width_fill(msg[:9], 10, 10))
         :一二三四五:
 
-        >>> # Right aligned in the field
+        >>> # Wrong: Right aligned in the field, but too many cells
         >>> u"%20.10s" % (msg)
                   一二三四五六七八九十
+        >>> # Correct: Right aligned with proper number of cells
         >>> u"%s" % (textual_width_fill(msg, 20, 10, left=False))
                   一二三四五
 
-        >>> # Adding some escape characters to highlight the line
+        >>> # Wrong: Adding some escape characters to highlight the line but too many cells
         >>> u"%s%20.10s%s" % (prefix, msg, suffix)
         u'\x1b[7m          一二三四五六七八九十\x1b[0m'
+        >>> # Correct highlight of the line
         >>> u"%s%s%s" % (prefix, display.textual_width_fill(msg, 20, 10, left=False), suffix)
         u'\x1b[7m          一二三四五\x1b[0m'
 
-        >>> # If you don't want to highlight the fill as well
+        >>> # Correct way to not highlight the fill
         >>> u"%s" % (display.textual_width_fill(msg, 20, 10, left=False, prefix=prefix, suffix=suffix))
         u'          \x1b[7m一二三四五\x1b[0m'
     '''
@@ -632,31 +636,32 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     return msg
 
 def _textual_width_le(width, *args):
-    '''Optimize the common case when deciding which textual width is larger
+    '''Optimize the common case when deciding which :term:`textual width` is
+    larger
 
     :arg width: :term:`textual width` to compare against.
     :arg \*args: :class:`unicode` strings to check the total :term:`textual
         width` of
-    :returns: True if the total length of :attr:`args` are less than or equal
-        to :attr:`width`.
+    :returns: :data:`True` if the total length of :attr:`args` are less than
+        or equal to :attr:`width`.  Otherwise :data:`False`.
 
     We often want to know "does X fit in Y".  It takes a while to use
     :func:`textual_width` to calculate this.  However, we know that the number
     of canonically composed :class:`unicode` characters is always going to
-    have 1 or 2 for the textual_width per character.  With this we can take
-    the following shortcuts:
+    have 1 or 2 for the :term:`textual width` per character.  With this we can
+    take the following shortcuts:
 
     1) If the number of canonically composed characters is more than width,
        the true :term:`textual width` cannot be less than width.
     2) If the number of canonically composed characters * 2 is less than the
-       width then the textual width must be ok.
+       width then the :term:`textual width` must be ok.
 
     :term:`textual width` of a canonically composed :class:`unicode` string
     will always be greater than or equal to the the number of :class:`unicode`
     characters.  So we can first check if the number of composed
     :class:`unicode` characters is less than the asked for width.  If it is we
-    can return True immediately.  If not, then we must do a full textual width
-    lookup.
+    can return :data:`True` immediately.  If not, then we must do a full
+    :term:`textual width` lookup.
     '''
     string = ''.join(args)
     string = unicodedata.normalize('NFC', string)
@@ -673,18 +678,29 @@ def _textual_width_le(width, *args):
         true_width = textual_width(string)
     return true_width <= width
 
-def wrap(text, width=70, initial_indent='', subsequent_indent='',
+def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
         encoding='utf-8', errors='replace'):
-    '''Works like we want :func:`textwrap.wrap` to work, uses :term:`utf-8`
-    data and doesn't screw up lists/blocks/etc.
+    '''Works like we want :func:`textwrap.wrap` to work,
 
-    :arg text: string to wrap
-    :kwarg width: width at which to wrap.  Default 70
-    :kwarg initial_indent: string to use to indent the first line.  Default,
+    :arg text: :class:`unicode` string or byte :class:`str` to wrap
+    :kwarg width: :term:`textual width` at which to wrap.  Default: 70
+    :kwarg initial_indent: string to use to indent the first line.  Default:
         do not indent.
-    :kwarg subsequent_indent: string to use to wrap subsequent lines.  Default
-        do not indent
+    :kwarg subsequent_indent: string to use to wrap subsequent lines.
+        Default: do not indent
+    :kwarg encoding: Encoding to use if :attr:`text` is a byte :class:`str`
+    :kwarg errors: error handler to use if :attr:`text` is a byte :class:`str`
+        and contains some undecodable characters.
+    :rtype: :class:`list` of :class:`unicode` strings
     :returns: list of lines that have been text wrapped and indented.
+
+    :func:`textwrap.wrap` from the |stdlib|_ has two drawbacks that this
+    attempts to fix:
+
+    1. It does not handle :term:`textual width`.  It only operates on bytes or
+       characters which are both inadequate (due to multi-byte and double
+       width characters).
+    2. It malforms lists and blocks.
     '''
     # Tested with:
     # yum info robodoc gpicview php-pear-Net-Socket wmctrl ustr moreutils
@@ -792,19 +808,18 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
     return ret
 
 def fill(text, *args, **kwargs):
-    '''Works like we want :func:`textwrap.fill` to work, uses :term:`utf-8`
-    data and doesn't screw up lists/blocks/etc.
+    '''Works like we want :func:`textwrap.fill` to work
 
-    :arg text: string to process
-    :returns: string with each line separated by a newline.
+    :arg text: :class:`unicode` string or byte :class:`str` to process
+    :returns: :class:`unicode` string with each line separated by a newline
 
     .. seealso::
         :func:`kitchen.text.display.wrap`
             for other parameters that you can give this command.
 
     This function is a light wrapper around :func:`kitchen.text.display.wrap`.
-    Where that function returns a list of lines, this function returns one
-    string with each line separated by a newline.
+    Where that function returns a :class:`list` of lines, this function
+    returns one string with each line separated by a newline.
     '''
     return u'\n'.join(wrap(text, *args, **kwargs))
 
@@ -814,7 +829,8 @@ def fill(text, *args, **kwargs):
 
 def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         suffix='', encoding='utf-8', errors='replace'):
-    '''Expand a byte :class:`str` to a specified "width" or chop to same.
+    '''Expand a byte :class:`str` to a specified :term:`textual width` or chop
+    to same
 
     :arg msg: byte :class:`str` encoded in :term:`UTF-8` that we want formatted
     :arg fill: pad :attr:`msg` until the :term:`textual width` is this long
@@ -827,13 +843,13 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
     :kwarg suffix: Append this byte :class:`str` to the end of the field we're
         filling
     :rtype: byte :class:`str`
-    :returns: :attr:`msg`, formatted to fill the specified width.  If no
-        :attr:`chop` is specified, the string could exceed the fill length
-        when completed.  If :attr:`prefix` or :attr:`suffix` are printable
-        characters, the string could be longer than fill width.
+    :returns: :attr:`msg` formatted to fill the specified :term:`textual
+        width`.  If no :attr:`chop` is specified, the string could exceed the
+        fill length when completed.  If :attr:`prefix` or :attr:`suffix` are
+        printable characters, the string could be longer than fill width.
 
-    .. warning:: :attr:`prefix` and :attr:`suffix` should be used for
-        "invisible" characters, like highlighting, color changing escape
+    .. note:: :attr:`prefix` and :attr:`suffix` should be used for
+        "invisible" characters like highlighting, color changing escape
         codes, etc.  The fill characters are appended outside of any
         :attr:`prefix` or :attr:`suffix` elements.  This allows you to only
         highlight :attr:`msg` inside of the field you're filling.
@@ -842,9 +858,9 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         :func:`~kitchen.text.display.textual_width_fill`
             For example usage.  This function has only two differences.
 
-            1. it takes byte strings for :attr:`prefix` and :attr:`suffix` so
-               you can pass in arbitrary sequences of bytes, not just unicode
-               characters.
+            1. it takes byte :class:`str` for :attr:`prefix` and
+               :attr:`suffix` so you can pass in arbitrary sequences of
+               bytes, not just unicode characters.
             2. it returns a byte :class:`str` instead of a :class:`unicode`
                string.
     '''
