@@ -23,7 +23,8 @@
 # python-fedora: fedora/textutils.py
 
 '''
-Functions to handle conversion of byte strings and unicode strings.
+Functions to handle conversion of byte :class:`str` and :class:`unicode`
+strings.
 
 .. versionchanged:: kitchen 0.2a2 ; API kitchen.text 1.1.0
     Added :func:`~kitchen.text.converters.getwriter`
@@ -55,47 +56,37 @@ _LATIN1_ALIASES = frozenset(('latin-1', 'LATIN-1', 'latin1', 'LATIN1',
 
 def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         non_string=None):
-    '''Convert an object into a unicode string
+    '''Convert an object into a :class:`unicode` string
 
-    Usually, this should be used on a byte string but it can take byte strings
-    and unicode strings intelligently.  Nonstring objects are handled in
-    different ways depending on the setting of the nonstring parameter.
-
-    The default values of this function are set so as to always return
-    a unicode string and never raise an error when converting from bytes to
-    unicode.  However, when you do not pass validly encoded text as the byte
-    string (or a nonstring object), you may end up with output that you don't
-    expect.  Be sure you understand the requirements of your data, not just
-    ignore errors by passing it through this function.
-
-    :arg obj: Object to convert to a unicode string.  This should normally be
-        a byte string
-    :kwarg encoding: What encoding to try converting the byte string as.
-        Defaults to ``utf-8``
-    :kwarg errors: If errors are given, perform this action.  Defaults to
-        ``replace`` which replaces the error with a character that means the
-        bytes were unable to be decoded.  Other values are the same as the
-        error handling schemes in the `codec base classes
-        <http://docs.python.org/library/codecs.html#codec-base-classes>_`.
+    :arg obj: Object to convert to a :class:`unicode` string.  This should
+        normally be a byte :class:`str`
+    :kwarg encoding: What encoding to try converting the byte :class:`str` as.
+        Defaults to :term:`utf-8`
+    :kwarg errors: If errors in decoding are found, perform this action.
+        Defaults to ``replace`` which replaces the invalid bytes with
+        a character that means the bytes were unable to be decoded.  Other
+        values are the same as the error handling schemes in the `codec base
+        classes
+        <http://docs.python.org/library/codecs.html#codec-base-classes>`_.
         For instance ``strict`` which raises an exception and ``ignore`` which
         simply omits the non-decodable characters.
     :kwarg nonstring: How to treat nonstring values.  Possible values are:
 
         :simplerepr: Attempt to call the object's "simple representation"
-            method and return that value.  Python-2.3+ has two methods
-            that try to return a simple representation: __unicode__() and
-            __str__().  We first try to get a usable value from
-            __unicode__().  If that fails we try the same with __str__().
-        :empty: Return an empty string
-        :strict: Raise a TypeError
+            method and return that value.  Python-2.3+ has two methods that
+            try to return a simple representation: :meth:`object.__unicode__`
+            and :meth:`object.__str__`.  We first try to get a usable value
+            from :meth:`object.__unicode__`.  If that fails we try the same
+            with :meth:`object.__str__`.
+        :empty: Return an empty :class:`unicode` string
+        :strict: Raise a :exc:`TypeError`
         :passthru: Return the object unchanged
-        :repr: Attempt to return a unicode string of the repr of the
+        :repr: Attempt to return a :class:`unicode` string of the repr of the
             object
 
         Default is ``simplerepr``
 
-    :kwarg non_string: *Deprecated* Use nonstring instead.
-
+    :kwarg non_string: *Deprecated* Use :attr:`nonstring` instead
     :raises TypeError: if :attr:`nonstring` is ``strict`` and
         a non-:class:`basestring` object is passed in or if :attr:`nonstring`
         is set to an unknown value
@@ -104,8 +95,20 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     :returns: :class:`unicode` string or the original object depending on the
         value of :attr:`nonstring`.
 
+    Usually this should be used on a byte :class:`str` but it can take both
+    byte :class:`str` and :class:`unicode` strings intelligently.  Nonstring
+    objects are handled in different ways depending on the setting of the
+    :attr:`nonstring` parameter.
+
+    The default values of this function are set so as to always return
+    a :class:`unicode` string and never raise an error when converting from
+    a byte :class:`str` to a :class:`unicode` string.  However, when you do
+    not pass validly encoded text (or a nonstring object), you may end up with
+    output that you don't expect.  Be sure you understand the requirements of
+    your data, not just ignore errors by passing it through this function.
+
     .. versionchanged:: 0.2.1a2
-        Deprecated non_string in favor of nonstring parameter and changed
+        Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter and changed
         default value to ``simplerepr``
     '''
     if isinstance(obj, basestring):
@@ -160,30 +163,19 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
 
 def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         non_string=None):
-    '''Convert an object into a byte string
+    '''Convert an object into a byte :class:`str`
 
-    Usually, this should be used on a unicode string but it can take byte
-    strings and unicode strings intelligently.  Nonstring objects are handled
-    in different ways depending on the setting of the :attr:`nonstring`
-    parameter.
-
-    The default values of this function are set so as to always return
-    a byte string and never raise an error when converting from unicode to
-    bytes.  However, when you do not pass an encoding that can validly encode
-    the object (or a non-string object), you may end up with output that you
-    don't expect.  Be sure you understand the requirements of your data, not
-    just ignore errors by passing it through this function.
-
-    :arg obj: Object to convert to a byte string.  This should normally be
-        a unicode string.
-    :kwarg encoding: Encoding to use to convert the unicode string into
-        bytes.  **Warning**: if you pass a byte string into this function the
-        byte string is returned unmodified.  It is not re-encoded with this
-        encoding.  Defaults to utf8.
-    :kwarg errors: If errors are found when encoding, perform this action.
-        Defaults to 'replace' which replaces the error with a '?' character to
-        show a character was unable to be encoded.  Other values are those
-        that can be given to the :func:`str.encode`.  For instance
+    :arg obj: Object to convert to a byte :class:`str`.  This should normally
+        be a :class:`unicode` string.
+    :kwarg encoding: Encoding to use to convert the :class:`unicode` string
+        into a byte :class:`str`.  **Warning**: if you pass a byte
+        :class:`str` into this function the byte :class:`str` is returned
+        unmodified.  It is not re-encoded with this encoding.  Defaults to
+        :term:`utf-8`.
+    :kwarg errors: If errors are found when encoding the string, perform this
+        action.  Defaults to 'replace' which replaces the error with a '?'
+        character to show a character was unable to be encoded.  Other values
+        are those that can be given to the :func:`str.encode`.  For instance
         'strict' which raises an exception and 'ignore' which simply omits the
         non-encodable characters.
     :kwargs nonstring: How to treat nonstring values.  Possible values are:
@@ -209,6 +201,18 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         bytes of :attr:`obj` are unable to be encoded using :attr:`encoding`.
     :returns: byte :class:`str` or the original object depending on the value
         of :attr:`nonstring`.
+
+    Usually, this should be used on a :class:`unicode` string but it can take
+    either a byte :class:`str` or a :class:`unicode` string intelligently.
+    Nonstring objects are handled in different ways depending on the setting
+    of the :attr:`nonstring` parameter.
+
+    The default values of this function are set so as to always return
+    a byte string and never raise an error when converting from unicode to
+    bytes.  However, when you do not pass an encoding that can validly encode
+    the object (or a non-string object), you may end up with output that you
+    don't expect.  Be sure you understand the requirements of your data, not
+    just ignore errors by passing it through this function.
 
     .. versionchanged:: 0.2.1a2
         Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter
