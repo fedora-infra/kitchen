@@ -23,15 +23,17 @@ NEWS
 * unittest that easy_gettext_setup returns the correct objects
 * Document kitchen.text.display
 * Proofread all of the documentation.  Cross reference to the stdlib.
+* Write a porting guide for people porting from python-fedora and yum APIs.
 
 Planned
 =======
-* Ensure that all deprecated functions used by yum are present
-  - Write a short porting guide in kitchen API with a table of which functions
-    in yum have an implementation where in kitchen
 * api-using-kitchen-versions.rst
   - Using kitchen.release
   - Using kitchen.*.__version_info__
+* Add a small section to the tutorial about how restricting the set of encodings can make an API viable:
+  - ASCii compatible
+  - ASCii subset
+  - multibyte
 * unittest kitchen.text.display._print_combining_table() ?
 
 -------

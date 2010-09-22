@@ -59,12 +59,12 @@ yum                                kitchen replacement
 .. [#y1] These yum methods provided fallback support for :mod:`gettext`
     functions in case either ``gaftonmode`` was set or :mod:`gettext` failed
     to return an object.  In kitchen, we can use the
-    :class:`DummyTranslations` object to fulfill that role.  Please see
-    :ref:`yum-i18n-init` for more suggestions on how to do this.
+    :class:`kitchen.i18n.DummyTranslations` object to fulfill that role.
+    Please see :ref:`yum-i18n-init` for more suggestions on how to do this.
 
 .. [#y2] The yum version of these functions returned a byte :class:`str`.  The
     kitchen version listed here returns a :class:`unicode` string.  If you
-    need a byte string after all, simply call
+    need a byte :class:`str` simply call
     :func:`kitchen.text.converters.to_bytes` on the result.
 
 .. [#y3] The yum version of these functions would return either a byte
@@ -101,14 +101,15 @@ yum                                kitchen replacement
     a :class:`unicode` string In kitchen you can get the same effect but you
     get to choose whether you want a byte :class:`str` or a :class:`unicode`
     string.  Use :func:`~kitchen.text.converters.to_bytes` for :class:`str`
-    and :func:`kitchen.text.converters.to_unicode` for :class:`unicode`.
+    and :func:`~kitchen.text.converters.to_unicode` for :class:`unicode`.
 
-.. [#y7] :func:`yum.misc.to_xml` didn't really make a lot of sense as
-    implemented.  I think the intention was for you to be able to pass
-    a byte :class:`str` or :class:`unicode` string in and get out a byte
-    string that was valid to use in an xml file.  The two kitchen functions
-    :func:`byte_string_to_xml` and :func:`unicode_to_xml` do that for each
-    string type.
+.. [#y7] :func:`yum.misc.to_xml` was buggy as written.  I think the intention
+    was for you to be able to pass a byte :class:`str` or :class:`unicode`
+    string in and get out a byte :class:`str` that was valid to use in an xml
+    file.  The two kitchen functions
+    :func:`~kitchen.text.converters.byte_string_to_xml` and
+    :func:`~kitchen.text.converters.unicode_to_xml` do that for each string
+    type.
 
 .. _yum-i18n-init:
 
@@ -146,7 +147,7 @@ With kitchen, this can be changed to this::
         _ = translations.ugettext
         P_ = translations.ungettext
 
-i.. note:: In :ref:`overcoming-frustration`, it is mentioned that for some
+.. note:: In :ref:`overcoming-frustration`, it is mentioned that for some
     things (like exception messages), using the byte :class:`str` oriented
     functions is more appropriate.  If this is desired, the setup portion is
     only a second call to :func:`kitchen.i18n.easy_gettext_setup`::
