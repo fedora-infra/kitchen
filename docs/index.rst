@@ -110,6 +110,7 @@ Contents
     api-overview
     hacking
     glossary
+    porting-guide-0.3
 
 ------------------
 Indices and tables
