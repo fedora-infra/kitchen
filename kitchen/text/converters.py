@@ -62,7 +62,7 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         normally be a byte :class:`str`
     :kwarg encoding: What encoding to try converting the byte :class:`str` as.
         Defaults to :term:`utf-8`
-    :kwarg errors: If errors in decoding are found, perform this action.
+    :kwarg errors: If errors are found while decoding, perform this action.
         Defaults to ``replace`` which replaces the invalid bytes with
         a character that means the bytes were unable to be decoded.  Other
         values are the same as the error handling schemes in the `codec base
@@ -168,27 +168,27 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
     :arg obj: Object to convert to a byte :class:`str`.  This should normally
         be a :class:`unicode` string.
     :kwarg encoding: Encoding to use to convert the :class:`unicode` string
-        into a byte :class:`str`.  **Warning**: if you pass a byte
-        :class:`str` into this function the byte :class:`str` is returned
-        unmodified.  It is not re-encoded with this encoding.  Defaults to
-        :term:`utf-8`.
-    :kwarg errors: If errors are found when encoding the string, perform this
-        action.  Defaults to 'replace' which replaces the error with a '?'
-        character to show a character was unable to be encoded.  Other values
-        are those that can be given to the :func:`str.encode`.  For instance
-        'strict' which raises an exception and 'ignore' which simply omits the
-        non-encodable characters.
-    :kwargs nonstring: How to treat nonstring values.  Possible values are:
+        into a byte :class:`str`.  Defaults to :term:`utf-8`.
+    :kwarg errors: If errors are found while encoding, perform this action.
+        Defaults to ``replace`` which replaces the invalid bytes with
+        a character that means the bytes were unable to be encoded.  Other
+        values are the same as the error handling schemes in the `codec base
+        classes
+        <http://docs.python.org/library/codecs.html#codec-base-classes>`_.
+        For instance ``strict`` which raises an exception and ``ignore`` which
+        simply omits the non-encodable characters.
+    :kwarg nonstring: How to treat nonstring values.  Possible values are:
 
         :simplerepr: Attempt to call the object's "simple representation"
-            method and return that value.  Python-2.3+ has two methods
-            that try to return a simple representation: __unicode__() and
-            __str__().  We first try to get a usable value from
-            __str__().  If that fails we try the same with __unicode__().
-        :empty: Return an empty byte string
-        :strict: Raise a TypeError
+            method and return that value.  Python-2.3+ has two methods that
+            try to return a simple representation: :meth:`object.__unicode__`
+            and :meth:`object.__str__`.  We first try to get a usable value
+            from :meth:`object.__str__`.  If that fails we try the same
+            with :meth:`object.__unicode__`.
+        :empty: Return an empty byte :class:`str`
+        :strict: Raise a :exc:`TypeError`
         :passthru: Return the object unchanged
-        :repr: Attempt to return a byte string of the repr of the
+        :repr: Attempt to return a byte :class:`str` of the :func:`repr` of the
             object
 
         Default is ``simplerepr``.
@@ -202,13 +202,17 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
     :returns: byte :class:`str` or the original object depending on the value
         of :attr:`nonstring`.
 
+    .. warning:: If you pass a byte :class:`str` into this function the byte
+        :class:`str` is returned unmodified.  It is **not** re-encoded
+        with the specified :attr:`encoding`.
+
     Usually, this should be used on a :class:`unicode` string but it can take
     either a byte :class:`str` or a :class:`unicode` string intelligently.
     Nonstring objects are handled in different ways depending on the setting
     of the :attr:`nonstring` parameter.
 
-    The default values of this function are set so as to always return
-    a byte string and never raise an error when converting from unicode to
+    The default values of this function are set so as to always return a byte
+    :class:`str` and never raise an error when converting from unicode to
     bytes.  However, when you do not pass an encoding that can validly encode
     the object (or a non-string object), you may end up with output that you
     don't expect.  Be sure you understand the requirements of your data, not
@@ -268,10 +272,82 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
     raise TypeError(_('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
 
-def to_utf8(obj, errors='replace', non_string='passthru'):
-    '''Deprecated.  Use to_bytes(obj, encoding='utf-8', non_string='passthru')
+def getwriter(encoding):
+    '''Return a :class:`codecs.StreamWriter` that resists tracing back.
 
-    Convert 'unicode' to an encoded utf-8 byte string
+    :arg encoding: Encoding to use for transforming :class:`unicode` strings
+        into byte :class:`str`.
+    :rtype: :class:`codecs.StreamWriter`
+    :returns: :class:`~codecs.StreamWriter` that you can instantiate to wrap output
+        streams to automatically translate :class:`unicode` strings into :attr:`encoding`.
+
+    This is a reimplemetation of :func:`codecs.getwriter` that returns
+    a :class:`~codecs.StreamWriter` that resists issuing tracebacks.  The
+    :class:`~codecs.StreamWriter` that is returned uses
+    :func:`kitchen.text.converters.to_bytes` to convert :class:`unicode`
+    strings into byte :class:`str`.  The departures from
+    :func:`codecs.getwriter` are:
+
+    1) The :class:`~codecs.StreamWriter` that is returned will take byte
+       :class:`str` as well as :class:`unicode` strings.  Any byte
+       :class:`str` will be passed through unmodified.
+    2) The default error handler for unknown bytes is to ``replace`` the bytes
+       with the unknown character (``?`` in most ascii-based encodings, ``�``
+       in the utf encodings) whereas :func:`codecs.getwriter` defaults to
+       ``strict``.  Like :class:`codecs.StreamWriter`, the returned
+       :class:`~codecs.StreamWriter` can have its error handler changed in
+       code by setting ``stream.errors = 'new_handler_name'``
+
+    Example usage::
+
+        $ LC_ALL=C python
+        >>> import sys
+        >>> from kitchen.text.converters import getwriter
+        >>> UTF8Writer = getwriter('utf-8')
+        >>> unwrapped_stdout = sys.stdout
+        >>> sys.stdout = UTF8Writer(unwrapped_stdout)
+        >>> print 'caf\\xc3\\xa9'
+        café
+        >>> print u'caf\\xe9'
+        café
+        >>> ASCIIWriter = getwriter('ascii')
+        >>> sys.stdout = ASCIIWriter(unwrapped_stdout)
+        >>> print 'caf\\xc3\\xa9'
+        café
+        >>> print u'caf\\xe9'
+        caf?
+
+    .. seealso::
+        API docs for :class:`codecs.StreamWriter` and :func:`codecs.getwriter`
+        and `Print Fails <http://wiki.python.org/moin/PrintFails>`_ on the
+        python wiki.
+
+    .. versionadded:: kitchen 0.2a2, API: kitchen.text 1.1.0
+    '''
+    class _StreamWriter(codecs.StreamWriter):
+        # :W0223: We don't need to implement all methods of StreamWriter.
+        #   This is not the actual class that gets used but a replacement for
+        #   the actual class.
+        # :C0111: We're implementing an API from the stdlib.  Just point
+        #   people at that documentation instead of writing docstrings here.
+        #pylint:disable-msg=W0223,C0111
+        def __init__(self, stream, errors='replace'):
+            codecs.StreamWriter.__init__(self, stream, errors)
+
+        def encode(self, msg, errors='replace'):
+            return (to_bytes(msg, encoding=self.encoding, errors=errors),
+                    len(msg))
+
+    _StreamWriter.encoding = encoding
+    return _StreamWriter
+
+def to_utf8(obj, errors='replace', non_string='passthru'):
+    '''*Deprecated*
+
+    Convert :class:`unicode` to an encoded :term:`utf-8` byte :class:`str`.
+    You should be using :func:`to_bytes` instead::
+
+        to_bytes(obj, encoding='utf-8', non_string='passthru')
     '''
     warnings.warn(_('kitchen.text.converters.to_utf8 is deprecated.  Use'
         ' kitchen.text.converters.to_bytes(obj, encoding="utf-8",'
@@ -282,17 +358,19 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
 ### str is also the type name for byte strings so it's not a good name for
 ### something that can return unicode strings
 def to_str(obj):
-    '''Deprecated.
+    '''*Deprecated*
 
-    This function converts something to a byte :class:`str if it isn't one.
-    It's used to call :func:`str` or func:`unicode` on the object to get its
+    This function converts something to a byte :class:`str` if it isn't one.
+    It's used to call :func:`str` or :func:`unicode` on the object to get its
     simple representation without danger of getting a :exc:`UnicodeError`.
     You should be using :func:`to_unicode` or :func:`to_bytes` explicitly
-    instead.  If you need unicode strings::
+    instead.
+
+    If you need :class:`unicode` strings::
 
         to_unicode(obj, nonstring='simplerepr')
 
-    If you need byte strings::
+    If you need byte :class:`str`::
 
         to_bytes(obj, nonstring='simplerepr')
     '''
@@ -308,88 +386,99 @@ def to_str(obj):
 
 def unicode_to_xml(string, encoding='utf-8', attrib=False,
         control_chars='replace'):
-    '''Take a unicode string and turn it into a byte string suitable for xml
+    '''Take a :class:`unicode` string and turn it into a byte :class:`str`
+    suitable for xml
 
-    :arg string: unicode string to encode for return
-    :kwarg encoding: encoding to use for the returned byte string.  Default is
-        to encode to utf8.  If all the characters in string are not encodable
-        in this encoding, the unknown characters will be entered into the output
-        string using xml character references.
-    :kwarg attrib: If True, quote the string for use in an xml attribute.
-        If False (default), quote for use in an xml text field.
-    :kwarg control_chars: XML does not allow ASCII control characters.  When
-        we encounter those we need to know what to do.  Valid options are:
-        :replace: (default) Replace the control characters with "?"
+    :arg string: :class:`unicode` string to encode into an XML compatible byte
+        :class:`str`
+    :kwarg encoding: encoding to use for the returned byte :class:`str`.
+        Default is to encode to :term:`UTF-8`.  If some of the characters in
+        :attr:`string` are not encodable in this encoding, the unknown
+        characters will be entered into the output string using xml character
+        references.
+    :kwarg attrib: If :data:`True`, quote the string for use in an xml
+        attribute.  If :data:`False` (default), quote for use in an xml text
+        field.
+    :kwarg control_chars: :term:`control characters` are not allowed in XML
+        documents.  When we encounter those we need to know what to do.  Valid
+        options are:
+
+        :replace: (default) Replace the control characters with ``?``
         :ignore: Remove the characters altogether from the output
-        :strict: Raise an error when we encounter a control character
-    :raises XmlEncodeError: If control_chars is set to 'strict' and the string
-        to be made suitable for output to xml contains control characters or if
-        :attr:`string` is not a unicode type then we raise this exception.
-    :raises ValueError: If control_chars is set to something other than
-        replace, ignore, or strict.
-    :rtype: byte string
-    :returns: representation of the unicode string with any bytes that aren't
-        available in xml taken care of.
+        :strict: Raise an :exc:`~kitchen.text.exceptions.XmlEncodeError`  when
+            we encounter a :term:`control character`
+
+    :raises kitchen.text.exceptions.XmlEncodeError: If :attr:`control_chars`
+        is set to ``strict`` and the string to be made suitable for output to
+        xml contains :term:`control characters` or if :attr:`string` is not
+        a :class:`unicode` string then we raise this exception.
+    :raises ValueError: If :attr:`control_chars` is set to something other than
+        ``replace``, ``ignore``, or ``strict``.
+    :rtype: byte :class:`str`
+    :returns: representation of the :class:`unicode` string as a valid XML
+        byte :class:`str`
 
     XML files consist mainly of text encoded using a particular charset.  XML
-    also denies the use of certain bytes in the encoded text (example: ASCII
-    Null).  There are also special characters that must be escaped if they are
-    present in the input (example: "<").  This function takes care of all of
-    those issues for you.
+    also denies the use of certain bytes in the encoded text (example: ``ASCII
+    Null``).  There are also special characters that must be escaped if they
+    are present in the input (example: ``<``).  This function takes care of
+    all of those issues for you.
 
-    There are a few different ways to use this function depending on your needs.
-    The simplest invocation is like this::
+    There are a few different ways to use this function depending on your
+    needs.  The simplest invocation is like this::
 
        unicode_to_xml(u'String with non-ASCII characters: <"á と">')
 
-    This will return the following to you, encoded in utf8::
+    This will return the following to you, encoded in :term:`utf-8`::
 
       'String with non-ASCII characters: &lt;"á と"&gt;'
 
     Pretty straightforward.  Now, what if you need to encode your document in
-    something other than utf8?  For instance, latin1?  Let's see::
+    something other than :term:`utf-8`?  For instance, ``latin-1``?  Let's
+    see::
 
-       unicode_to_xml(u'String with non-ASCII characters: <"á と">', encoding='latin1')
+       unicode_to_xml(u'String with non-ASCII characters: <"á と">', encoding='latin-1')
        'String with non-ASCII characters: &lt;"á &#12392;"&gt;'
 
-    Because the "と" character is not available in the latin1 charset, it is
-    replaced with a "&#12392;" in our output.  This is an xml character
-    reference which represents the character at unicode codepoint 12392, the
-    "と" character.
+    Because the ``と`` character is not available in the ``latin-1`` charset,
+    it is replaced with ``&#12392;`` in our output.  This is an xml character
+    reference which represents the character at unicode codepoint ``12392``, the
+    ``と`` character.
 
     When you want to reverse this, use :func:`xml_to_unicode` which will turn
-    a byte string to unicode and replace the xmlcharrefs with the unicode
-    characters.
+    a byte :class:`str` into a :class:`unicode` string and replace the xml
+    character references with the unicode characters.
 
-    XML also has the quirk of not allowing ASCII control characters in its
-    output.  The control_chars parameter allows us to specify what to do with
-    those.  For use cases that don't need absolute character by character
-    fidelity (example: holding strings that will just be used for display
-    in a GUI app later), the default value of 'replace' works well::
+    XML also has the quirk of not allowing :term:`control characters` in its
+    output.  The :attr:`control_chars` parameter allows us to specify what to
+    do with those.  For use cases that don't need absolute character by
+    character fidelity (example: holding strings that will just be used for
+    display in a GUI app later), the default value of ``replace`` works well::
 
         unicode_to_xml(u'String with disallowed control chars: \u0000\u0007')
         'String with disallowed control chars: ??'
 
     If you do need to be able to reproduce all of the characters at a later
     date (examples: if the string is a key value in a database or a path on a
-    filesystem) you have many choices.  Here are a few that rely on utf7, a
-    verbose encoding that encodes control values (as well as all other unicode
-    values) to characters from within the ASCII printable characters.  The good
-    thing about doing this is that the code is pretty simple.  You just need to
-    use utf7 both when encoding the field for xml and when decoding it for use
-    in your python program::
+    filesystem) you have many choices.  Here are a few that rely on ``utf-7``,
+    a verbose encoding that encodes :term:`control characters` (as well as
+    non-:term:`ASCII` unicode values) to characters from within the
+    :term:`ASCII` printable characters.  The good thing about doing this is
+    that the code is pretty simple.  You just need to use ``utf-7`` both when
+    encoding the field for xml and when decoding it for use in your python
+    program::
 
         unicode_to_xml(u'String with unicode: と and control char: \u0007', encoding='utf7')
         'String with unicode: +MGg and control char: +AAc-'
-        [...]
+        # [...]
         xml_to_unicode('String with unicode: +MGg and control char: +AAc-', encoding='utf7')
         u'String with unicode: と and control char: \u0007'
 
-    As you can see, the utf7 encoding will transform even characters that
-    would be representable in utf8.  This can be a drawback if you want
-    unicode characters in the file to be readable without being decoded first.
-    You can work around this with increased complexity in your application
-    code::
+    As you can see, the ``utf-7`` encoding will transform even characters that
+    would be representable in :term:`utf-8`.  This can be a drawback if you
+    want unicode characters in the file to be readable without being decoded
+    first.  You can work around this with increased complexity in your
+    application code::
 
         encoding = 'utf-8'
         u_string = u'String with unicode: と and control char: \u0007'
@@ -397,19 +486,27 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
             # First attempt to encode to utf8
             data = unicode_to_xml(u_string, encoding=encoding, errors='strict')
         except XmlEncodeError:
-            # Fallback to utf7
-            encoding = 'utf7'
+            # Fallback to utf-7
+            encoding = 'utf-7'
             data = unicode_to_xml(u_string, encoding=encoding, errors='strict')
         write_tag('<mytag encoding=%s>%s</mytag>' % (encoding, data))
-        [...]
+        # [...]
         encoding = tag.attributes.encoding
         u_string = xml_to_unicode(u_string, encoding=encoding)
 
     Using code similar to that, you can have some fields encoded using your
-    default encoding and fallback to utf7 if there are control characters
-    present.
+    default encoding and fallback to ``utf-7`` if there are :term:`control
+    characters` present.
+
+    .. note:: If your goal is to preserve the :term:`control characters` you
+        cannot save the entire file as ``utf-7`` and set the xml encoding
+        parameter to ``utf-7`` if your goal is to preserve the :term:`control
+        characters`.  Because XML doesn't allow :term:`control characters`,
+        you have to encode those separate from any encoding work that the XML
+        parser itself knows about.
 
     .. seealso::
+
         :func:`bytes_to_xml`
             if you're dealing with bytes that are non-text or of an unknown
             encoding that you must preserve on a byte for byte level.
@@ -442,22 +539,25 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     return string
 
 def xml_to_unicode(byte_string, encoding='utf-8', errors='replace'):
-    '''Transform a byte string from an xml file into unicode
+    '''Transform a byte :class:`str` from an xml file into a :class:`unicode`
+    string
 
-    :arg byte_string: byte string to decode
-    :kwarg encoding: encoding that the byte string is in
-    :kwarg errors: What to do if not every character is decodable using
-        :attr:`encoding`.  See the :func:`to_unicode` docstring for
-        legal values.
-    :returns: unicode string decoded from :attr:`byte_string`
+    :arg byte_string: byte :class:`str` to decode
+    :kwarg encoding: encoding that the byte :class:`str` is in
+    :kwarg errors: What to do if not every character is  valid in
+        :attr:`encoding`.  See the :func:`to_unicode` documentation for legal
+        values.
+    :rtype: :class:`unicode` string
+    :returns: string decoded from :attr:`byte_string`
 
-    This function attempts to reverse what :func:`unicode_to_xml` does.
-    It takes a byte string (presumably read in from an xml file) and expands
-    all the html entities into unicode characters and decodes the bytes into
-    a unicode string.  One thing it cannot do is restore any control
-    characters that were removed prior to inserting into the file.  If you
-    need to keep such characters you need to use func:`xml_to_bytes` and
-    :func:`bytes_to_xml` instead.
+    This function attempts to reverse what :func:`unicode_to_xml` does.  It
+    takes a byte :class:`str` (presumably read in from an xml file) and
+    expands all the html entities into unicode characters and decodes the byte
+    :class:`str` into a :class:`unicode` string.  One thing it cannot do is
+    restore any :term:`control characters` that were removed prior to
+    inserting into the file.  If you need to keep such characters you need to
+    use :func:`xml_to_bytes` and :func:`bytes_to_xml` or use on of the
+    strategies documented in :func:`unicode_to_xml` instead.
     '''
     string = to_unicode(byte_string, encoding=encoding, errors=errors)
     string = html_entities_unescape(string)
@@ -465,50 +565,53 @@ def xml_to_unicode(byte_string, encoding='utf-8', errors='replace'):
 
 def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
         output_encoding='utf-8', attrib=False, control_chars='replace'):
-    '''Make sure a byte string is validly encoded for xml output
+    '''Make sure a byte :class:`str` is validly encoded for xml output
 
-    :arg byte_string: Byte string to make sure is valid xml output
-    :kwarg input_encoding: Encoding of byte_string.  Default 'utf-8'
+    :arg byte_string: Byte :class:`str` to turn into valid xml output
+    :kwarg input_encoding: Encoding of :attr:`byte_string`.  Default ``utf-8``
     :kwarg errors: How to handle errors encountered while decoding the
-        byte_string into unicode at the beginning of the process.  Values are:
+        :attr:`byte_string` into :class:`unicode` at the beginning of the
+        process.  Values are:
 
-        :replace: (default) Replace the invalid bytes with a '?'
+        :replace: (default) Replace the invalid bytes with a ``?``
         :ignore: Remove the characters altogether from the output
-        :strict: Raise a UnicodeDecodeError when we encounter a non-decodable
-            character
+        :strict: Raise an :exc:`UnicodeDecodeError` when we encounter
+            a non-decodable character
 
     :kwarg output_encoding: Encoding for the xml file that this string will go
-        into.  Default is 'utf-8'.  If all the characters in byte_string are
-        not encodable in this encoding, the unknown characters will be
-        entered into the output string using xml character references.
-    :kwarg attrib: If True, quote the string for use in an xml attribute.
-        If False (default), quote for use in an xml text field.
-    :kwarg control_chars: XML does not allow ASCII control characters.  When
+        into.  Default is ``utf-8``.  If all the characters in
+        :attr:`byte_string` are not encodable in this encoding, the unknown
+        characters will be entered into the output string using xml character
+        references.
+    :kwarg attrib: If :data:`True`, quote the string for use in an xml
+        attribute.  If :data:`False` (default), quote for use in an xml text
+        field.
+    :kwarg control_chars: XML does not allow :term:`control characters`.  When
         we encounter those we need to know what to do.  Valid options are:
 
-        :replace: (default) Replace the control characters with "?"
+        :replace: (default) Replace the :term:`control characters` with ``?``
         :ignore: Remove the characters altogether from the output
-        :strict: Raise an error when we encounter a control character
+        :strict: Raise an error when we encounter a :term:`control character`
 
-    :raises XmlEncodeError: If control_chars is set to 'strict' and the string
-        to be made suitable for output to xml contains control characters then
-        we raise this exception.
-    :raises UnicodeDecodeError: If errors is set to 'strict' and the
-        byte_string contains bytes that are not decodable using input_encoding,
-        this error is raised
-    :rtype: byte string
-    :returns: representation of the byte string in the output encoding with
+    :raises XmlEncodeError: If :attr:`control_chars` is set to ``strict`` and
+        the string to be made suitable for output to xml contains
+        :term:`control characters` then we raise this exception.
+    :raises UnicodeDecodeError: If errors is set to ``strict`` and the
+        :attr:`byte_string` contains bytes that are not decodable using
+        :attr:`input_encoding`, this error is raised
+    :rtype: byte :class:`str`
+    :returns: representation of the byte :class:`str` in the output encoding with
         any bytes that aren't available in xml taken care of.
 
-    Use this when you have a byte string representing text that you need
+    Use this when you have a byte :class:`str` representing text that you need
     to make suitable for output to xml.  There are several cases where this
     is the case.  For instance, if you need to transform some strings encoded
-    in latin1 to utf8 for output::
+    in ``latin-1`` to :term:`utf-8` for output::
 
         utf8_string = byte_string_to_xml(latin1_string, input_encoding='latin-1')
 
     If you already have strings in the proper encoding you may still want to
-    use this function to remove control characters::
+    use this function to remove :term:`control characters`::
 
         cleaned_string = byte_string_to_xml(string, input_encoding='utf-8', output_encoding='utf-8')
 
@@ -529,37 +632,41 @@ def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
 
 def xml_to_byte_string(byte_string, input_encoding='utf-8', errors='replace',
         output_encoding='utf-8'):
-    '''Transform a byte string from an xml file into unicode
+    '''Transform a byte :class:`str` from an xml file into :class:`unicode`
+    string
 
-    :arg byte_string: byte string to decode
-    :kwarg input_encoding: encoding that the byte string is in
-    :kwarg errors: What to do if not every character is decodable using
-        :attr:`encoding`.  See the :func:`to_unicode` docstring for
-        legal values.
-    :kwarg output_encoding: Encoding for the output byte string
-    :returns: unicode string decoded from :attr:`byte_string`
+    :arg byte_string: byte :class:`str` to decode
+    :kwarg input_encoding: encoding that the byte :class:`str` is in
+    :kwarg errors: What to do if not every character is valid in
+        :attr:`encoding`.  See the :func:`to_unicode` docstring for legal
+        values.
+    :kwarg output_encoding: Encoding for the output byte :class:`str`
+    :returns: :class:`unicode` string decoded from :attr:`byte_string`
 
-    This function attempts to reverse what :func:`unicode_to_xml` does.
-    It takes a byte string (presumably read in from an xml file) and expands
-    all the html entities into unicode characters and decodes the bytes into
-    a unicode string.  One thing it cannot do is restore any control
-    characters that were removed prior to inserting into the file.  If you
-    need to keep such characters you need to use func:`xml_to_bytes` and
-    :func:`bytes_to_xml` instead.
+    This function attempts to reverse what :func:`unicode_to_xml` does.  It
+    takes a byte :class:`str` (presumably read in from an xml file) and
+    expands all the html entities into unicode characters and decodes the
+    byte :class:`str` into a :class:`unicode` string.  One thing it cannot do
+    is restore any :term:`control characters` that were removed prior to
+    inserting into the file.  If you need to keep such characters you need to
+    use :func:`xml_to_bytes` and :func:`bytes_to_xml` or use one of the
+    strategies documented in :func:`unicode_to_xml` instead.
     '''
     string = xml_to_unicode(byte_string, input_encoding, errors)
     return to_bytes(string, output_encoding, errors)
 
 def bytes_to_xml(byte_string, *args, **kwargs):
-    '''Return a byte string encoded so it is valid inside of any xml file
+    '''Return a byte :class:`str` encoded so it is valid inside of any xml
+    file
 
-    :arg byte_string: byte string to transform
-    :arg *args, **kwargs: extra arguments to this function are passed on to the
-        function actually implementing the encoding.  You can use this to tweak
-        the output in some cases but, as a general rule, you shouldn't because
-        the underlying encoding function is not guaranteed to remain the same.
-    :rtype: byte string consisting of all ASCII characters
-    :returns: byte string representation of the input.  This will be encoded
+    :arg byte_string: byte :class:`str` to transform
+    :arg \*args, \*\*kwargs: extra arguments to this function are passed on to
+        the function actually implementing the encoding.  You can use this to
+        tweak the output in some cases but, as a general rule, you shouldn't
+        because the underlying encoding function is not guaranteed to remain
+        the same.
+    :rtype: byte :class:`str` consisting of all :term:`ASCII` characters
+    :returns: byte :class:`str` representation of the input.  This will be encoded
         using base64.
 
     This function is made especially to put binary information into xml
@@ -567,10 +674,10 @@ def bytes_to_xml(byte_string, *args, **kwargs):
 
     This function is intended for encoding things that must be preserved
     byte-for-byte.  If you want to encode a byte string that's text and don't
-    mind losing the actual bytes you probably want to try byte_string_to_xml()
-    or guess_bytes_to_xml().
+    mind losing the actual bytes you probably want to try :func:`byte_string_to_xml`
+    or :func:`guess_encoding_to_xml` instead.
 
-    .. note:: Although the current implementation uses base64.b64encode and
+    .. note:: Although the current implementation uses :func:`base64.b64encode` and
         there's no plans to change it, that isn't guaranteed.  If you want to
         make sure that you can encode and decode these messages it's best to
         use :func:`xml_to_bytes` if you use this function to encode.
@@ -578,53 +685,45 @@ def bytes_to_xml(byte_string, *args, **kwargs):
     # Can you do this yourself?  Yes, you can.
     return b64encode(byte_string, *args, **kwargs)
 
-# :C0103: Why do this?  Function calls in CPython are rather expensive.  We
-#   start by defining this as a function so we can get a docstring.  Then we
-#   redefine it as an attribute to save one useless function call.
-#pylint:disable-msg=C0103
-bytes_to_xml = b64encode
-
 def xml_to_bytes(byte_string, *args, **kwargs):
-    '''Decode as string encoded using :func:`bytes_to_xml`
+    '''Decode a string encoded using :func:`bytes_to_xml`
 
-    :arg byte_string: byte string to transform.  This should be a base64
+    :arg byte_string: byte :class:`str` to transform.  This should be a base64
         encoded sequence of bytes originally generated by :func:`bytes_to_xml`.
-    :arg *args, **kwargs: extra arguments to this function are passed on to the
-        function actually implementing the encoding.  You can use this to tweak
-        the output in some cases but, as a general rule, you shouldn't because
-        the underlying encoding function is not guaranteed to remain the same.
-    :rtype: byte string
-    :returns: byte string that's the decoded input.
+    :arg \*args, \*\*kwargs: extra arguments to this function are passed on to
+        the function actually implementing the encoding.  You can use this to
+        tweak the output in some cases but, as a general rule, you shouldn't
+        because the underlying encoding function is not guaranteed to remain
+        the same.
+    :rtype: byte :class:`str`
+    :returns: byte :class:`str` that's the decoded input
 
     If you've got fields in an xml document that were encoded with
     :func:`bytes_to_xml` then you want to use this function to undecode them.
-    It converts a base64 encoded string into a byte string.
+    It converts a base64 encoded string into a byte :class:`str`.
 
-    .. note:: Although the current implementation uses base64.b64decode and
-        there's no plans to change it, that isn't guaranteed.  If you want to
-        make sure that you can encode and decode these messages it's best to
-        use :func:`bytes_to_xml` if you use this function to decode.
+    .. note:: Although the current implementation uses
+        :func:`base64.b64decode` and there's no plans to change it, that isn't
+        guaranteed.  If you want to make sure that you can encode and decode
+        these messages it's best to use :func:`bytes_to_xml` if you use this
+        function to decode.
     '''
     return b64decode(byte_string, *args, **kwargs)
 
-# :C0103: Why do this?  Function calls in CPython are rather expensive.  We
-#   start by defining this as a function so we can get a docstring.  Then we
-#   redefine it as an attribute to save one useless function call.
-#pylint:disable-msg=C0103
-xml_to_bytes = b64decode
-
 def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
         control_chars='replace'):
-    '''Return a byte string suitable for inclusion in xml
+    '''Return a byte :class:`str` suitable for inclusion in xml
 
-    :arg string: unicode or byte string to be transformed into a byte string
-        suitable for inclusion in xml.  If string is a byte string we attempt
-        to guess the encoding.  If we cannot guess, we fallback to latin1.
-    :kwarg output_encoding: Output encoding for the byte string.  This should
-        match the encoding of your xml file.
-    :kwarg attrib: If True, escape the item for use in an attribute.  If False
-         default) escape the item for use in a text node.
-    :returns: utf8 encoded byte string
+    :arg string: :class:`unicode` or byte :class:`str` to be transformed into
+        a byte :class:`str` suitable for inclusion in xml.  If string is
+        a byte :class:`str` we attempt to guess the encoding.  If we cannot guess,
+        we fallback to ``latin-1``.
+    :kwarg output_encoding: Output encoding for the byte :class:`str`.  This
+        should match the encoding of your xml file.
+    :kwarg attrib: If :data:`True`, escape the item for use in an xml
+        attribute.  If :data:`False` (default) escape the item for use in
+        a text node.
+    :returns: :term:`utf-8` encoded byte :class:`str`
 
     '''
     # Unicode strings can just be run through unicode_to_xml()
@@ -640,79 +739,8 @@ def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
             errors='replace', output_encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
 
-def getwriter(encoding):
-    '''Return a :class:`codecs.StreamWriter` that resists tracing back.
-
-    This is a reimplemetation of :func:`codecs.getwriter` that resists issuing
-    tracebacks.  The :class:`~codecs.StreamWriter` that is returned uses
-    :func:`kitchen.text.converters.to_bytes` to convert :class:`unicode`
-    strings into byte :class:`str`.  The departures from
-    :func:`codecs.getwriter` are:
-
-    1) The :class:`~codecs.StreamWriter` that is returned will take byte
-        :class:`str` as well as :class:`unicode` strings.  byte :class:`str`
-        will be passed through unmodified.
-    2) The default error handler for unknown bytes is to ``replace`` the bytes
-        with the unknown character ('?' in most ascii-based encodings, u'�' in
-        the utf encodings).  :func:`codecs.getwriter` defaults to ``strict``.
-        Like :class:`codecs.StreamWriter`, the returned
-        :class:`~codecs.StreamWriter` can change have its error handler
-        changed in code by setting stream.errors = 'new_handler_name'
-
-    :arg encoding: Encoding to use for transforming the :class:`unicode`
-        characters into bytes.
-    :rtype: `codecs.StreamWriter` class
-    :returns: `~codecs.StreamWriter` that you can instantiate to wrap output
-        streams to automatically translate bytes into :attr:`encoding`.
-
-    Example usage::
-
-        $ LC_ALL=C python
-        >>> import sys
-        >>> from kitchen.text.converters import getwriter
-        >>> UTF8Writer = getwriter('utf-8')
-        >>> unwrapped_stdout = sys.stdout
-        >>> sys.stdout = UTF8Writer(unwrapped_stdout)
-        >>> print 'caf\\xc3\\xa9'
-        café
-        >>> print u'caf\\xe9'
-        café
-        >>> ASCIIWriter = getwriter('ascii')
-        >>> sys.stdout = ASCIIWriter(unwrapped_stdout)
-        >>> print 'caf\\xc3\\xa9'
-        café
-        >>> print u'caf\\xe9'
-        caf?
-
-    .. seealso::
-        :class:`codecs.StreamWriter`
-            password
-        :func:`codecs.getwriter`
-            password
-        `Print Fails <http://wiki.python.org/moin/PrintFails>`_ on the python wiki
-            password
-
-    .. versionadded:: kitchen 0.2a2, API: kitchen.text 1.1.0
-    '''
-    class _StreamWriter(codecs.StreamWriter):
-        # :W0223: We don't need to implement all methods of StreamWriter.
-        #   This is not the actual class that gets used but a replacement for
-        #   the actual class.
-        # :C0111: We're implementing an API from the stdlib.  Just point
-        #   people at that documentation instead of writing docstrings here.
-        #pylint:disable-msg=W0223,C0111
-        def __init__(self, stream, errors='replace'):
-            codecs.StreamWriter.__init__(self, stream, errors)
-
-        def encode(self, msg, errors='replace'):
-            return (to_bytes(msg, encoding=self.encoding, errors=errors),
-                    len(msg))
-
-    _StreamWriter.encoding = encoding
-    return _StreamWriter
-
 def to_xml(string, encoding='utf-8', attrib=False, control_chars='ignore'):
-    '''Deprecated: Use guess_encoding_to_xml() instead
+    '''*Deprecated*: Use :func:`guess_encoding_to_xml` instead
     '''
     warnings.warn(_('kitchen.text.converters.to_xml is deprecated.  Use'
             ' kitchen.text.converters.guess_encoding_to_xml instead.'),

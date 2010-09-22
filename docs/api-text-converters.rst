@@ -380,8 +380,8 @@ Unicode and byte str conversion
 
 .. autofunction:: kitchen.text.converters.to_unicode
 .. autofunction:: kitchen.text.converters.to_bytes
-.. autofunction:: kitchen.text.converters.to_str
 .. autofunction:: kitchen.text.converters.getwriter
+.. autofunction:: kitchen.text.converters.to_str
 .. autofunction:: kitchen.text.converters.to_utf8
 
 Transformation to XML

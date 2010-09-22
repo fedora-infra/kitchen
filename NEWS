@@ -21,19 +21,18 @@ NEWS
   all of the python-2.4 API
 * unittest NewGNUTranslations
 * unittest that easy_gettext_setup returns the correct objects
-
+* Document kitchen.text.display
+* Proofread all of the documentation.  Cross reference to the stdlib.
 
 Planned
 =======
 * Ensure that all deprecated functions used by yum are present
-: Update docs to include the new files
-  - api-using-kitchen-versions.rst
-    - Using kitchen.release
-    - Using kitchen.*.__version_info__
-  - api-text.rst::
-    - Add display
-    - Add kitchen.text.converters.getwriter()
-* unittest kitchen.text.display.print_combining_table() ?
+  - Write a short porting guide in kitchen API with a table of which functions
+    in yum have an implementation where in kitchen
+* api-using-kitchen-versions.rst
+  - Using kitchen.release
+  - Using kitchen.*.__version_info__
+* unittest kitchen.text.display._print_combining_table() ?
 
 -------
 0.2.1a1
