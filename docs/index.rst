@@ -108,9 +108,9 @@ Contents
 
     tutorial
     api-overview
+    porting-guide-0.3
     hacking
     glossary
-    porting-guide-0.3
 
 ------------------
 Indices and tables
