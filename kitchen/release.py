@@ -30,3 +30,6 @@ COPYRIGHT = '2010 Red Hat, Inc. and others'
 URL = 'https://fedorahosted.org/kitchen'
 DOWNLOAD_URL = 'https://fedorahosted.org/releases/k/i/kitchen'
 LICENSE = 'LGPLv2+'
+
+__all__ = ('NAME', 'VERSION', 'DESCRIPTION', 'LONG_DESCRIPTION', 'AUTHOR',
+        'EMAIL', 'COPYRIGHT', 'URL', 'DOWNLOAD_URL', 'LICENSE')

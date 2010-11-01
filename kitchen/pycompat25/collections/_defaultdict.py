@@ -133,3 +133,5 @@ class defaultdict(dict):
         else:
             defrepr = repr(self.default_factory)
         return 'defaultdict(%s, %s)' % (defrepr, dict.__repr__(self))
+
+__all__ = ('defaultdict',)

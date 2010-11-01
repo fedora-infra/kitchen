@@ -83,3 +83,5 @@ class StrictDict(defaultdict):
 
     def __contains__(self, key):
         return defaultdict.__contains__(self, (repr(key), key))
+
+__all__ = ('StrictDict',)
