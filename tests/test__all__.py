@@ -41,8 +41,9 @@ class Test__all__(object):
         ('kitchen.text', 'converters', 'html_entities_unescape'),
         ('kitchen.text', 'converters', 'process_control_chars'),
         ('kitchen.text', 'converters', 'XmlEncodeError'),
-        ('kitchen.text', 'misc', 'ControlCharError'),
         ('kitchen.text', 'misc', 'b_'),
+        ('kitchen.text', 'misc', 'chardet'),
+        ('kitchen.text', 'misc', 'ControlCharError'),
         ('kitchen.text', 'display', 'b_'),
         ('kitchen.text', 'display', 'ControlCharError'),
         ('kitchen.text', 'display', 'to_bytes'),
@@ -65,7 +66,9 @@ class Test__all__(object):
         warnings.simplefilter('default', DeprecationWarning)
 
     def walk_modules(self, basedir, modpath):
-        for fn in sorted(os.listdir(basedir)):
+        files = os.listdir(basedir)
+        files.sort()
+        for fn in files:
             path = os.path.join(basedir, fn)
             if os.path.isdir(path):
                 pkg_init = os.path.join(path, '__init__.py')
@@ -83,10 +86,11 @@ class Test__all__(object):
         # most test modules (and avoiding the auto-executing ones).
         f = None
         try:
-            f = open(modpath, 'rb')
-            tools.ok_('__all__' in f.read(), '%s does not contain __all__' % modpath)
-        except IOError, e:
-            tools.ok_(False, '%s' % e)
+            try:
+                f = open(modpath, 'rb')
+                tools.ok_('__all__' in f.read(), '%s does not contain __all__' % modpath)
+            except IOError, e:
+                tools.ok_(False, '%s' % e)
         finally:
             if f:
                 f.close()
@@ -98,8 +102,8 @@ class Test__all__(object):
         # Blacklisted modules and packages
         blacklist = set([ ])
 
-        for path, modname in (m for m in self.walk_modules(self.lib_dir, '')
-                if m[1] not in blacklist):
+        for path, modname in [m for m in self.walk_modules(self.lib_dir, '')
+                if m[1] not in blacklist]:
             # Check that it has an __all__
             yield self.check_has__all__, path
 
@@ -113,7 +117,7 @@ class Test__all__(object):
         interior_names = {}
         try:
             exec 'from %s.%s import *' % (modpath, modname) in interior_names
-        except Exception as e:
+        except Exception, e:
             # Include the module name in the exception string
             tools.ok_(False, '__all__ failure in %s: %s: %s' % (
                       modname, e.__class__.__name__, e))
@@ -130,8 +134,8 @@ class Test__all__(object):
         # Blacklisted modules and packages
         blacklist = set([ ])
 
-        for path, modname in (m for m in self.walk_modules(self.lib_dir, '')
-                if m[1] not in blacklist):
+        for path, modname in [m for m in self.walk_modules(self.lib_dir, '')
+                if m[1] not in blacklist]:
             # From path, deduce the module name
             from_name = path[path.find('../kitchen') + 3:]
             if from_name.endswith('__init__.py'):
@@ -169,8 +173,8 @@ class Test__all__(object):
         blacklist = set(['pycompat27.subprocess._subprocess',
             'pycompat24.base64._base64'])
 
-        for path, modname in (m for m in self.walk_modules(self.lib_dir, '')
-                if m[1] not in blacklist):
+        for path, modname in [m for m in self.walk_modules(self.lib_dir, '')
+                if m[1] not in blacklist]:
             # From path, deduce the module name
             from_name = path[path.find('../kitchen') + 3:]
             if from_name.endswith('__init__.py'):
