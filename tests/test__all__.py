@@ -4,6 +4,7 @@ import unittest
 from nose import tools
 
 import os
+import types
 import warnings
 from kitchen.pycompat24.sets import add_builtin_set
 add_builtin_set()
@@ -23,7 +24,38 @@ class Test__all__(object):
     '''Test that every function in __all__ exists and that no public methods
     are missing from __all__
     '''
-    known_private = set(['versioning.itertools'])
+    known_private = set([('kitchen', 'collections', 'version_tuple_to_string'),
+        ('kitchen.collections', 'strictdict', 'defaultdict'),
+        ('kitchen', 'i18n', 'version_tuple_to_string'),
+        ('kitchen', 'iterutils', 'version_tuple_to_string'),
+        ('kitchen', 'pycompat24', 'version_tuple_to_string'),
+        ('kitchen', 'pycompat25', 'version_tuple_to_string'),
+        ('kitchen.pycompat25.collections', '_defaultdict', 'b_'),
+        ('kitchen', 'pycompat27', 'version_tuple_to_string'),
+        ('kitchen', 'text', 'version_tuple_to_string'),
+        ('kitchen.text', 'converters', 'b_'),
+        ('kitchen.text', 'converters', 'b64decode'),
+        ('kitchen.text', 'converters', 'b64encode'),
+        ('kitchen.text', 'converters', 'ControlCharError'),
+        ('kitchen.text', 'converters', 'guess_encoding'),
+        ('kitchen.text', 'converters', 'html_entities_unescape'),
+        ('kitchen.text', 'converters', 'process_control_chars'),
+        ('kitchen.text', 'converters', 'XmlEncodeError'),
+        ('kitchen.text', 'misc', 'ControlCharError'),
+        ('kitchen.text', 'misc', 'b_'),
+        ('kitchen.text', 'display', 'b_'),
+        ('kitchen.text', 'display', 'ControlCharError'),
+        ('kitchen.text', 'display', 'to_bytes'),
+        ('kitchen.text', 'display', 'to_unicode'),
+        ('kitchen.text', 'utf8', 'byte_string_textual_width_fill'),
+        ('kitchen.text', 'utf8', 'byte_string_valid_encoding'),
+        ('kitchen.text', 'utf8', 'fill'),
+        ('kitchen.text', 'utf8', 'textual_width'),
+        ('kitchen.text', 'utf8', 'textual_width_chop'),
+        ('kitchen.text', 'utf8', 'to_bytes'),
+        ('kitchen.text', 'utf8', 'to_unicode'),
+        ('kitchen.text', 'utf8', 'wrap'),
+        ])
     lib_dir = os.path.join(os.path.dirname(__file__), '..', 'kitchen')
 
     def setUp(self):
@@ -112,6 +144,7 @@ class Test__all__(object):
 
 
     def check__all__is_complete(self, modname, modpath):
+        logged = False
         names = {}
         exec 'from %s import %s' % (modpath, modname) in names
         if not hasattr(names[modname], '__all__'):
@@ -119,11 +152,13 @@ class Test__all__(object):
             return
 
         mod = names[modname]
-        expected_public = [k for k in mod.__dict__ if k not in
-                self.known_private and not k.startswith("_")]
+        expected_public = [k for k in mod.__dict__ if (modpath, modname, k)
+                not in self.known_private and not k.startswith("_") and not
+                isinstance(mod.__dict__[k], types.ModuleType)]
+
         all = set(mod.__all__)
         public = set(expected_public)
-        tools.ok_(all == public, 'These public names are not in %s.__all__: %s'
+        tools.ok_(all.issuperset(public), 'These public names are not in %s.__all__: %s'
                 % (modname, ', '.join(public.difference(all))))
 
     def test__all__is_complete(self):
@@ -131,7 +166,8 @@ class Test__all__(object):
         For each module, check that every public name is in __all__
         '''
         # Blacklisted modules and packages
-        blacklist = set([ ])
+        blacklist = set(['pycompat27.subprocess._subprocess',
+            'pycompat24.base64._base64'])
 
         for path, modname in (m for m in self.walk_modules(self.lib_dir, '')
                 if m[1] not in blacklist):
