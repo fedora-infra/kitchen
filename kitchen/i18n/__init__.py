@@ -96,6 +96,8 @@ import locale
 import os
 import sys
 
+from kitchen.text.converters import to_bytes, to_unicode
+
 class DummyTranslations(gettext.NullTranslations):
     '''Safer version of :class:`gettext.NullTranslations`
 
@@ -208,13 +210,11 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure that we're returning a str
-        if isinstance(message, str):
-            return message
         if self._output_charset:
-            return message.encode(self._output_charset, 'replace')
+            return to_bytes(message, encoding=self._output_charset)
         elif self._charset:
-            return message.encode(self._charset, 'replace')
-        return message.encode('utf-8', 'replace')
+            return to_bytes(message, encoding=self._charset)
+        return to_bytes(message)
 
     def ngettext(self, msgid1, msgid2, n):
         # Default
@@ -235,15 +235,13 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure that we're returning a str
-        if isinstance(message, str):
-            return message
-        if not isinstance(message, basestring):
-            return ''
         if self._output_charset:
-            return message.encode(self._output_charset, 'replace')
+            return to_bytes(message, encoding=self._output_charset,
+                    nonstring='empty')
         elif self._charset:
-            return message.encode(self._charset, 'replace')
-        return message.encode('utf-8', 'replace')
+            return to_bytes(message, encoding=self._charset,
+                    nonstring='empty')
+        return to_bytes(message, nonstring='empty')
 
     def lgettext(self, message):
         if not isinstance(message, basestring):
@@ -262,11 +260,9 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure that we're returning a str
-        if isinstance(message, str):
-            return message
         if self._output_charset:
-            return message.encode(self._output_charset, 'replace')
-        return message.encode(locale.getpreferredencoding(), 'replace')
+            return to_bytes(message, encoding=self._output_charset)
+        return to_bytes(message, encoding=locale.getpreferredencoding())
 
     def lngettext(self, msgid1, msgid2, n):
         # Default
@@ -289,13 +285,11 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure that we're returning a str
-        if isinstance(message, str):
-            return message
-        if not isinstance(message, basestring):
-            return ''
         if self._output_charset:
-            return message.encode(self._output_charset, 'replace')
-        return message.encode(locale.getpreferredencoding(), 'replace')
+            return to_bytes(message, encoding=self._output_charset,
+                    nonstring='empty')
+        return to_bytes(message, encoding=locale.getpreferredencoding(),
+                nonstring='empty')
 
     def ugettext(self, message):
         if not isinstance(message, basestring):
@@ -312,9 +306,7 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure we're returning unicode
-        if isinstance(message, unicode):
-            return message
-        return unicode(message, self.input_charset, 'replace')
+        return to_unicode(message, encoding=self.input_charset)
 
     def ungettext(self, msgid1, msgid2, n):
         # Default
@@ -335,11 +327,8 @@ class DummyTranslations(gettext.NullTranslations):
                 pass
 
         # Make sure we're returning unicode
-        if isinstance(message, unicode):
-            return message
-        if not isinstance(message, basestring):
-            return u''
-        return unicode(message, self.input_charset, 'replace')
+        return to_unicode(message, encoding=self.input_charset,
+                nonstring='empty')
 
 
 class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
@@ -437,13 +426,11 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning a str
-        if isinstance(tmsg, str):
-            return tmsg
         if self._output_charset:
-            return tmsg.encode(self._output_charset, 'replace')
+            return to_bytes(tmsg, encoding=self._output_charset)
         elif self._charset:
-            return tmsg.encode(self._charset, 'replace')
-        return tmsg.encode('utf-8', 'replace')
+            return to_bytes(tmsg, encoding=self._charset)
+        return to_bytes(tmsg)
 
     def ngettext(self, msgid1, msgid2, n):
         if n == 1:
@@ -467,15 +454,12 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning a str
-        if isinstance(tmsg, str):
-            return tmsg
-        if not isinstance(tmsg, basestring):
-            return ''
         if self._output_charset:
-            return tmsg.encode(self._output_charset, 'replace')
+            return to_bytes(tmsg, encoding=self._output_charset,
+                    nonstring='empty')
         elif self._charset:
-            return tmsg.encode(self._charset, 'replace')
-        return tmsg.encode('utf-8', 'replace')
+            return to_bytes(tmsg, encoding=self._charset, nonstring='empty')
+        return to_bytes(tmsg, nonstring='empty')
 
     def lgettext(self, message):
         if not isinstance(message, basestring):
@@ -494,11 +478,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning a str
-        if isinstance(tmsg, str):
-            return tmsg
         if self._output_charset:
-            return tmsg.encode(self._output_charset, 'replace')
-        return tmsg.encode(locale.getpreferredencoding(), 'replace')
+            return to_bytes(tmsg, encoding=self._output_charset)
+        return to_bytes(tmsg, encoding=locale.getpreferredencoding())
 
     def lngettext(self, msgid1, msgid2, n):
         if n == 1:
@@ -522,13 +504,11 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning a str
-        if isinstance(tmsg, str):
-            return tmsg
-        if not isinstance(tmsg, basestring):
-            return ''
         if self._output_charset:
-            return tmsg.encode(self._output_charset, 'replace')
-        return tmsg.encode(locale.getpreferredencoding(), 'replace')
+            return to_bytes(tmsg, encoding=self._output_charset,
+                    nonstring='empty')
+        return to_bytes(tmsg, encoding=locale.getpreferredencoding(),
+                nonstring='empty')
 
     def ugettext(self, message):
         if not isinstance(message, basestring):
@@ -546,9 +526,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning unicode
-        if isinstance(message, unicode):
-            return message
-        return unicode(message, self.input_charset, 'replace')
+        return to_unicode(message, encoding=self.input_charset)
 
     def ungettext(self, msgid1, msgid2, n):
         if n == 1:
@@ -572,11 +550,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     pass
 
         # Make sure that we're returning unicode
-        if isinstance(tmsg, unicode):
-            return tmsg
-        if not isinstance(tmsg, basestring):
-            return u''
-        return unicode(tmsg, self.input_charset, 'replace')
+        return to_unicode(tmsg, encoding=self.input_charset,
+                nonstring='empty')
 
 
 def get_translation_object(domain, localedirs=tuple()):

@@ -37,7 +37,9 @@ try:
 except ImportError:
     chardet = None
 
-from kitchen import b_
+# We need to access b_() for localizing our strings but we'll end up with
+# a circular import if we import it directly.
+import kitchen as k
 from kitchen.pycompat24 import sets
 from kitchen.text.exceptions import ControlCharError
 
@@ -78,7 +80,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     cause :exc:`UnicodeErrors` although the output might be mangled.
     '''
     if not isinstance(byte_string, str):
-        raise TypeError(b_('byte_string must be a byte string (str)'))
+        raise TypeError(k.b_('byte_string must be a byte string (str)'))
     input_encoding = 'utf-8'
     try:
         unicode(byte_string, input_encoding, 'strict')
@@ -164,7 +166,7 @@ def process_control_chars(string, strategy='replace'):
         it.
     '''
     if not isinstance(string, unicode):
-        raise TypeError(b_('process_control_char must have a unicode type as'
+        raise TypeError(k.b_('process_control_char must have a unicode type as'
                 ' the first argument.'))
     if strategy == 'ignore':
         control_table = dict(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES)))
@@ -175,10 +177,10 @@ def process_control_chars(string, strategy='replace'):
         # Test that there are no control codes present
         data = frozenset(string)
         if [c for c in _CONTROL_CHARS if c in data]:
-            raise ControlCharError(b_('ASCII control code present in string'
+            raise ControlCharError(k.b_('ASCII control code present in string'
                     ' input'))
     else:
-        raise ValueError(b_('The strategy argument to process_control_chars'
+        raise ValueError(k.b_('The strategy argument to process_control_chars'
                 ' must be one of ignore, replace, or strict'))
 
     if control_table:
@@ -234,7 +236,7 @@ def html_entities_unescape(string):
         return string # leave as is
 
     if not isinstance(string, unicode):
-        raise TypeError(b_('html_entities_unescape must have a unicode type'
+        raise TypeError(k.b_('html_entities_unescape must have a unicode type'
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 

@@ -27,6 +27,8 @@ class Test__all__(object):
     known_private = set([('kitchen', 'collections', 'version_tuple_to_string'),
         ('kitchen.collections', 'strictdict', 'defaultdict'),
         ('kitchen', 'i18n', 'version_tuple_to_string'),
+        ('kitchen', 'i18n', 'to_bytes'),
+        ('kitchen', 'i18n', 'to_unicode'),
         ('kitchen', 'iterutils', 'version_tuple_to_string'),
         ('kitchen', 'pycompat24', 'version_tuple_to_string'),
         ('kitchen', 'pycompat25', 'version_tuple_to_string'),
