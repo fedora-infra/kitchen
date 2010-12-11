@@ -199,10 +199,7 @@ class DummyTranslations(gettext.NullTranslations):
         if not isinstance(message, basestring):
             return ''
         if self._fallback:
-            if not isinstance(message, unicode):
-                msg = unicode(message, self.input_charset, 'replace')
-            else:
-                msg = message
+            msg = to_unicode(message, encoding=self.input_charset)
             try:
                 message = self._fallback.gettext(msg)
             except UnicodeError:
@@ -224,10 +221,8 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # The fallback method might return something different
         if self._fallback:
-            if not isinstance(msgid1, unicode):
-                msgid1 = unicode(msgid1, self.input_charset, 'replace')
-            if not isinstance(msgid2, unicode):
-                msgid2 = unicode(msgid2, self.input_charset, 'replace')
+            msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+            msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.ngettext(msgid1, msgid2, n)
             except UnicodeError:
@@ -247,10 +242,7 @@ class DummyTranslations(gettext.NullTranslations):
         if not isinstance(message, basestring):
             return ''
         if self._fallback:
-            if not isinstance(message, unicode):
-                msg = unicode(message, self.input_charset, 'replace')
-            else:
-                msg = message
+            msg = to_unicode(message, encoding=self.input_charset)
             try:
                 message = self._fallback.lgettext(msg)
             except (AttributeError, UnicodeError):
@@ -272,10 +264,8 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # Fallback method might have something different
         if self._fallback:
-            if not isinstance(msgid1, unicode):
-                msgid1 = unicode(msgid1, self.input_charset, 'replace')
-            if not isinstance(msgid2, unicode):
-                msgid2 = unicode(msgid2, self.input_charset, 'replace')
+            msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+            msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.lngettext(msgid1, msgid2, n)
             except (AttributeError, UnicodeError):
@@ -295,10 +285,7 @@ class DummyTranslations(gettext.NullTranslations):
         if not isinstance(message, basestring):
             return u''
         if self._fallback:
-            if not isinstance(message, unicode):
-                msg = unicode(message, self.input_charset, 'replace')
-            else:
-                msg = message
+            msg = to_unicode(message, encoding=self.input_charset)
             try:
                 message = self._fallback.ugettext(msg)
             except UnicodeError:
@@ -316,10 +303,8 @@ class DummyTranslations(gettext.NullTranslations):
             message = msgid2
         # Fallback might override this
         if self._fallback:
-            if not isinstance(msgid1, unicode):
-                msgid1 = unicode(msgid1, self.input_charset, 'replace')
-            if not isinstance(msgid2, unicode):
-                msgid2 = unicode(msgid2, self.input_charset, 'replace')
+            msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+            msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.ungettext(msgid1, msgid2, n)
             except UnicodeError:
@@ -413,8 +398,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, basestring):
             return ''
         tmsg = message
-        if not isinstance(message, unicode):
-            message = unicode(message, self.input_charset, 'replace')
+        message = to_unicode(message, encoding=self.input_charset)
         try:
             tmsg = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
@@ -438,10 +422,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, unicode):
-            if not isinstance(msgid1, basestring):
-                return ''
-            msgid1 = unicode(msgid1, self.input_charset, 'replace')
+        if not isinstance(msgid1, basestring):
+            return ''
+        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
@@ -465,8 +448,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, basestring):
             return ''
         tmsg = message
-        if not isinstance(message, unicode):
-            message = unicode(message, self.input_charset, 'replace')
+        message = to_unicode(message, encoding=self.input_charset)
         try:
             tmsg = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
@@ -488,10 +470,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, unicode):
-            if not isinstance(msgid1, basestring):
-                return ''
-            msgid1 = unicode(msgid1, self.input_charset, 'replace')
+        if not isinstance(msgid1, basestring):
+            return ''
+        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
@@ -513,8 +494,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     def ugettext(self, message):
         if not isinstance(message, basestring):
             return u''
-        if not isinstance(message, unicode):
-            message = unicode(message, self.input_charset, 'replace')
+        message = to_unicode(message, encoding=self.input_charset)
         try:
             message = self._catalog[message] #pylint:disable-msg=E1101
         except KeyError:
@@ -534,10 +514,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, unicode):
-            if not isinstance(msgid1, basestring):
-                return u''
-            msgid1 = unicode(msgid1, self.input_charset, 'replace')
+        if not isinstance(msgid1, basestring):
+            return u''
+        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
             tmsg = self._catalog[(msgid1, self.plural(n))]
