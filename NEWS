@@ -13,7 +13,7 @@ NEWS
 
 * Add kitchen.text.converters.exception_to_bytes() and
   kitchen.text.converters.exception_to_unicode() that take an exception object
-  and convert it into a te xt representation.
+  and convert it into a text representation.
 
 -------
 0.2.2a1
