@@ -20,6 +20,20 @@ Glossary
 
         .. seealso:: http://en.wikipedia.org/wiki/ASCII
 
+    ASCII compatible
+        An encoding in which the particular byte that maps to a character in
+        the :term:`ASCII` character set is only used to map to that character.
+        This excludes EBDIC based encodings and many multi-byte fixed and
+        variable width encodings since they reuse the bytes that make up the
+        :term:`ASCII` encoding for other purposes.  :term:`UTF-8` is notable
+        as a variable width encoding that is :term:`ASCII` compatible.
+
+        .. seealso::
+
+            http://en.wikipedia.org/wiki/Variable-width_encoding
+                For another explanation of various ways bytes are mapped to
+                characters in a possibly incompatible manner.
+
     code points
         :term:`code point`
 
