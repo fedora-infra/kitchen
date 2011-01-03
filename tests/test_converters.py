@@ -233,6 +233,51 @@ class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
         io = writer(self.io, errors='strict')
         tools.assert_raises(UnicodeEncodeError, io.write, self.u_japanese)
 
+
+class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
+    def setUp(self):
+        self.exceptions = {}
+        tests = {'u_jpn': self.u_japanese,
+                'u_spanish': self.u_spanish,
+                'utf8_jpn': self.utf8_japanese,
+                'utf8_spanish': self.utf8_spanish,
+                'euc_jpn': self.euc_jp_japanese,
+                'latin1_spanish': self.latin1_spanish}
+        for test in tests.iteritems():
+            try:
+                raise Exception(test[1])
+            except Exception, self.exceptions[test[0]]:
+                pass
+
+    def test_exception_unicode(self):
+        tools.ok_(converters.exception_to_unicode(self.exceptions['u_jpn']) == self.u_japanese)
+        tools.ok_(converters.exception_to_unicode(self.exceptions['u_spanish']) == self.u_spanish)
+
+    def test_exception_bytes(self):
+        tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_jpn']) == self.u_japanese)
+        tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_spanish']) == self.u_spanish)
+        # Mangled latin1/utf8 conversion but no tracebacks
+        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish']) == self.u_mangled_spanish_latin1_as_ascii)
+        # Mangled euc_jp/utf8 conversion but no tracebacks
+        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn']) == self.u_mangled_euc_jp_as_utf8)
+
+    def test_exception_custom(self):
+        # If given custom functions, then we should not mangle
+        c = [lambda e: converters.to_unicode(e, encoding='euc_jp')]
+        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
+            converters=c) == self.u_japanese)
+        c.extend(converters.EXCEPTION_CONVERTERS)
+        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
+            converters=c) == self.u_japanese)
+
+        c = [lambda e: converters.to_unicode(e, encoding='latin1')]
+        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
+            converters=c) ==  self.u_spanish)
+        c.extend(converters.EXCEPTION_CONVERTERS)
+        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
+            converters=c) ==  self.u_spanish)
+
+
 class TestDeprecatedConverters(TestConverters):
     def setUp(self):
         warnings.simplefilter('ignore', DeprecationWarning)

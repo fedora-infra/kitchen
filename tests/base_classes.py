@@ -26,6 +26,7 @@ class UnicodeTestData(object):
     utf8_japanese = u_japanese.encode('utf8')
     euc_jp_japanese = u_japanese.encode('euc_jp')
     u_mangled_euc_jp_as_latin1 = unicode(euc_jp_japanese, 'latin1')
+    u_mangled_euc_jp_as_utf8 = unicode(euc_jp_japanese, 'utf-8', 'replace')
     utf8_mangled_euc_jp_as_latin1 = u_mangled_euc_jp_as_latin1.encode('utf8')
     u_mangled_japanese_utf8_as_latin1 = unicode(utf8_japanese, 'latin1')
     u_mangled_japanese_utf8_as_ascii = u"������������������������������������������'���"

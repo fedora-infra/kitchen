@@ -56,6 +56,8 @@ _LATIN1_ALIASES = frozenset(('latin-1', 'LATIN-1', 'latin1', 'LATIN1',
     'latin', 'LATIN', 'l1', 'L1', 'cp819', 'CP819', '8859', 'iso8859-1',
     'ISO8859-1', 'iso-8859-1', 'ISO-8859-1'))
 
+# EXCEPTION_CONVERTERS is defined below due to using to_unicode
+
 def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         non_string=None):
     '''Convert an object into a :class:`unicode` string
@@ -381,6 +383,84 @@ def to_str(obj):
         ' porting information.'),
         DeprecationWarning, stacklevel=2)
     return to_bytes(obj, nonstring='simplerepr')
+
+# Exception message extraction functions
+EXCEPTION_CONVERTERS = (lambda e: to_unicode(e.args[0]), to_unicode)
+''' Tuple of functions to try to use to convert an exception into a string
+    representation.  This is the default value given to
+    :func:`exception_to_unicode`.  Use code like this if you just want to add
+    more possible conversion function::
+
+        from kitchen.text.converters import EXCEPTION_CONVERTERS, exception_to_unicode
+        converters = [lambda e: to_unicode(e.value), lambda e: to_unicode(e.value, encoding='euc_jp')]
+        converters.extend(EXCEPTION_CONVERTERS)
+
+    Each function in this list should take the exception as its sole argument
+    and return a string containing the message representing the exception.
+    Ideally the function will return the message as a :class:`unicode` string
+    but the value will be run through :func:`to_unicode` to ensure that it is
+    :class:`unicode` before being returned.
+'''
+
+BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
+''' Tuple of functions to try to use to convert an exception into a string
+    representation.  This tuple is similar to the one in
+    :data:`EXCEPTION_CONVERTERS` but it's used with :func:`exception_to_bytes`
+    instead.  Ideally, these functions should do their best to return the data
+    as a byte :class:`str`.
+'''
+
+def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
+    '''Convert an exception object into a unicode representation
+
+    :arg exc: Exception object to convert
+    :kwarg converters: List of functions to use to convert the exception into
+        a string.  See :data:`EXCEPTION_CONVERTERS` for the default value and
+        an example of adding another converter to the defaults.  The functions
+        in the list are tried one at a time to see if they can extract
+        a string from the exception.  The first one to do so without raising
+        an exception is used.
+    :returns: :class:`unicode` string representation of the exception.  The
+        value from this will be converted into :class:`unicode` before being
+        returned using the :term:`utf-8` encoding before being returned (if
+        you know you need to use an alternate encoding, add a function that
+        does that to the :list of functions in attr:`converters`)
+    '''
+    msg = u'<exception failed to convert to text>'
+    for func in converters:
+        try:
+            msg = func(exc)
+        except:
+            pass
+        else:
+            break
+    return to_unicode(msg)
+
+def exception_to_bytes(exc, converters=BYTE_EXCEPTION_CONVERTERS):
+    '''Convert an exception object into a unicode representation
+
+    :arg exc: Exception object to convert
+    :kwarg converters: List of functions to use to convert the exception into
+        a string.  See :data:`EXCEPTION_CONVERTERS` for the default value and
+        an example of adding another converter to the defaults.  The functions
+        in the list are tried one at a time to see if they can extract
+        a string from the exception.  The first one to do so without raising
+        an exception is used.
+    :returns: :class:`unicode` string representation of the exception.  The
+        value from this will be converted into :class:`unicode` before being
+        returned using the :term:`utf-8` encoding before being returned (if
+        you know you need to use an alternate encoding, add a function that
+        does that to the :list of functions in attr:`converters`)
+    '''
+    msg = '<exception failed to convert to text>'
+    for func in converters:
+        try:
+            msg = func(exc)
+        except:
+            pass
+        else:
+            break
+    return to_bytes(msg)
 
 #
 # XML Related Functions
@@ -750,7 +830,9 @@ def to_xml(string, encoding='utf-8', attrib=False, control_chars='ignore'):
     return guess_encoding_to_xml(string, output_encoding=encoding,
             attrib=attrib, control_chars=control_chars)
 
-__all__ = ('byte_string_to_xml', 'bytes_to_xml', 'getwriter',
-        'guess_encoding_to_xml', 'to_bytes', 'to_str', 'to_unicode',
-        'to_utf8', 'to_xml', 'unicode_to_xml', 'xml_to_byte_string',
-        'xml_to_bytes', 'xml_to_unicode')
+__all__ = ('BYTE_EXCEPTION_CONVERTERS', 'EXCEPTION_CONVERTERS',
+        'byte_string_to_xml', 'bytes_to_xml', 'exception_to_bytes',
+        'exception_to_unicode', 'getwriter', 'guess_encoding_to_xml',
+        'to_bytes', 'to_str', 'to_unicode', 'to_utf8', 'to_xml',
+        'unicode_to_xml', 'xml_to_byte_string', 'xml_to_bytes',
+        'xml_to_unicode')

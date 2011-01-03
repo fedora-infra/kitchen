@@ -6,6 +6,15 @@ NEWS
 :Date: 2 Sep 2010
 :Version: 0.2.x
 
+
+-----
+0.2.2
+-----
+
+* Add kitchen.text.converters.exception_to_bytes() and
+  kitchen.text.converters.exception_to_unicode() that take an exception object
+  and convert it into a te xt representation.
+
 -------
 0.2.2a1
 -------
@@ -24,17 +33,6 @@ NEWS
 * Document kitchen.text.display
 * Proofread all of the documentation.  Cross reference to the stdlib.
 * Write a porting guide for people porting from python-fedora and yum APIs.
-
-Planned
-=======
-* api-using-kitchen-versions.rst
-  - Using kitchen.release
-  - Using kitchen.*.__version_info__
-* Add a small section to the tutorial about how restricting the set of encodings can make an API viable:
-  - ASCii compatible
-  - ASCii subset
-  - multibyte
-* unittest kitchen.text.display._print_combining_table() ?
 
 -------
 0.2.1a1
