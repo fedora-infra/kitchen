@@ -536,3 +536,149 @@ caller of your function parameters to control the encoding and how to treat
 errors that may occur during the encoding/decoding process.  If your code will
 raise a :exc:`UnicodeError` with non-:term:`ASCII` values no matter what, you
 should probably rethink your API.
+
+-----------------
+Knowing your data
+-----------------
+
+If you've read all the way down to this section without skipping you've seen
+several admonitions about the type of data you are processing affecting the
+viability of the various API choices.
+
+Here's a few things to consider in your data:
+
+Do you need to operate on both bytes and unicode?
+=================================================
+
+Much of the data in libraries, programs, and the general environment outside
+of python is written where strings are sequences of bytes.  So when we
+interact with data that comes from outside of python or data that is about to
+leave python it may make sense to only operate on the data as a byte
+:class:`str`.  There's two times when this may make sense:
+
+1. The user is intended to hand the data to the function and then the function
+   takes care of sending the data outside of python (to the filesystem, over
+   the network, etc).
+2. The data is not representable as text.  For instance, writing a binary
+   file format.
+
+Even when your code is operating in this area you still need to think a little
+more about your data.  For instance, it might make sense for the person using
+your API to pass in :class:`unicode` strings and let the function convert that
+into the byte :class:`str` that it then sends over the wire.
+
+There are also times when it might make sense to operate only on
+:class:`unicode` strings.  :class:`unicode` represents text so anytime that
+you are working on textual data that isn't going to leave python it has the
+potential to be a :class:`unicode`-only API.  However, there's two things that
+you should consider when designing a :class:`unicode`-only API:
+
+1. As your API gains popularity, people are going to use your API in places
+   that you may not have thought of.  Corner cases in these other places may
+   mean that processing bytes is desirable.
+2. In python2, byte :class:`str` and :class:`unicode` are often used
+   interchangably with each other.  That means that people programming against
+   your API may have received :class:`str` from some other API and it would be
+   most convenient for their code if your API accepted it.
+
+.. note:: In python3, the separation between the text type and the byte type
+    are more clear.  So in python3, there's less need to have all APIs take
+    both unicode and bytes.
+
+Can you restrict the encodings?
+===============================
+If you determine that you have to deal with byte :class:`str` you should
+realize that not all encodings are created equal.  Each has different
+properties that may make it possible to provide a simpler API provided that
+you can reasonably tell the users of your API that they cannot use certain
+classes of encodings.
+
+As one example, if you are required to find a comma (``,``) in a byte
+:class:`str` you have different choices based on what encodings are allowed.
+If you can reasonably restrict your API users to only giving :term:`ASCII
+compatible` encodings you can do this simply by searching for the literal
+comma character because that character will be represented by the same byte
+sequence in all :term:`ASCII compatible` encodings.
+
+The following are some classes of encodings to be aware of as you decide how
+generic your code needs to be.
+
+Single byte encodings
+---------------------
+
+Single byte encodings can only represent 256 total characters.  They encode
+the :term:`codepoints` for a character to the equivalent number in a single
+byte.
+
+Most single byte encodings are :term:`ASCII compatible`.  :term:`ASCII
+compatible` encodings are the most likely to be usable without changes to code
+so this is good news.  A notable exception to this is the `EBDIC
+<http://en.wikipedia.org/wiki/Extended_Binary_Coded_Decimal_Interchange_Code>`_
+family of encodings.
+
+Multibyte encodings
+-------------------
+
+Multibyte encodings use more than one byte to encode some characters.
+
+Fixed width
+~~~~~~~~~~~
+
+Fixed width encodings have a set number of bytes to represent all of the
+characters in the character set.  ``UTF-32`` is an example of a fixed width
+encoding that uses four bytes per character and can express every unicode
+characters.  There are a number of problems with writing APIs that need to
+operate on fixed width, multibyte characters.  To go back to our earlier
+example of finding a comma in a string, we have to realize that even in
+``UTF-32`` where the :term:`codepoint` for :term:`ASCII` characters is the
+same as in :term:`ASCII`, the byte sequence for them is different.  So you
+cannot search for the literal byte character as it may pick up false
+positives and may break a byte sequence in an odd place.
+
+Variable Width
+~~~~~~~~~~~~~~
+
+ASCII compatible
+""""""""""""""""
+
+:term:`UTF-8` and the `EUC <http://en.wikipedia.org/wiki/Extended_Unix_Code>`_
+family of encodings are examples of :term:`ASCII compatible` multi-byte
+encodings.  They achieve this by adhering to two principles:
+
+* All of the :term:`ASCII` characters are represented by the byte that they
+  are in the :term:`ASCII` encoding.
+* None of the :term:`ASCII` byte sequences are reused in any other byte
+  sequence for a different character.
+
+Escaped
+"""""""
+
+Some multibyte encodings work by using only bytes from the :term:`ASCII`
+encoding but when a particular sequence of those byes is found, they are
+interpretted as meaning something other than their :term:`ASCII` values.
+``UTF-7`` is one such encoding that can encode all of the unicode
+:ter:`codepoints`.  For instance, here's a some Japanese characters encoded as
+``UTF-wi7``::
+
+    >>> a = u'\u304f\u3089\u3068\u307f'
+    >>> print a
+    くらとみ
+    >>> print a.encode('utf-7')
+    +ME8wiTBoMH8-
+
+These encodings can be used when you need to encode unicode data that may
+contain non-:term:`ASCII` characters for inclusion in an :term:`ASCII` only
+transport medium or file.
+
+However, they are not :term:`ASCII compatible` in the sense that we used
+earlier as the bytes that represent a :term:`ASCII` character are being reused
+as part of other characters.  If you were to search for a literal plus sign in
+this encoded string, you would run across many false positives, for instance.
+
+Other
+"""""
+
+There are many other popular variable width encodings, for instance ``UTF-16``
+and ``shift-JIS``.  Many of these are not :term:`ASCII compatible` so you
+cannot search for a literal :term:`ASCII` character without danger of false
+positives or false negatives.
