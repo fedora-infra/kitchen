@@ -138,7 +138,7 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     elif nonstring == 'simplerepr':
         try:
             simple = obj.__unicode__()
-        except AttributeError:
+        except (AttributeError, UnicodeError):
             simple = None
         if not simple:
             try:
@@ -252,7 +252,7 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         if not simple:
             try:
                 simple = obj.__unicode__()
-            except AttributeError:
+            except (AttributeError, UnicodeError):
                 simple = ''
         if isinstance(simple, unicode):
             simple = simple.encode(encoding, 'replace')
