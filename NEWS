@@ -3,7 +3,7 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 2 Sep 2010
+:Date: 3 Jan 2011
 :Version: 0.2.x
 
 
@@ -14,6 +14,9 @@ NEWS
 * Add kitchen.text.converters.exception_to_bytes() and
   kitchen.text.converters.exception_to_unicode() that take an exception object
   and convert it into a text representation.
+* Add a documentation section on how API can be simplified if you can limit your encodings
+
+If all goes well, we'll be making a 1.0 release shortly which is basically this release.
 
 -------
 0.2.2a1

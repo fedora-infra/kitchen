@@ -3,7 +3,7 @@ Kitchen, everything but the sink
 ================================
 
 :Author: Toshio Kuratomi
-:Date: 2 September 2010
+:Date: 3 January 2011
 :Version: 0.2.x
 
 We've all done it.  In the process of writing a brand new application we've
