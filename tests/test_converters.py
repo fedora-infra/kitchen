@@ -249,11 +249,11 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
             except Exception, self.exceptions[test[0]]:
                 pass
 
-    def test_exception_unicode(self):
+    def test_exception_to_unicode_with_unicode(self):
         tools.ok_(converters.exception_to_unicode(self.exceptions['u_jpn']) == self.u_japanese)
         tools.ok_(converters.exception_to_unicode(self.exceptions['u_spanish']) == self.u_spanish)
 
-    def test_exception_bytes(self):
+    def test_exception_to_unicode_with_bytes(self):
         tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_jpn']) == self.u_japanese)
         tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_spanish']) == self.u_spanish)
         # Mangled latin1/utf8 conversion but no tracebacks
@@ -261,7 +261,7 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
         # Mangled euc_jp/utf8 conversion but no tracebacks
         tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn']) == self.u_mangled_euc_jp_as_utf8)
 
-    def test_exception_custom(self):
+    def test_exception_to_unicode_custom(self):
         # If given custom functions, then we should not mangle
         c = [lambda e: converters.to_unicode(e, encoding='euc_jp')]
         tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
@@ -276,6 +276,32 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
         c.extend(converters.EXCEPTION_CONVERTERS)
         tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
             converters=c) ==  self.u_spanish)
+
+    def test_exception_to_bytes_with_unicode(self):
+        tools.ok_(converters.exception_to_bytes(self.exceptions['u_jpn']) == self.utf8_japanese)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['u_spanish']) == self.utf8_spanish)
+
+    def test_exception_to_bytes_with_bytes(self):
+        tools.ok_(converters.exception_to_bytes(self.exceptions['utf8_jpn']) == self.utf8_japanese)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['utf8_spanish']) == self.utf8_spanish)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish']) == self.latin1_spanish)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn']) == self.euc_jp_japanese)
+
+    def test_exception_to_bytes_custom(self):
+        # If given custom functions, then we should not mangle
+        c = [lambda e: converters.to_bytes(e, encoding='euc_jp')]
+        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
+            converters=c) == self.euc_jp_japanese)
+        c.extend(converters.EXCEPTION_CONVERTERS)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
+            converters=c) == self.euc_jp_japanese)
+
+        c = [lambda e: converters.to_bytes(e, encoding='latin1')]
+        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
+            converters=c) ==  self.latin1_spanish)
+        c.extend(converters.EXCEPTION_CONVERTERS)
+        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
+            converters=c) ==  self.latin1_spanish)
 
 
 class TestDeprecatedConverters(TestConverters):
