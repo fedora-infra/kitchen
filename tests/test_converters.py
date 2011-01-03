@@ -257,7 +257,7 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_jpn']) == self.u_japanese)
         tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_spanish']) == self.u_spanish)
         # Mangled latin1/utf8 conversion but no tracebacks
-        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish']) == self.u_mangled_spanish_latin1_as_ascii)
+        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish']) == self.u_mangled_spanish_latin1_as_utf8)
         # Mangled euc_jp/utf8 conversion but no tracebacks
         tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn']) == self.u_mangled_euc_jp_as_utf8)
 
