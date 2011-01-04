@@ -607,7 +607,7 @@ Single byte encodings
 ---------------------
 
 Single byte encodings can only represent 256 total characters.  They encode
-the :term:`codepoints` for a character to the equivalent number in a single
+the :term:`code points` for a character to the equivalent number in a single
 byte.
 
 Most single byte encodings are :term:`ASCII compatible`.  :term:`ASCII
@@ -630,7 +630,7 @@ encoding that uses four bytes per character and can express every unicode
 characters.  There are a number of problems with writing APIs that need to
 operate on fixed width, multibyte characters.  To go back to our earlier
 example of finding a comma in a string, we have to realize that even in
-``UTF-32`` where the :term:`codepoint` for :term:`ASCII` characters is the
+``UTF-32`` where the :term:`code point` for :term:`ASCII` characters is the
 same as in :term:`ASCII`, the byte sequence for them is different.  So you
 cannot search for the literal byte character as it may pick up false
 positives and may break a byte sequence in an odd place.
@@ -655,10 +655,10 @@ Escaped
 
 Some multibyte encodings work by using only bytes from the :term:`ASCII`
 encoding but when a particular sequence of those byes is found, they are
-interpretted as meaning something other than their :term:`ASCII` values.
+interpreted as meaning something other than their :term:`ASCII` values.
 ``UTF-7`` is one such encoding that can encode all of the unicode
-:ter:`codepoints`.  For instance, here's a some Japanese characters encoded as
-``UTF-wi7``::
+:term:`code points`.  For instance, here's a some Japanese characters encoded as
+``UTF-7``::
 
     >>> a = u'\u304f\u3089\u3068\u307f'
     >>> print a
