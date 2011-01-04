@@ -50,6 +50,7 @@ class Test__all__(object):
         ('kitchen.text', 'display', 'ControlCharError'),
         ('kitchen.text', 'display', 'to_bytes'),
         ('kitchen.text', 'display', 'to_unicode'),
+        ('kitchen.text', 'utf8', 'b_'),
         ('kitchen.text', 'utf8', 'byte_string_textual_width_fill'),
         ('kitchen.text', 'utf8', 'byte_string_valid_encoding'),
         ('kitchen.text', 'utf8', 'fill'),
