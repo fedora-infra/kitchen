@@ -402,6 +402,8 @@ EXCEPTION_CONVERTERS = (lambda e: to_unicode(e.args[0]), to_unicode)
     Ideally the function will return the message as a :class:`unicode` string
     but the value will be run through :func:`to_unicode` to ensure that it is
     :class:`unicode` before being returned.
+
+    .. versionadded:: 0.2.2
 '''
 
 BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
@@ -410,6 +412,8 @@ BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
     :data:`EXCEPTION_CONVERTERS` but it's used with :func:`exception_to_bytes`
     instead.  Ideally, these functions should do their best to return the data
     as a byte :class:`str`.
+
+    .. versionadded:: 0.2.2
 '''
 
 def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
@@ -427,6 +431,8 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
         returned using the :term:`utf-8` encoding before being returned (if
         you know you need to use an alternate encoding, add a function that
         does that to the :list of functions in attr:`converters`)
+
+    .. versionadded:: 0.2.2
     '''
     msg = u'<exception failed to convert to text>'
     for func in converters:
@@ -453,6 +459,8 @@ def exception_to_bytes(exc, converters=BYTE_EXCEPTION_CONVERTERS):
         returned using the :term:`utf-8` encoding before being returned (if
         you know you need to use an alternate encoding, add a function that
         does that to the :list of functions in attr:`converters`)
+
+    .. versionadded:: 0.2.2
     '''
     msg = '<exception failed to convert to text>'
     for func in converters:
