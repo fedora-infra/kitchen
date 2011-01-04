@@ -396,3 +396,10 @@ Transformation to XML
 .. autofunction:: kitchen.text.converters.guess_encoding_to_xml
 .. autofunction:: kitchen.text.converters.to_xml
 
+Working with exception messages
+===============================
+
+.. autodata:: kitchen.text.converter.EXCEPTION_CONVERTERS
+.. autodata:: kitchen.text.converter.BYTE_EXCEPTION_CONVERTERS
+.. autofunction:: kitchen.text.converter.exception_to_unicode
+.. autofunction:: kitchen.text.converter.exception_to_bytes
