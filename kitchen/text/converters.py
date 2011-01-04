@@ -430,7 +430,7 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
         value from this will be converted into :class:`unicode` before being
         returned using the :term:`utf-8` encoding before being returned (if
         you know you need to use an alternate encoding, add a function that
-        does that to the :list of functions in attr:`converters`)
+        does that to the list of functions in :attr:`converters`)
 
     .. versionadded:: 0.2.2
     '''
@@ -458,7 +458,7 @@ def exception_to_bytes(exc, converters=BYTE_EXCEPTION_CONVERTERS):
         value from this will be converted into :class:`unicode` before being
         returned using the :term:`utf-8` encoding before being returned (if
         you know you need to use an alternate encoding, add a function that
-        does that to the :list of functions in attr:`converters`)
+        does that to the list of functions in :attr:`converters`)
 
     .. versionadded:: 0.2.2
     '''
