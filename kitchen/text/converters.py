@@ -391,8 +391,10 @@ EXCEPTION_CONVERTERS = (lambda e: to_unicode(e.args[0]), to_unicode)
     :func:`exception_to_unicode`.  Use code like this if you just want to add
     more possible conversion function::
 
-        from kitchen.text.converters import EXCEPTION_CONVERTERS, exception_to_unicode
-        converters = [lambda e: to_unicode(e.value), lambda e: to_unicode(e.value, encoding='euc_jp')]
+        from kitchen.text.converters import (EXCEPTION_CONVERTERS,
+                exception_to_unicode)
+        converters = [lambda e: to_unicode(e.value),
+                lambda e: to_unicode(e.value, encoding='euc_jp')]
         converters.extend(EXCEPTION_CONVERTERS)
 
     Each function in this list should take the exception as its sole argument
