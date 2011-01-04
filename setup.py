@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 import kitchen.release
 
 setup(name='kitchen',
-      version=kitchen.release.__version__,
+      version=str(kitchen.release.__version__),
       description=kitchen.release.DESCRIPTION,
       author=kitchen.release.AUTHOR,
       author_email=kitchen.release.EMAIL,
