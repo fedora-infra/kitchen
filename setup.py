@@ -14,7 +14,7 @@ setup(name='kitchen',
       download_url=kitchen.release.DOWNLOAD_URL,
       keywords='Useful Small Code Snippets',
       classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
             'Programming Language :: Python :: 2.3',
             'Programming Language :: Python :: 2.4',
