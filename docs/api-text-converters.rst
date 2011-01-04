@@ -399,7 +399,7 @@ Transformation to XML
 Working with exception messages
 ===============================
 
-.. autodata:: kitchen.text.converter.EXCEPTION_CONVERTERS
-.. autodata:: kitchen.text.converter.BYTE_EXCEPTION_CONVERTERS
-.. autofunction:: kitchen.text.converter.exception_to_unicode
-.. autofunction:: kitchen.text.converter.exception_to_bytes
+.. autodata:: kitchen.text.converters.EXCEPTION_CONVERTERS
+.. autodata:: kitchen.text.converters.BYTE_EXCEPTION_CONVERTERS
+.. autofunction:: kitchen.text.converters.exception_to_unicode
+.. autofunction:: kitchen.text.converters.exception_to_bytes
