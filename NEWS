@@ -3,9 +3,19 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 3 Jan 2011
+:Date: 5 Jan 2011
 :Version: 0.2.x
 
+
+-----
+0.2.3
+-----
+
+* Expose MAXFD, list2cmdline(), and mswindows in kitchen.pycompat27.subprocess.
+  These are undocumented, and not in upstream's __all__ but google (and bug
+  reports against kitchen) show that some people are using them.  Note that
+  upstream is leaning towards these being private so they may be deprecated in
+  the python3 subprocess.
 
 -----
 0.2.2
