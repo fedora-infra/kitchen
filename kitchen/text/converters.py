@@ -26,8 +26,14 @@
 Functions to handle conversion of byte :class:`str` and :class:`unicode`
 strings.
 
-.. versionchanged:: kitchen 0.2a2 ; API kitchen.text 1.1.0
+.. versionchanged:: kitchen 0.2a2 ; API kitchen.text 2.0.0
     Added :func:`~kitchen.text.converters.getwriter`
+
+.. versionchanged:: kitchen 0.2.2  ; API kitchen.text 2.1.0
+    Added :func:`~kitchen.text.converters.exception_to_unicode`,
+    :func:`~kitchen.text.converters.exception_to_bytes`,
+    :data:`~kitchen.text.converters.EXCEPTION_CONVERTERS`,
+    and :data:`~kitchen.text.converters.BYTE_EXCEPTION_CONVERTERS`
 '''
 try:
     from base64 import b64encode, b64decode
