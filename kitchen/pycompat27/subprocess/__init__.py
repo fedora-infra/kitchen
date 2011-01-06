@@ -41,5 +41,6 @@ if sys.version_info >= (2, 7):
     from subprocess import __all__
 else:
     from kitchen.pycompat27.subprocess._subprocess import *
-    from kitchen.pycompat27.subprocess import MAXFD, list2cmdline, mswindows
+    from kitchen.pycompat27.subprocess._subprocess import MAXFD, \
+            list2cmdline, mswindows
     from kitchen.pycompat27.subprocess._subprocess import __all__
