@@ -6,6 +6,12 @@ NEWS
 :Date: 5 Jan 2011
 :Version: 0.2.x
 
+---------------
+Pre-0.2.4/1.0.0
+---------------
+
+* Correct docstring for kitchen.text.converters.exception_to_bytes() -- we're
+  transforming into a byte str, not into unicode.
 
 -----
 0.2.3

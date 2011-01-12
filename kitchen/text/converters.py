@@ -417,7 +417,8 @@ BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
     representation.  This tuple is similar to the one in
     :data:`EXCEPTION_CONVERTERS` but it's used with :func:`exception_to_bytes`
     instead.  Ideally, these functions should do their best to return the data
-    as a byte :class:`str`.
+    as a byte :class:`str` but the results will be run through
+    :func:`to_bytes` before being returned.
 
     .. versionadded:: 0.2.2
 '''
@@ -451,20 +452,20 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
     return to_unicode(msg)
 
 def exception_to_bytes(exc, converters=BYTE_EXCEPTION_CONVERTERS):
-    '''Convert an exception object into a unicode representation
+    '''Convert an exception object into a str representation
 
     :arg exc: Exception object to convert
     :kwarg converters: List of functions to use to convert the exception into
-        a string.  See :data:`EXCEPTION_CONVERTERS` for the default value and
-        an example of adding another converter to the defaults.  The functions
-        in the list are tried one at a time to see if they can extract
-        a string from the exception.  The first one to do so without raising
-        an exception is used.
-    :returns: :class:`unicode` string representation of the exception.  The
-        value from this will be converted into :class:`unicode` before being
-        returned using the :term:`utf-8` encoding before being returned (if
-        you know you need to use an alternate encoding, add a function that
-        does that to the list of functions in :attr:`converters`)
+        a string.  See :data:`BYTE_EXCEPTION_CONVERTERS` for the default value
+        and an example of adding another converter to the defaults.  The
+        functions in the list are tried one at a time to see if they can
+        extract a string from the exception.  The first one to do so without
+        raising an exception is used.
+    :returns: byte :class:`str` representation of the exception.  The value
+        from this will be converted into :class:`str` before being returned
+        using the :term:`utf-8` encoding before being returned (if you know
+        you need to use an alternate encoding, add a function that does that
+        to the list of functions in :attr:`converters`)
 
     .. versionadded:: 0.2.2
     '''
