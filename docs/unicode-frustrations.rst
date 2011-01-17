@@ -449,8 +449,8 @@ Be vigilant about spotting poor APIs
 
 Make sure that the libraries you use return only :class:`unicode` strings or
 byte :class:`str`.  Unittests can help you spot issues here by running many
-variations of data through your functions and still getting the types of
-string that you expect.
+variations of data through your functions and checking that you're still
+getting the types of string that you expect.
 
 Example: Putting this all together with kitchen
 ===============================================
