@@ -476,9 +476,9 @@ a short example that uses many kitchen functions to do its work::
         # We use _() for marking strings that we operate on as unicode
         # This is pretty much everything
         _ = translations.ugettext
-        # And _b() for marking strings that we operate on as bytes.
+        # And b_() for marking strings that we operate on as bytes.
         # This is limited to exceptions
-        _b = translations.lgettext
+        b_ = translations.lgettext
 
         # Setup stdout
         encoding = locale.getpreferredencoding()
@@ -550,18 +550,18 @@ a short example that uses many kitchen functions to do its work::
             b_line = '%s\0%s\n' % (b_filename, to_bytes(line))
 
             # Just to demonstrate that getwriter will pass bytes through fine
-            print _b('Wrote: %s') % b_line
+            print b_('Wrote: %s') % b_line
             datafile.write(b_line)
         datafile.close()
 
         # And just to show how to properly deal with an exception.
         # Note two things about this:
-        # 1) We use the _b() function to translate the string.  This returns a
+        # 1) We use the b_() function to translate the string.  This returns a
         #    byte string instead of a unicode string
         # 2) We're using the b_() function returned by kitchen.  If we had
         #    used the one from gettext we would need to convert the message to
         #    a byte str first
         message = u'Demonstrate the proper way to raise exceptions.  Sincerely,  \u3068\u3057\u304a'
-        raise Exception(_b(bmessage))
+        raise Exception(b_(message))
 
 .. seealso:: :mod:`kitchen.text.converters`
