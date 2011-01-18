@@ -243,7 +243,7 @@ place of the :mod:`codecs` version like this::
 
     >>> import sys
     >>> from kitchen.text.converters import getwriter
-    >>> UTF8Writer = codecs.getwriter('utf8')
+    >>> UTF8Writer = getwriter('utf8')
     >>> sys.stdout = UTF8Writer(sys.stdout)
     >>> print u'café'
     café
