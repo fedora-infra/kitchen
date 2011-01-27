@@ -3,15 +3,16 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 5 Jan 2011
-:Version: 0.2.x
+:Date: 26 Jan 2011
+:Version: 1.0.x
 
----------------
-Pre-0.2.4/1.0.0
----------------
+-----
+1.0.0
+-----
 
 * Correct docstring for kitchen.text.converters.exception_to_bytes() -- we're
   transforming into a byte str, not into unicode.
+* Correct some examples in the unicode frustrations documentation
 
 -----
 0.2.3

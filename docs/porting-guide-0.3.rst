@@ -1,8 +1,8 @@
 ===================
-0.2.2 Porting Guide
+1.0.0 Porting Guide
 ===================
 
-The 0.1 through 0.2.x releases focused on bringing in functions from yum and
+The 0.1 through 1.0.0 releases focused on bringing in functions from yum and
 python-fedora.  This porting guide tells how to port from those APIs to their
 kitchen replacements.
 
