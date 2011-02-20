@@ -13,7 +13,7 @@ import base_classes
 class TestI18N(unittest.TestCase):
     def setUp(self):
         self.old_LC_ALL = os.environ.get('LC_ALL', None)
-        os.environ['LC_ALL'] = 'pt_BR'
+        os.environ['LC_ALL'] = 'pt_BR.UTF8'
 
     def tearDown(self):
         if self.old_LC_ALL:
