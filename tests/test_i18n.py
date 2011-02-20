@@ -22,7 +22,7 @@ class TestI18N(unittest.TestCase):
             del(os.environ['LC_ALL'])
 
     def test_easy_gettext_setup(self):
-        '''Test that the eay_gettext_setup function works
+        '''Test that the easy_gettext_setup function works
         '''
         _, N_ = i18n.easy_gettext_setup('foo', localedirs=
                 ['%s/data/locale/' % os.path.dirname(__file__)])
@@ -39,15 +39,15 @@ class TestI18N(unittest.TestCase):
         tools.ok_(N_(u'café', u'cafés', 2) == u'cafés')
 
     def test_easy_gettext_setup_non_unicode(self):
-        '''Test that the eay_gettext_setup function works
+        '''Test that the easy_gettext_setup function works
         '''
         b_, bN_ = i18n.easy_gettext_setup('foo', localedirs=
                 ['%s/data/locale/' % os.path.dirname(__file__)],
                 use_unicode=False)
         tools.ok_(isinstance(b_, types.MethodType))
         tools.ok_(isinstance(bN_, types.MethodType))
-        tools.ok_(b_.im_func.func_name == 'gettext')
-        tools.ok_(bN_.im_func.func_name == 'ngettext')
+        tools.ok_(b_.im_func.func_name == 'lgettext')
+        tools.ok_(bN_.im_func.func_name == 'lngettext')
 
         tools.ok_(b_('café') == 'café')
         tools.ok_(b_(u'café') == 'café')

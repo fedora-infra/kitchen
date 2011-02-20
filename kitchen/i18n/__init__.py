@@ -88,7 +88,7 @@ See the documentation of :func:`easy_gettext_setup` and
 
 from kitchen.versioning import version_tuple_to_string
 
-__version_info__ = ((1, 0, 0),)
+__version_info__ = ((2, 0, 0),)
 __version__ = version_tuple_to_string(__version_info__)
 
 import gettext
@@ -637,9 +637,9 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
         whether messages for this domain are present.  If none of the
         directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
         Default: No directories to search so we just use the fallback.
-    :kwarg use_unicode: If :data:`True` return :class:`unicode` strings else
-        return byte :class:`str` for the translations.  Default is
-        :data:`True`.
+    :kwarg use_unicode: If :data:`True` return the :mod:`gettext` functions
+        for :class:`unicode` strings else return the functions for byte
+        :class:`str` for the translations.  Default is :data:`True`.
     :return: tuple of the :mod:`gettext` function and :mod:`gettext` function
         for plurals
 
@@ -671,11 +671,15 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
         superior to the ones returned from :mod:`gettext`.  The traits that
         make them better are described in the :class:`DummyTranslations` and
         :class:`NewGNUTranslations` documentation.
+
+    .. versionchanged:: kitchen-0.2.4 ; API kitchen.i18n 2.0.0
+        Changed :func:`~kitchen.i18n.easy_gettext_setup` to return the lgettext
+        functions instead of gettext functions when use_unicode=False.
     '''
     translations = get_translation_object(domain, localedirs=localedirs)
     if use_unicode:
         return(translations.ugettext, translations.ungettext)
-    return(translations.gettext, translations.ngettext)
+    return(translations.lgettext, translations.lngettext)
 
 __all__ = ('DummyTranslations', 'NewGNUTranslations', 'easy_gettext_setup',
         'get_translation_object')
