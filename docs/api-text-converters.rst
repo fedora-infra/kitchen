@@ -109,7 +109,7 @@ A byte :class:`str` instead of :class:`unicode` string
     decode the data and a byte :class:`str`  when they can't.  This is
     generally the hardest problem to debug when it occurs.  Avoid it in your
     own code and try to avoid or open bugs against upstreams that do this. See
-    :ref:`Designing Unicode Aware APIs` for strategies to do this properly.
+    :ref:`DesigningUnicodeAwareAPIs` for strategies to do this properly.
 
 On line 8, we convert from a byte :class:`str` to a :class:`unicode` string.
 :func:`~kitchen.text.converters.to_unicode` does this for us.  It has some
