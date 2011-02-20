@@ -10,7 +10,7 @@ from kitchen import i18n
 
 import base_classes
 
-class TestI18N(unittest.TestCase):
+class TestI18N_UTF8(unittest.TestCase):
     def setUp(self):
         self.old_LC_ALL = os.environ.get('LC_ALL', None)
         os.environ['LC_ALL'] = 'pt_BR.UTF8'
@@ -273,6 +273,32 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
         tools.ok_(self.translations.ungettext(dict(hi='there'), dict(hi='two'), 1) == u'')
 
 
+class TestI18N_Latin1(unittest.TestCase):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.ISO8859-1'
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
+
+    def test_easy_gettext_setup_non_unicode(self):
+        '''Test that the easy_gettext_setup function works
+        '''
+        b_, bN_ = i18n.easy_gettext_setup('foo', localedirs=
+                ['%s/data/locale/' % os.path.dirname(__file__)],
+                use_unicode=False)
+
+        tools.ok_(b_('café') == 'café')
+        tools.ok_(b_(u'café') == 'caf\xe9')
+        tools.ok_(bN_('café', 'cafés', 1) == 'café')
+        tools.ok_(bN_('café', 'cafés', 2) == 'cafés')
+        tools.ok_(bN_(u'café', u'cafés', 1) == 'caf\xe9')
+        tools.ok_(bN_(u'café', u'cafés', 2) == 'caf\xe9s')
+
+
 class TestNewGNUTranslationsFallback(TestDummyTranslations):
     def setUp(self):
         self.old_LC_ALL = os.environ.get('LC_ALL', None)
@@ -286,10 +312,10 @@ class TestNewGNUTranslationsFallback(TestDummyTranslations):
             del(os.environ['LC_ALL'])
 
 
-class TestNewGNURealTranslations(object):
+class TestNewGNURealTranslations_UTF8(unittest.TestCase):
     def setUp(self):
         self.old_LC_ALL = os.environ.get('LC_ALL', None)
-        os.environ['LC_ALL'] = 'pt_BR.utf8'
+        os.environ['LC_ALL'] = 'pt_BR.UTF8'
         self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
 
     def tearDown(self):
@@ -363,3 +389,38 @@ class TestNewGNURealTranslations(object):
         tools.ok_(_('一 limão', '四 limões', 2)==u'4 lemons')
         tools.ok_(_(u'1 lemon', u'4 lemons', 2)==u'四 limões')
         tools.ok_(_(u'一 limão', u'四 limões', 2)==u'4 lemons')
+
+
+class TestNewGNURealTranslations_Latin1(TestNewGNURealTranslations_UTF8):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.ISO8859-1'
+        self.translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
+
+    def test_lgettext(self):
+        _ = self.translations.lgettext
+        tools.ok_(_('kitchen sink')=='pia da cozinha')
+        tools.ok_(_('Kuratomi')=='????')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='????')
+
+    def test_lngettext(self):
+        _ = self.translations.lngettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='? lim\xe3o')
+        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)=='? lim\xe3o')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)=='1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='? lim\xf5es')
+        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='? lim\xf5es')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
