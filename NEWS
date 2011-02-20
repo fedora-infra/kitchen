@@ -10,11 +10,12 @@ NEWS
 0.2.4
 -----
 
+* Have easy_gettext_setup return lgettext functions instead of gettext
+  functions when use_unicode=False
 * Correct docstring for kitchen.text.converters.exception_to_bytes() -- we're
   transforming into a byte str, not into unicode.
 * Correct some examples in the unicode frustrations documentation
-* Have easy_gettext_setup return lgettext functions instead of gettext
-  functions when use_unicode=False
+* Correct some cross-references in the documentation
 
 -----
 0.2.3
