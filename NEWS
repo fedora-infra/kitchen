@@ -7,6 +7,12 @@ NEWS
 :Version: 0.2.4
 
 -----
+0.2.5
+-----
+
+* Add a pointer to ordereddict in the docs
+
+-----
 0.2.4
 -----
 

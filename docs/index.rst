@@ -72,6 +72,10 @@ now, I just mention them here:
     hash functions to python.  If you're developing for python2.3 or
     python2.4, though, you can install the standalone hashlib library and have
     access to the same functions.
+`ordereddict <http://pypi.python.org/pypi/ordereddict/>`_
+    Python 2.7 and forward have a :mod:`~collections.OrderedDict` that
+    provides a dict whose items are ordered (and refencable by index) as well
+    as named.
 `unittest2 <http://pypi.python.org/pypi/unittest2>`_
     Python 2.7 has an updated :mod:`unittest` library with new functions not
     present in the |stdlib|_ for Python 2.6 or less.  If you want to use those
