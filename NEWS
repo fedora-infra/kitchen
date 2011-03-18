@@ -11,6 +11,7 @@ NEWS
 -----
 
 * Add a pointer to ordereddict in the docs
+* Change a few pieces of code to not internally mix bytes and unicode
 
 -----
 0.2.4
