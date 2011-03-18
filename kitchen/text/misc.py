@@ -209,11 +209,11 @@ def html_entities_unescape(string):
     '''
     def fixup(match):
         string = match.group(0)
-        if string[:1] == "<":
+        if string[:1] == u"<":
             return "" # ignore tags
-        if string[:2] == "&#":
+        if string[:2] == u"&#":
             try:
-                if string[:3] == "&#x":
+                if string[:3] == u"&#x":
                     return unichr(int(string[3:-1], 16))
                 else:
                     return unichr(int(string[2:-1]))
@@ -221,8 +221,8 @@ def html_entities_unescape(string):
                 # If the value is outside the unicode codepoint range, leave
                 # it in the output as is
                 pass
-        elif string[:1] == "&":
-            entity = htmlentitydefs.entitydefs.get(string[1:-1])
+        elif string[:1] == u"&":
+            entity = htmlentitydefs.entitydefs.get(string[1:-1].encode('utf-8'))
             if entity:
                 if entity[:2] == "&#":
                     try:
@@ -267,12 +267,12 @@ def byte_string_valid_xml(byte_string, encoding='utf-8'):
         return False
 
     try:
-        unicode(byte_string, encoding)
+        u_string = unicode(byte_string, encoding)
     except UnicodeError:
         # Not encoded with the xml file's encoding
         return False
 
-    data = frozenset(byte_string)
+    data = frozenset(u_string)
     if data.intersection(_CONTROL_CHARS):
         # Contains control codes
         return False

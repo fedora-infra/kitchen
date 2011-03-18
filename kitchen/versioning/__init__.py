@@ -88,12 +88,19 @@ def version_tuple_to_string(version_info):
     for values in version_info:
         if isinstance(values[0], int):
             ver_components.append('.'.join(itertools.imap(str, values)))
-        elif values[0] in ('a', 'b', 'c', 'rc'):
-            ver_components.append('%s%s' % (values[0],
-                '.'.join(itertools.imap(str, values[1:])) or str(0)))
         else:
-            ver_components.append('.%s%s' % (values[0], values[1]))
-    return u''.join(ver_components)
+            if isinstance(values[0], unicode):
+                modifier = values[0].encode('ascii')
+            else:
+                modifier = values[0]
+            if  modifier in ('a', 'b', 'c', 'rc'):
+                ver_components.append('%s%s' % (modifier,
+                    '.'.join(itertools.imap(str, values[1:])) or '0'))
+            else:
+                ver_components.append('.%s%s' % (modifier,
+                    str(values[1])))
+    return unicode(''.join(ver_components), 'ascii')
+
 
 __version__ = version_tuple_to_string(__version_info__)
 

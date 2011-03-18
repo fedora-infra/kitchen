@@ -166,7 +166,8 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         if nonstring == 'repr':
             return obj_repr
         raise TypeError(k.b_('to_unicode was given "%(obj)s" which is neither'
-            ' a byte string (str) or a unicode string') % {'obj': obj_repr})
+            ' a byte string (str) or a unicode string') %
+            {'obj': obj_repr.encode(encoding, 'replace')})
 
     raise TypeError(k.b_('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
