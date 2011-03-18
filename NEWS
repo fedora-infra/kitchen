@@ -3,11 +3,11 @@ NEWS
 ====
 
 :Authors: Toshio Kuratomi
-:Date: 20 Feb 2011
-:Version: 0.2.4
+:Date: 19 Mar 2011
+:Version: 1.0.0
 
 -----
-0.2.5
+1.0.0
 -----
 
 * Add a pointer to ordereddict in the docs

@@ -3,8 +3,8 @@ Kitchen, everything but the sink
 ================================
 
 :Author: Toshio Kuratomi
-:Date: 20 February 2011
-:Version: 0.2.x
+:Date: 19 March 2011
+:Version: 1.0.x
 
 We've all done it.  In the process of writing a brand new application we've
 discovered that we need a little bit of code that we've invented before.

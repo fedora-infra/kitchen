@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 Red Hat, Inc
+# Copyright (c) 2011 Red Hat, Inc
 #
 # kitchen is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ from kitchen import versioning
 (b_, bN_) = i18n.easy_gettext_setup('kitchen.core', use_unicode=False)
 #pylint: enable-msg=C0103
 
-__version_info__ = ((0, 2, 4),)
+__version_info__ = ((1, 0, 0),)
 __version__ = versioning.version_tuple_to_string(__version_info__)
 
 __all__ = ('exceptions', 'release',)
