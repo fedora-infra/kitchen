@@ -112,12 +112,6 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(display.textual_width_chop(self.u_mixed, 20) == self.u_mixed[:16])
         tools.ok_(display.textual_width_chop(self.u_mixed, 21) == self.u_mixed[:17])
 
-
-        log = open('/var/tmp/debug.log', 'w')
-        log.write('%s\n1234567890123456789012345678901234567890\n' % self.u_mixed.encode('utf8'))
-        log.close()
-
-
     def test_textual_width_fill(self):
         '''Pad a utf8 string'''
         tools.ok_(display.textual_width_fill(self.u_mixed, 1) == self.u_mixed)

@@ -116,8 +116,6 @@ class ProcessTestCase(BaseTestCase):
         output = subprocess.check_output(
                 [sys.executable, "-c", "print 'BDFL'"])
         #self.assertIn('BDFL', output)
-        log = open('/var/tmp/log', 'w')
-        log.write('%s\n' % ('BDFL' in output))
         self.assert_('BDFL' in output)
 
     def test_check_output_nonzero(self):
