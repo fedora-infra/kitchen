@@ -135,14 +135,16 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
     def test_wrap(self):
         '''Test that text wrapping works'''
         tools.ok_(display.wrap(self.u_mixed) == [self.u_mixed])
-        tools.ok_(display.wrap(self.paragraph) == self.paragraph_out)
+        tools.ok_(display.wrap(self.u_paragraph) == self.u_paragraph_out)
+        tools.ok_(display.wrap(self.utf8_paragraph) == self.u_paragraph_out)
         tools.ok_(display.wrap(self.u_mixed_para) == self.u_mixed_para_out)
         tools.ok_(display.wrap(self.u_mixed_para, width=57,
             initial_indent='    ', subsequent_indent='----') ==
             self.u_mixed_para_57_initial_subsequent_out)
 
     def test_fill(self):
-        tools.ok_(display.fill(self.paragraph) == u'\n'.join(self.paragraph_out))
+        tools.ok_(display.fill(self.u_paragraph) == u'\n'.join(self.u_paragraph_out))
+        tools.ok_(display.fill(self.utf8_paragraph) == u'\n'.join(self.u_paragraph_out))
         tools.ok_(display.fill(self.u_mixed_para) == u'\n'.join(self.u_mixed_para_out))
         tools.ok_(display.fill(self.u_mixed_para, width=57,
             initial_indent='    ', subsequent_indent='----') ==

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-#
-import unittest
 from nose import tools
 
 import os
@@ -148,13 +146,13 @@ class Test__all__(object):
                 # Remove __init__.py as well as the filename
                 from_name = os.path.dirname(from_name)
             from_name = os.path.dirname(from_name)
-            from_name = unicode(from_name)
+            from_name = unicode(from_name, 'utf-8')
             from_name = from_name.translate({ord(u'/'): u'.'})
+            from_name = from_name.encode('utf-8')
             yield self.check_everything_in__all__exists, modname.split('.')[-1], from_name
 
 
     def check__all__is_complete(self, modname, modpath):
-        logged = False
         names = {}
         exec 'from %s import %s' % (modpath, modname) in names
         if not hasattr(names[modname], '__all__'):
@@ -187,6 +185,7 @@ class Test__all__(object):
                 # Remove __init__.py as well as the filename
                 from_name = os.path.dirname(from_name)
             from_name = os.path.dirname(from_name)
-            from_name = unicode(from_name)
+            from_name = unicode(from_name, 'utf-8')
             from_name = from_name.translate({ord(u'/'): u'.'})
+            from_name = from_name.encode('utf-8')
             yield self.check__all__is_complete, modname.split('.')[-1], from_name

@@ -85,7 +85,7 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
 
     def test_utf8_text_wrap(self):
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed) == [self.utf8_mixed])
-        tools.ok_(utf8.utf8_text_wrap(self.paragraph) == self.paragraph_out)
+        tools.ok_(utf8.utf8_text_wrap(self.utf8_paragraph) == self.utf8_paragraph_out)
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed_para) == self.utf8_mixed_para_out)
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed_para, width=57,
             initial_indent='    ', subsequent_indent='----') ==

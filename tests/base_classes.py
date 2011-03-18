@@ -48,7 +48,7 @@ class UnicodeTestData(object):
 
     u_entity = u'Test: <"&"> – ' + u_japanese + u'é'
     utf8_entity = u_entity.encode('utf8')
-    u_entity_escape = u'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + u_japanese.encode('ascii', 'xmlcharrefreplace') + '&#xe9;'
+    u_entity_escape = u'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + unicode(u_japanese.encode('ascii', 'xmlcharrefreplace'), 'ascii') + u'&#xe9;'
     utf8_entity_escape = 'Test: &lt;"&amp;"&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
     utf8_attrib_escape = 'Test: &lt;&quot;&amp;&quot;&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
     ascii_entity_escape = (u'Test: <"&"> – ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace').replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;')
@@ -58,7 +58,7 @@ class UnicodeTestData(object):
 
     repr_re = re.compile('^<[^ ]*\.([^.]+) object at .*>$')
 
-    paragraph = '''ConfigObj is a simple but powerful config file reader and writer: an ini file
+    u_paragraph = u'''ConfigObj is a simple but powerful config file reader and writer: an ini file
 round tripper. Its main feature is that it is very easy to use, with a
 straightforward programmer's interface and a simple syntax for config files.
 It has lots of other features though:
@@ -79,27 +79,29 @@ It has lots of other features though:
     * Full Unicode support
     * A powerful unrepr mode for storing basic datatypes
 '''
+    utf8_paragraph = u_paragraph.encode('utf-8', 'replace')
+    u_paragraph_out = [u'ConfigObj is a simple but powerful config file reader and writer: an',
+u'ini file round tripper. Its main feature is that it is very easy to',
+u"use, with a straightforward programmer's interface and a simple syntax",
+u'for config files. It has lots of other features though:',
+u'',
+u'',
+u'',
+u'    * Nested sections (subsections), to any level',
+u'    * List values',
+u'    * Multiple line values',
+u'    * String interpolation (substitution)',
+u'    * Integrated with a powerful validation system',
+u'          o including automatic type checking/conversion',
+u'          o repeated sections',
+u'          o and allowing default values',
+u'    * All comments in the file are preserved',
+u'    * The order of keys/sections is preserved',
+u'    * No external dependencies',
+u'    * Full Unicode support',
+u'    * A powerful unrepr mode for storing basic datatypes']
 
-    paragraph_out = ['ConfigObj is a simple but powerful config file reader and writer: an',
-'ini file round tripper. Its main feature is that it is very easy to',
-"use, with a straightforward programmer's interface and a simple syntax",
-'for config files. It has lots of other features though:',
-'',
-'',
-'',
-'    * Nested sections (subsections), to any level',
-'    * List values',
-'    * Multiple line values',
-'    * String interpolation (substitution)',
-'    * Integrated with a powerful validation system',
-'          o including automatic type checking/conversion',
-'          o repeated sections',
-'          o and allowing default values',
-'    * All comments in the file are preserved',
-'    * The order of keys/sections is preserved',
-'    * No external dependencies',
-'    * Full Unicode support',
-'    * A powerful unrepr mode for storing basic datatypes']
+    utf8_paragraph_out = [line.encode('utf-8', 'replace') for line in u_paragraph_out]
 
     u_mixed_para = u'くらとみ kuratomi ' * 5
     utf8_mixed_para = u_mixed_para.encode('utf8')
