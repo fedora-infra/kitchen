@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 Red Hat, Inc
+# Copyright (c) 2011 Red Hat, Inc
 #
 # This file is part of kitchen
 # 

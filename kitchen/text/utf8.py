@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 Red Hat, Inc.
+# Copyright (c) 2011 Red Hat, Inc.
 # Copyright (c) 2010 Ville Skyttä
 # Copyright (c) 2009 Tim Lauridsen
 # Copyright (c) 2007 Marcus Kuhn
