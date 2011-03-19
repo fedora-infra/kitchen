@@ -10,7 +10,7 @@ NEWS
 1.0.0
 -----
 
-* Add a pointer to ordereddict in the docs
+* Add a pointer to ordereddict and iterutils in the docs
 * Change a few pieces of code to not internally mix bytes and unicode
 
 -----

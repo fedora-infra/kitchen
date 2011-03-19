@@ -72,9 +72,14 @@ now, I just mention them here:
     hash functions to python.  If you're developing for python2.3 or
     python2.4, though, you can install the standalone hashlib library and have
     access to the same functions.
+`iterutils <http://pypi.python.org/pypi/iterutils/>`_
+    The python documentation for :mod:`itertools` has some examples
+    of other nice iterable functions that can be built from the
+    :mod:`itertools` functions.  This third-party module creates those recipes
+    as a module.
 `ordereddict <http://pypi.python.org/pypi/ordereddict/>`_
     Python 2.7 and forward have a :mod:`~collections.OrderedDict` that
-    provides a dict whose items are ordered (and refencable by index) as well
+    provides a :class:`dict` whose items are ordered (and indexable) as well
     as named.
 `unittest2 <http://pypi.python.org/pypi/unittest2>`_
     Python 2.7 has an updated :mod:`unittest` library with new functions not
