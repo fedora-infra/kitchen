@@ -215,6 +215,6 @@ rst_epilog = '''
 .. _docpage: %(download)s/docs
 .. |downldpage| replace:: download page
 .. _downldpage: %(download)s
-.. |stdlib| replace:: python standard libray
-.. _stdlib: http://docs.python.org/libray
+.. |stdlib| replace:: python standard library
+.. _stdlib: http://docs.python.org/library
 ''' % {'url': kitchen.release.URL, 'download': kitchen.release.DOWNLOAD_URL}
