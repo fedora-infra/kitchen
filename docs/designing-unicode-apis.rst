@@ -47,6 +47,7 @@ a conversion from byte :class:`str` to :class:`unicode` string is going to
 occur.
 
 .. note::
+
     If you're targeting python-3.1 and above, ``errors='surrogateescape'`` may
     be a better default than ``errors='strict'``.  You need to be mindful of
     a few things when using ``surrogateescape`` though:
@@ -313,6 +314,7 @@ taking the encoding is the better option for two reasons:
    for different characters in multiple sequences.
 
    .. note::
+
         :term:`UTF-8` is resistant to this as any character's sequence of
         bytes will never be a subset of another character's sequence of bytes.
 
@@ -334,8 +336,10 @@ With that in mind, here's how to improve the API::
             field = field.encode(encoding, errors)
         return field
 
-.. note:: If you decide you'll never encounter a variable width encoding that
-    reuses byte sequences you can use this code instead::
+.. note::
+
+    If you decide you'll never encounter a variable width encoding that reuses
+    byte sequences you can use this code instead::
 
         def first_field(csv_string, encoding='utf-8'):
             try:
@@ -581,7 +585,9 @@ you should consider when designing a :class:`unicode`-only API:
    your API may have received :class:`str` from some other API and it would be
    most convenient for their code if your API accepted it.
 
-.. note:: In python3, the separation between the text type and the byte type
+.. note::
+
+    In python3, the separation between the text type and the byte type
     are more clear.  So in python3, there's less need to have all APIs take
     both unicode and bytes.
 
