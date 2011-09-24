@@ -180,6 +180,7 @@ interval is a :class:`tuple` listing a starting :term:`code point` and ending
 a combining character.
 
 .. seealso::
+
     :func:`~kitchen.text.display._generate_combining_table`
         for how this table is generated
 
@@ -331,8 +332,10 @@ def _ucp_width(ucs, control_chars='guess'):
         :term:`control character` and :attr:`control_chars` is set to 'strict'
     :returns: :term:`textual width` of the character.
 
-    .. note:: It's important to remember this is :term:`textual width` and not
-        the number of characters or bytes.
+    .. note::
+
+        It's important to remember this is :term:`textual width` and not the
+        number of characters or bytes.
     '''
     # test for 8-bit control characters
     if ucs < 32 or (ucs < 0xa0 and ucs >= 0x7f):
@@ -409,10 +412,12 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
         a monospace display.  This is **not** the number of glyphs that are in
         the string.
 
-    .. note:: This function can be wrong sometimes because Unicode does not
-        specify a strict width value for all of the :term:`code points`.  In
-        particular, we've found that some Tamil characters take up to
-        four character cells but we return a lesser amount.
+    .. note::
+
+        This function can be wrong sometimes because Unicode does not specify
+        a strict width value for all of the :term:`code points`.  In
+        particular, we've found that some Tamil characters take up to four
+        character cells but we return a lesser amount.
     '''
     # On python 2.6.4, x86_64, I've benchmarked a few alternate
     # implementations::
@@ -575,13 +580,17 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         when completed.  If :attr:`prefix` or :attr:`suffix` are printable
         characters, the string could be longer than the fill width.
 
-    .. note:: :attr:`prefix` and :attr:`suffix` should be used for
-        "invisible" characters like highlighting, color changing escape codes,
-        etc.  The fill characters are appended outside of any :attr:`prefix`
-        or :attr:`suffix` elements.  This allows you to only highlight
+    .. note::
+
+        :attr:`prefix` and :attr:`suffix` should be used for "invisible"
+        characters like highlighting, color changing escape codes, etc.  The
+        fill characters are appended outside of any :attr:`prefix` or
+        :attr:`suffix` elements.  This allows you to only highlight
         :attr:`msg` inside of the field you're filling.
 
-    .. warning:: :attr:`msg`, :attr:`prefix`, and :attr:`suffix` should all be
+    .. warning::
+
+        :attr:`msg`, :attr:`prefix`, and :attr:`suffix` should all be
         representable as unicode characters.  In particular, any escape
         sequences in :attr:`prefix` and :attr:`suffix` need to be convertible
         to :class:`unicode`.  If you need to use byte sequences here rather
@@ -814,6 +823,7 @@ def fill(text, *args, **kwargs):
     :returns: :class:`unicode` string with each line separated by a newline
 
     .. seealso::
+
         :func:`kitchen.text.display.wrap`
             for other parameters that you can give this command.
 
@@ -848,13 +858,16 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         fill length when completed.  If :attr:`prefix` or :attr:`suffix` are
         printable characters, the string could be longer than fill width.
 
-    .. note:: :attr:`prefix` and :attr:`suffix` should be used for
-        "invisible" characters like highlighting, color changing escape
-        codes, etc.  The fill characters are appended outside of any
-        :attr:`prefix` or :attr:`suffix` elements.  This allows you to only
-        highlight :attr:`msg` inside of the field you're filling.
+    .. note::
+
+        :attr:`prefix` and :attr:`suffix` should be used for "invisible"
+        characters like highlighting, color changing escape codes, etc.  The
+        fill characters are appended outside of any :attr:`prefix` or
+        :attr:`suffix` elements.  This allows you to only highlight
+        :attr:`msg` inside of the field you're filling.
 
     .. seealso::
+
         :func:`~kitchen.text.display.textual_width_fill`
             For example usage.  This function has only two differences.
 

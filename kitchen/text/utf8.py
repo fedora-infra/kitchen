@@ -33,14 +33,18 @@ UTF-8
 
 Functions for operating on byte :class:`str` encoded as :term:`UTF-8`
 
-.. note:: In many cases, it is better to convert to :class:`unicode`, operate
-    on the strings, then convert back to :term:`UTF-8`.  :class:`unicode` type
-    can handle many of these functions itself.  For those that it doesn't
+.. note::
+
+    In many cases, it is better to convert to :class:`unicode`, operate on the
+    strings, then convert back to :term:`UTF-8`.  :class:`unicode` type can
+    handle many of these functions itself.  For those that it doesn't
     (removing control characters from length calculations, for instance) the
     code to do so with a :class:`unicode` type is often simpler.
 
-.. warning:: All of the functions in this module are deprecated.  Most of
-    them have been replaced with functions that operate on unicode values in
+.. warning::
+
+    All of the functions in this module are deprecated.  Most of them have
+    been replaced with functions that operate on unicode values in
     :mod:`kitchen.text.display`.  :func:`kitchen.text.utf8.utf8_valid` has
     been replaced with a function in :mod:`kitchen.text.misc`.
 '''

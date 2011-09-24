@@ -81,6 +81,7 @@ proactively fix all unicode errors in their code needs to do two things:
    the string contains non-:term:`ASCII` characters.
 
 .. note::
+
     There is one mitigating factor here.  The python community has been
     standardizing on using :class:`unicode` in all its APIs.  Although there
     are some APIs that you need to send byte :class:`str` to in order to be
@@ -308,6 +309,7 @@ strings to byte :class:`str` manually before outputting::
     >>>
 
 .. warning::
+
     If you use :func:`codecs.getwriter` on :data:`sys.stderr`, you'll find
     that raising an exception with a byte :class:`str` is broken by the
     default :class:`~codecs.StreamWriter` as well.  Don't do that or you'll
@@ -344,6 +346,7 @@ function, afterwards, you might have to check that you have the right sort of
 string type again.
 
 .. note::
+
     :mod:`kitchen.i18n` provides alternate gettext translation objects that
     return only byte :class:`str` or only :class:`unicode` string.
 
@@ -413,6 +416,7 @@ using :func:`locale.getpreferredencoding`.  For entering into a file, you're bes
 bet is to pick a single encoding and stick with it.
 
 .. warning::
+
     When using the encoding that the user has set (for instance, using
     :func:`locale.getpreferredencoding`, remember that they may have their
     encoding set to something that can't display every single unicode

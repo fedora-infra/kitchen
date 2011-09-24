@@ -115,10 +115,12 @@ def str_eq(str1, str2, encoding='utf-8', errors='replace'):
     arise because the conversion is done to :term:`ASCII`.  This function
     lets you convert to :term:`utf-8` or another encoding instead.
 
-    .. note:: When we need to convert one of the strings from :class:`unicode`
-        in order to compare them we convert the :class:`unicode` string into a
-        byte :class:`str`.  That means that strings can compare differently if
-        you use different encodings for each.
+    .. note::
+
+        When we need to convert one of the strings from :class:`unicode` in
+        order to compare them we convert the :class:`unicode` string into
+        a byte :class:`str`.  That means that strings can compare differently
+        if you use different encodings for each.
 
     Note that ``str1 == str2`` is faster than this function if you can accept
     the following limitations:
@@ -289,8 +291,10 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
     :returns: :data:`True` if there are no invalid :term:`UTF-8` characters.
         :data:`False` if an invalid character is detected.
 
-    .. note:: This function checks whether the byte :class:`str` is valid in
-        the specified encoding.  It **does not** detect whether the byte
+    .. note::
+
+        This function checks whether the byte :class:`str` is valid in the
+        specified encoding.  It **does not** detect whether the byte
         :class:`str` actually was encoded in that encoding.  If you want that
         sort of functionality, you probably want to use
         :func:`~kitchen.text.misc.guess_encoding` instead.

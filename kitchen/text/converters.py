@@ -213,9 +213,11 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
     :returns: byte :class:`str` or the original object depending on the value
         of :attr:`nonstring`.
 
-    .. warning:: If you pass a byte :class:`str` into this function the byte
-        :class:`str` is returned unmodified.  It is **not** re-encoded
-        with the specified :attr:`encoding`.
+    .. warning::
+
+        If you pass a byte :class:`str` into this function the byte
+        :class:`str` is returned unmodified.  It is **not** re-encoded with
+        the specified :attr:`encoding`.
 
     Usually, this should be used on a :class:`unicode` string but it can take
     either a byte :class:`str` or a :class:`unicode` string intelligently.
@@ -329,6 +331,7 @@ def getwriter(encoding):
         caf?
 
     .. seealso::
+
         API docs for :class:`codecs.StreamWriter` and :func:`codecs.getwriter`
         and `Print Fails <http://wiki.python.org/moin/PrintFails>`_ on the
         python wiki.
@@ -598,9 +601,11 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     default encoding and fallback to ``utf-7`` if there are :term:`control
     characters` present.
 
-    .. note:: If your goal is to preserve the :term:`control characters` you
-        cannot save the entire file as ``utf-7`` and set the xml encoding
-        parameter to ``utf-7`` if your goal is to preserve the :term:`control
+    .. note::
+
+        If your goal is to preserve the :term:`control characters` you cannot
+        save the entire file as ``utf-7`` and set the xml encoding parameter
+        to ``utf-7`` if your goal is to preserve the :term:`control
         characters`.  Because XML doesn't allow :term:`control characters`,
         you have to encode those separate from any encoding work that the XML
         parser itself knows about.
@@ -777,7 +782,9 @@ def bytes_to_xml(byte_string, *args, **kwargs):
     mind losing the actual bytes you probably want to try :func:`byte_string_to_xml`
     or :func:`guess_encoding_to_xml` instead.
 
-    .. note:: Although the current implementation uses :func:`base64.b64encode` and
+    .. note::
+
+        Although the current implementation uses :func:`base64.b64encode` and
         there's no plans to change it, that isn't guaranteed.  If you want to
         make sure that you can encode and decode these messages it's best to
         use :func:`xml_to_bytes` if you use this function to encode.
@@ -802,11 +809,12 @@ def xml_to_bytes(byte_string, *args, **kwargs):
     :func:`bytes_to_xml` then you want to use this function to undecode them.
     It converts a base64 encoded string into a byte :class:`str`.
 
-    .. note:: Although the current implementation uses
-        :func:`base64.b64decode` and there's no plans to change it, that isn't
-        guaranteed.  If you want to make sure that you can encode and decode
-        these messages it's best to use :func:`bytes_to_xml` if you use this
-        function to decode.
+    .. note::
+
+        Although the current implementation uses :func:`base64.b64decode` and
+        there's no plans to change it, that isn't guaranteed.  If you want to
+        make sure that you can encode and decode these messages it's best to
+        use :func:`bytes_to_xml` if you use this function to decode.
     '''
     return b64decode(byte_string, *args, **kwargs)
 

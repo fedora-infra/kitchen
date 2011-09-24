@@ -167,6 +167,7 @@ class DummyTranslations(gettext.NullTranslations):
     :term:`ASCII` compatible encodings).
 
     .. seealso::
+
         :class:`gettext.NullTranslations`
             For information about what methods are available and what they do.
 
@@ -362,7 +363,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
       :term:`UTF-8`
 
     .. attribute:: input_charset
-    
+
         an extension to the |stdlib|_ :mod:`gettext` that specifies what
         charset a message is encoded in when decoding a message to
         :class:`unicode`.  This is used for two purposes:
@@ -590,7 +591,9 @@ def get_translation_object(domain, localedirs=tuple()):
             /usr/share/locale/  # With message catalogs below here:
             /usr/share/locale/es/LC_MESSAGES/foo.mo
 
-    .. warning:: The first directory that we can access will be used
+    .. warning::
+
+        The first directory that we can access will be used
         regardless of whether locale files for our domain and language are
         present in the directory.  That means you have to consider the order
         in which you list directories in :attr:`localedirs`.  Always list
@@ -598,7 +601,9 @@ def get_translation_object(domain, localedirs=tuple()):
         the existence of before system directories that will exist whether or
         not the :term:`message catalogs` are present in them.
 
-    .. note:: This function returns either :class:`DummyTranslations` or
+    .. note::
+
+        This function returns either :class:`DummyTranslations` or
         :class:`NewGNUTranslations`.  These classes are superior to their
         :mod:`gettext` equivalents as described in their documentation.
     '''
@@ -667,9 +672,11 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
             proper :term:`message catalogs` both when in development and when
             installed to FHS compliant directories on Linux.
 
-    .. note:: The gettext functions returned from this function should be
-        superior to the ones returned from :mod:`gettext`.  The traits that
-        make them better are described in the :class:`DummyTranslations` and
+    .. note::
+
+        The gettext functions returned from this function should be superior
+        to the ones returned from :mod:`gettext`.  The traits that make them
+        better are described in the :class:`DummyTranslations` and
         :class:`NewGNUTranslations` documentation.
 
     .. versionchanged:: kitchen-0.2.4 ; API kitchen.i18n 2.0.0
