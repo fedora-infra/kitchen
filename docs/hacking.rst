@@ -109,7 +109,9 @@ information:
 * The Micro version increments for any other changes (backwards compatible API
   changes, pure bugfixes, etc).
 
-.. note:: Versioning is only updated for releases that generate sdists and new
+.. note::
+
+    Versioning is only updated for releases that generate sdists and new
     uploads to the download directory.  Usually we update the version
     information for the library just before release.  By contrast, we update
     kitchen :ref:`subpackage-versioning` when an API change is made.  When in
@@ -139,9 +141,11 @@ This serves several purposes:
 * :func:`_` is a function that will substitute available translations at
   runtime.
 
-.. note:: By using the ``%()s with dict`` style of string formatting, we
-    make this string friendly to translators that may need to reorder the
-    variables when they're translating the string.
+.. note::
+
+    By using the ``%()s with dict`` style of string formatting, we make this
+    string friendly to translators that may need to reorder the variables when
+    they're translating the string.
 
 `paver <http://www.blueskyonmars.com/projects/paver/>_` and `babel
 <http://babel.edgewall.org/>_` are used to extract the strings.
@@ -220,6 +224,7 @@ Kitchen itself is a namespace.  The kitchen sdist (tarball) provides certain
 useful subpackages.
 
 .. seealso::
+
     `Kitchen addon packages`_
         For information about subpackages not distributed in the kitchen sdist
         that install into the kitchen namespace.
@@ -256,11 +261,13 @@ Version information beyond the first three parts of the first tuple may be
 useful for versioning but semantically have similar meaning to the micro
 version.
 
-.. note:: We update the :attr:`__version_info__` tuple when the API is
-    updated.  This way there's less chance of forgetting to update the API
-    version when a new release is made.  However, we try to only increment
-    the version numbers a single step for any release.  So if kitchen-0.1.0
-    has kitchen.text.__version__ == '1.0.1', kitchen-0.1.1 should have
+.. note::
+
+    We update the :attr:`__version_info__` tuple when the API is updated.
+    This way there's less chance of forgetting to update the API version when
+    a new release is made.  However, we try to only increment the version
+    numbers a single step for any release.  So if kitchen-0.1.0 has
+    kitchen.text.__version__ == '1.0.1', kitchen-0.1.1 should have
     kitchen.text.__version__ == '1.0.2' or '1.1.0' or '2.0.0'.
 
 Criteria for subpackages in kitchen
@@ -280,6 +287,7 @@ Supackages within kitchen should meet these criteria:
   it.
 
   .. seealso::
+
     `API Updates`_
 
 ----------------------
@@ -331,8 +339,10 @@ boilerplate::
     # Extend the __path__ with everything in the real kitchen module
     __path__ = pkgutil.extend_path(__path__, __name__)
 
-.. note:: :mod:`kitchen` needs to be findable by python for this to work.
-    Installed in the :file:`site-packages` directory or adding it to the
+.. note::
+
+    :mod:`kitchen` needs to be findable by python for this to work.  Installed
+    in the :file:`site-packages` directory or adding it to the
     :envvar:`PYTHONPATH` will work.
 
 Your unittests should now be able to find both your submodule and the main
