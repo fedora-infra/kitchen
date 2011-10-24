@@ -46,7 +46,7 @@ If found, these libraries will be used to make the implementation of some part
 of kitchen better in some way.  If they are not present, the API that they
 enable will still exist but may function in a different manner.
 
-`chardet <http://chardet.feedparser.org/>`_
+`chardet <http://pypi.python.org/pypi/chardet>`_
     Used in :func:`~kitchen.text.misc.guess_encoding` and
     :func:`~kitchen.text.converters.guess_encoding_to_xml` to help guess
     encoding of byte strings being converted.  If not present, unknown
