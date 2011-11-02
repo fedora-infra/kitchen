@@ -54,6 +54,8 @@ yum                                kitchen replacement
                                     or :func:`kitchen.text.converters.byte_string_to_xml` [#y7]_
 :func:`yum.i18n._`                 See: :ref:`yum-i18n-init`
 :func:`yum.i18n.P_`                See: :ref:`yum-i18n-init`
+:func:`yum.i18n.exception2msg`      :func:`kitchen.text.converters.exception_to_unicode`
+                                    or :func:`kitchen.text.converter.exception_to_bytes` [#y8]_
 =================================  ===================
 
 .. [#y1] These yum methods provided fallback support for :mod:`gettext`
@@ -110,6 +112,44 @@ yum                                kitchen replacement
     :func:`~kitchen.text.converters.byte_string_to_xml` and
     :func:`~kitchen.text.converters.unicode_to_xml` do that for each string
     type.
+
+.. [#y8] When porting :func:`yum.i18n.exception2msg` to use kitchen, you
+    should setup two wrapper functions to aid in your port.  They'll look like
+    this:
+
+    .. code-block:: python
+        from kitchen.text.converters import EXCEPTION_CONVERTERS, \
+            BYTE_EXCEPTION_CONVERTERS, exception_to_unicode, \
+            exception_to_bytes
+        def exception2umsg(e):
+            '''Return a unicode representation of an exception'''
+            c = [lambda e: e.value]
+            c.extend(EXCEPTION_CONVERTERS)
+            return exception_to_unicode(e, converters=c)
+        def exception2bmsg(e):
+            '''Return a utf8 encoded str representation of an exception'''
+            c = [lambda e: e.value]
+            c.extend(BYTE_EXCEPTION_CONVERTERS)
+            return exception_to_bytes(e, converters=c)
+
+    The reason to define this wrapper is that many of the exceptions in yum
+    put the message in the :attr:`value` attribute of the :exc:`Exception`
+    instead of adding it to the :attr:`args` attribute.  So the default
+    :attr:`~kitchen.text.converters.EXCEPTION_CONVERTERS` don't know where to
+    find the message.  The wrapper tells kitchen to check the :attr:`value`
+    attribute for the message.  The reason to define two wrappers may be less
+    obvious.  :func:`yum.i18n.exception2msg` can return a :class:`unicode`
+    string or a byte :class:`str` depending on a combination of what
+    attributes are present on the :exc:`Exception` and what locale the
+    function is being run in.  By contrast,
+    :func:`kitchen.text.converters.exception_to_unicode` only returns
+    :class:`unicode` strings and
+    :func:`kitchen.text.converters.exception_to_bytes` only returns byte
+    :class:`str`.  This is much safer as it keeps code that can only handle
+    :class:`unicode` or only handle byte :class:`str` correctly from getting
+    the wrong type when an input changes but it means you need to examine the
+    calling code when porting from :func:`yum.i18n.exception2msg` and use the
+    appropriate wrapper.
 
 .. _yum-i18n-init:
 
