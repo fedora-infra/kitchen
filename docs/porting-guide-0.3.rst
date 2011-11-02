@@ -135,7 +135,7 @@ yum                                kitchen replacement
     The reason to define this wrapper is that many of the exceptions in yum
     put the message in the :attr:`value` attribute of the :exc:`Exception`
     instead of adding it to the :attr:`args` attribute.  So the default
-    :attr:`~kitchen.text.converters.EXCEPTION_CONVERTERS` don't know where to
+    :data:`~kitchen.text.converters.EXCEPTION_CONVERTERS` don't know where to
     find the message.  The wrapper tells kitchen to check the :attr:`value`
     attribute for the message.  The reason to define two wrappers may be less
     obvious.  :func:`yum.i18n.exception2msg` can return a :class:`unicode`
