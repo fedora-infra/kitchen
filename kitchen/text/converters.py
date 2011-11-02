@@ -34,6 +34,12 @@ strings.
     :func:`~kitchen.text.converters.exception_to_bytes`,
     :data:`~kitchen.text.converters.EXCEPTION_CONVERTERS`,
     and :data:`~kitchen.text.converters.BYTE_EXCEPTION_CONVERTERS`
+
+.. versionchanged:: kitchen 1.0.1 ; API kitchen.text 2.1.1
+    Deprecated :data:`~kitchen.text.converters.BYTE_EXCEPTION_CONVERTERS` as
+    we've simplified :func:`~kitchen.text.converters.exception_to_unicode` and
+    :func:`~kitchen.text.converters.exception_to_bytes` to make it unnecessary
+
 '''
 try:
     from base64 import b64encode, b64decode
@@ -217,7 +223,13 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
 
         If you pass a byte :class:`str` into this function the byte
         :class:`str` is returned unmodified.  It is **not** re-encoded with
-        the specified :attr:`encoding`.
+        the specified :attr:`encoding`.  The easiest way to achieve that is::
+
+            to_bytes(to_unicode(text), encoding='utf-8')
+
+        The initial :func:`to_unicode` call will ensure text is
+        a :class:`unicode` string.  Then, :func:`to_bytes` will turn that into
+        a byte :class:`str` with the specified encoding.
 
     Usually, this should be used on a :class:`unicode` string but it can take
     either a byte :class:`str` or a :class:`unicode` string intelligently.
@@ -395,29 +407,66 @@ def to_str(obj):
     return to_bytes(obj, nonstring='simplerepr')
 
 # Exception message extraction functions
-EXCEPTION_CONVERTERS = (lambda e: to_unicode(e.args[0]), to_unicode)
+EXCEPTION_CONVERTERS = (lambda e: e.args[0], lambda e: e)
 ''' Tuple of functions to try to use to convert an exception into a string
-    representation.  This is the default value given to
-    :func:`exception_to_unicode`.  Use code like this if you just want to add
-    more possible conversion function::
+    representation.  Its main use is to extract a string (:class:`unicode` or
+    :class:`str`) from an exception object in :func:`exception_to_unicode` and
+    :func:`exception_to_bytes`.  The functions here will try the exception's
+    ``args[0]`` and the exception itself (roughly equivalent to
+    `str(exception)`) to extract the message. This is only a default and can
+    be easily overridden when calling those functions.  There are several
+    reasons you might wish to do that.  If you have exceptions where the best
+    string representing the exception is not returned by the default
+    functions, you can add another function to extract from a different
+    field::
 
         from kitchen.text.converters import (EXCEPTION_CONVERTERS,
                 exception_to_unicode)
-        converters = [lambda e: to_unicode(e.value),
-                lambda e: to_unicode(e.value, encoding='euc_jp')]
-        converters.extend(EXCEPTION_CONVERTERS)
+
+        class MyError(Exception):
+            def __init__(self, message):
+                self.value = message
+
+        c = [lambda e: e.value]
+        c.extend(EXCEPTION_CONVERTERS)
+        try:
+            raise MyError('An Exception message')
+        except MyError, e:
+            print exception_to_unicode(e, converters=c)
+
+    Another reason would be if you're converting to a byte :class:`str` and
+    you know the :class:`str` needs to be a non-:term:`utf-8` encoding.
+    :func:`exception_to_bytes` defaults to :term:`utf-8` but if you convert
+    into a byte :class:`str` explicitly using a converter then you can choose
+    a different encoding::
+
+        from kitchen.text.converters import (EXCEPTION_CONVERTERS,
+                exception_to_bytes, to_bytes)
+        c = [lambda e: to_bytes(e.args[0], encoding='euc_jp'),
+                lambda e: to_bytes(e, encoding='euc_jp')]
+        c.extend(EXCEPTION_CONVERTERS)
+        try:
+            do_something()
+        except Exception, e:
+            log = open('logfile.euc_jp', 'a')
+            log.write('%s\n' % exception_to_bytes(e, converters=c)
+            log.close()
 
     Each function in this list should take the exception as its sole argument
     and return a string containing the message representing the exception.
-    Ideally the function will return the message as a :class:`unicode` string
-    but the value will be run through :func:`to_unicode` to ensure that it is
-    :class:`unicode` before being returned.
+    The functions may return the message as a :byte class:`str`,
+    a :class:`unicode` string, or even an object if you trust the object to
+    return a decent string representation.  The :func:`exception_to_unicode`
+    and :func:`exception_to_bytes` functions will make sure to convert the
+    string to the proper type before returning.
 
     .. versionadded:: 0.2.2
 '''
 
 BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
-''' Tuple of functions to try to use to convert an exception into a string
+'''*Deprecated*: Use :data:`EXCEPTION_CONVERTERS` instead.
+
+    Tuple of functions to try to use to convert an exception into a string
     representation.  This tuple is similar to the one in
     :data:`EXCEPTION_CONVERTERS` but it's used with :func:`exception_to_bytes`
     instead.  Ideally, these functions should do their best to return the data
@@ -425,6 +474,9 @@ BYTE_EXCEPTION_CONVERTERS = (lambda e: to_bytes(e.args[0]), to_bytes)
     :func:`to_bytes` before being returned.
 
     .. versionadded:: 0.2.2
+    .. versionchanged:: 1.0.1
+        Deprecated as simplifications allow :data:`EXCEPTION_CONVERTERS` to
+        perform the same function.
 '''
 
 def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
@@ -433,15 +485,16 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
     :arg exc: Exception object to convert
     :kwarg converters: List of functions to use to convert the exception into
         a string.  See :data:`EXCEPTION_CONVERTERS` for the default value and
-        an example of adding another converter to the defaults.  The functions
+        an example of adding other converters to the defaults.  The functions
         in the list are tried one at a time to see if they can extract
         a string from the exception.  The first one to do so without raising
         an exception is used.
     :returns: :class:`unicode` string representation of the exception.  The
-        value from this will be converted into :class:`unicode` before being
-        returned using the :term:`utf-8` encoding before being returned (if
-        you know you need to use an alternate encoding, add a function that
-        does that to the list of functions in :attr:`converters`)
+        value extracted by the :attr:`converters` will be converted into
+        :class:`unicode` before being returned using the :term:`utf-8`
+        encoding.  If you know you need to use an alternate encoding add
+        a function that does that to the list of functions in
+        :attr:`converters`)
 
     .. versionadded:: 0.2.2
     '''
@@ -455,23 +508,27 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
             break
     return to_unicode(msg)
 
-def exception_to_bytes(exc, converters=BYTE_EXCEPTION_CONVERTERS):
+def exception_to_bytes(exc, converters=EXCEPTION_CONVERTERS):
     '''Convert an exception object into a str representation
 
     :arg exc: Exception object to convert
     :kwarg converters: List of functions to use to convert the exception into
-        a string.  See :data:`BYTE_EXCEPTION_CONVERTERS` for the default value
-        and an example of adding another converter to the defaults.  The
-        functions in the list are tried one at a time to see if they can
-        extract a string from the exception.  The first one to do so without
-        raising an exception is used.
+        a string.  See :data:`EXCEPTION_CONVERTERS` for the default value and
+        an example of adding other converters to the defaults.  The functions
+        in the list are tried one at a time to see if they can extract
+        a string from the exception.  The first one to do so without raising
+        an exception is used.
     :returns: byte :class:`str` representation of the exception.  The value
-        from this will be converted into :class:`str` before being returned
-        using the :term:`utf-8` encoding before being returned (if you know
-        you need to use an alternate encoding, add a function that does that
-        to the list of functions in :attr:`converters`)
+        extracted by the :attr:`converters` will be converted into
+        :class:`str` before being returned using the :term:`utf-8` encoding.
+        If you know you need to use an alternate encoding add a function that
+        does that to the list of functions in :attr:`converters`)
 
     .. versionadded:: 0.2.2
+    .. versionchanged:: 1.0.1
+        Code simplification allowed us to switch to using
+        :data:`EXCEPTION_CONVERTERS` as the default value of
+        :attr:`converters`.
     '''
     msg = '<exception failed to convert to text>'
     for func in converters:

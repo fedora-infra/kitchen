@@ -6,6 +6,14 @@ NEWS
 :Date: 19 Mar 2011
 :Version: 1.0.0
 
+------------------
+1.0.1 (unreleased)
+------------------
+* Add yum.i18n.exception2msg section to the porting docs
+* Deprecate BYTE_EXCEPTION_CONVERTERS as simplification of code lets
+  us use EXCEPTION_CONVERTERS for both exception_to_unicode and
+  exception_to_bytes.
+
 -----
 1.0.0
 -----
