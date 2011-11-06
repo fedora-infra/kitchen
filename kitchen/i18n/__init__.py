@@ -25,6 +25,7 @@
 #   Seth Vidal <skvidal@fedoraproject.org>
 #
 # Portions of code taken from yum/i18n.py
+# Portions of code adapted from |stdlib|_ gettext.py
 '''
 :term:`I18N` is an important piece of any modern program.  Unfortunately,
 setting up :term:`i18n` in your program is often a confusing process.  The
@@ -88,17 +89,31 @@ See the documentation of :func:`easy_gettext_setup` and
 
 from kitchen.versioning import version_tuple_to_string
 
-__version_info__ = ((2, 0, 0),)
+__version_info__ = ((2, 1, 0),)
 __version__ = version_tuple_to_string(__version_info__)
 
+import copy
+from errno import ENOENT
 import gettext
+import itertools
 import locale
 import os
 import sys
 
+# We use the _default_localedir definition in get_translation_object
+try:
+    from gettext import _default_localedir
+except ImportError:
+    _default_localedir = os.path.join(sys.prefix, 'share', 'locale')
+
 from kitchen.text.converters import to_bytes, to_unicode
 
-class DummyTranslations(gettext.NullTranslations):
+# We cache parts of the translation objects just like stdlib's gettext so that
+# we don't reparse the message files and keep them in memory separately if the
+# same catalog is opened twice.
+_translations = {}
+
+class DummyTranslations(object, gettext.NullTranslations):
     '''Safer version of :class:`gettext.NullTranslations`
 
     This Translations class doesn't translate the strings and is intended to
@@ -144,7 +159,7 @@ class DummyTranslations(gettext.NullTranslations):
       :term:`UTF-8`.
 
     .. attribute:: input_charset
-    
+
         is an extension to the |stdlib|_ :mod:`gettext` that specifies what
         charset a message is encoded in when decoding a message to
         :class:`unicode`.  This is used for two purposes:
@@ -534,16 +549,45 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                 nonstring='empty')
 
 
-def get_translation_object(domain, localedirs=tuple()):
+def get_translation_object(domain, localedirs=None, languages=None,
+        class_=None, fallback=True, codeset=None):
     '''Get a translation object bound to the :term:`message catalogs`
 
     :arg domain: Name of the message domain.  This should be a unique name
-        that can be used to lookup the :term:`message catalog` for this app.
-    :kwarg localedirs: Iterator of directories to look for :term:`message
-        catalogs` under.  The first directory to exist is used regardless of
-        whether messages for this domain are present.  If none of the
-        directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
-        Default: No directories to search; just use the fallback.
+        that can be used to lookup the :term:`message catalog` for this app or
+        library.
+    :kwarg localedirs: Iterator of directories to look for
+        :term:`message catalogs` under.  The directories are searched in order
+        for :term:`message catalogs`.  For each of the directories searched,
+        we check for message catalogs in any language specified
+        in:attr:`languages`.  The :term:`message catalogs` are used to create
+        the Translation object that we return.  The Translation object will
+        attempt to lookup the msgid in the first catalog that we found.  If
+        it's not in there, it will go through each subsequent catalog looking
+        for a match.  For this reason, the order in which you specify the
+        :attr:`localedirs` may be important.  If no :term:`message catalogs`
+        are found, either return a :class:`DummyTranslations` object or raise
+        an :exc:`IOError` depending on the value of :attr:`fallback`.
+        Rhe default localedir from  :mod:`gettext` which is
+        :path:`os.path.join(sys.prefix, 'share', 'locale')` on Unix is
+        implicitly appended to the :attr:`localedirs`, making it the last
+        directory searched.
+    :kwarg languages: Iterator of language codes to check for
+        :term:`message catalogs`.  If unspecified, the user's locale settings
+        will be used.
+
+        .. seealso:: :func:`gettext.find` for information on what environment
+            variables are used.
+
+    :kwarg class_:  The class to use to extract translations from the
+        :term:`message catalogs`.  Defaults to :class:`NewGNUTranslations`.
+    :kwarg fallback: If set to data:`False`, raise an :exc:`IOError` if no
+        :term:`message catalogs` are found.  If :data:`True`, the default,
+        return a :class:`DummyTranslations` object.
+    :kwarg codeset: Set the character encoding to use when returning byte
+        :class:`str` objects.  This is equivalent to calling
+        :meth:`~gettext.GNUTranslations.output_charset` on the Translations
+        object that is returned from this function.
     :return: Translation object to get :mod:`gettext` methods from
 
     If you need more flexibility than :func:`easy_gettext_setup`, use this
@@ -555,10 +599,23 @@ def get_translation_object(domain, localedirs=tuple()):
         translations = get_translation_object('foo')
         translations.lgettext('My Message')
 
-    Setting up :mod:`gettext` in a portable manner can be a little tricky due
-    to not having a common directory for translations across operating
-    systems.  :func:`get_translation_object` is able to handle that if you give
-    it a list of directories to search for catalogs::
+    This function is similar to the |stdlib|_ :func:`gettext.translation` but
+    makes it better in two ways
+
+    1. It returns :class:`NewGNUTranslations` or :class:`DummyTranslations`
+        objects by default.  These are superior to the
+        :class:`gettext.GNUTranslations` and :class:`gettext.NullTranslations`
+        objects because they are consistent in the string type they return and
+        they fix several issues that can causethe |stdlib|_ objects to throw
+        :exc:`UnicodeError`.
+    2. This function takes multiple directories to search for
+        :term:`message catalogs`.
+
+    The latter is important when setting up :mod:`gettext` in a portable
+    manner.  There is not a common directory for translations across operating
+    systems so one needs to look in multiple directories for the translations.
+    :func:`get_translation_object` is able to handle that if you give it
+    a list of directories to search for catalogs::
 
         translations = get_translation_object('foo', localedirs=(
              os.path.join(os.path.realpath(os.path.dirname(__file__)), 'locale'),
@@ -591,46 +648,61 @@ def get_translation_object(domain, localedirs=tuple()):
             /usr/share/locale/  # With message catalogs below here:
             /usr/share/locale/es/LC_MESSAGES/foo.mo
 
-    .. warning::
-
-        The first directory that we can access will be used
-        regardless of whether locale files for our domain and language are
-        present in the directory.  That means you have to consider the order
-        in which you list directories in :attr:`localedirs`.  Always list
-        directories which you, the user, or the system packager can control
-        the existence of before system directories that will exist whether or
-        not the :term:`message catalogs` are present in them.
-
     .. note::
 
-        This function returns either :class:`DummyTranslations` or
-        :class:`NewGNUTranslations`.  These classes are superior to their
-        :mod:`gettext` equivalents as described in their documentation.
+        This function will setup Translation objects that attempt to lookup
+        msgids in all of the found :term:`message catalogs`.  This means if
+        you have several versions of the :term:`message catalogs` installed
+        in different directories that the function searches, you need to make
+        sure that :attr:`localedirs` specifies the directories so that newer
+        :term:`message catalogs` are searched first.  It also means that if
+        a newer catalog does not contain a translation for a msgid but an
+        older one that's in :attr:`localedirs` does, the translation from that
+        older catalog will be returned.
+
+    .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
+        Add more parameters to :func:`~kitchen.i18n.get_translation_object` so
+        it can more easily be used as a replacement for
+        :func:`gettext.translation`.  Also change the way we use localedirs.
+        We cycle through them until we find a suitable locale file rather
+        than simply cycling through until we find a directory that exists.
+        The new code is based heavily on the |stdlib|_
+        :func:`gettext.translation` function.
     '''
-    # Look for the message catalogs in several places.  This allows for use
-    # with uninstalled modules, installed modules on Linux, and modules
-    # installed on platforms where the module locales are in the module dir
+    if not class_:
+        class_ = NewGNUTranslations
 
-    for localedir in localedirs:
-        if os.access(localedir, os.R_OK | os.X_OK) \
-                and os.path.isdir(localedir):
-            break
-    else:  # Note: yes, this else is intended to go with the for
-        localedir = os.path.join(sys.prefix, 'share', 'locale')
+    mofiles = []
+    for localedir in itertools.chain(localedirs, _default_localedir):
+        mofiles.extend(gettext.find(domain, localedir, languages, all=1))
+    if not mofiles:
+        if fallback:
+            return DummyTranslations()
+        raise IOError(ENOENT, 'No translation file found for domain', domain)
 
-    try:
-        # localedir is always initialized in the above code.  pylint doesn't
-        # recognize that the for: else will initialize it.
-        #pylint:disable-msg=W0631
-        translations = gettext.translation(domain, localedir=localedir,
-                class_=NewGNUTranslations, fallback=False)
-    except IOError:
-        # basically, we're providing our own fallback here since
-        # gettext.NullTranslations doesn't guarantee that unicode and str is
-        # respected
-        translations = DummyTranslations()
+    # Accumulate a translation with fallbacks to all the other mofiles
+    stacked_translations = None
+    for mofile in mofiles:
+        full_path = os.path.abspath(mofile)
+        translation = _translations.get(full_path)
+        if not translation:
+            fh = open(full_path, 'rb')
+            try:
+                translation = _translations.setdefault(full_path, class_(fh))
+            finally:
+                fh.close()
 
-    return translations
+        # Shallow copy the object so that the fallbacks and output charset can
+        # differ but the data we read from the mofile is shared.
+        translation = copy.copy(translation)
+        if codeset:
+            translation.set_output_charset(codeset)
+        if not stacked_translations:
+            stacked_translations = translation
+        else:
+            stacked_translations.add_fallback(translation)
+
+    return stacked_translations
 
 def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
     ''' Setup translation functions for an application
