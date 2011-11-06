@@ -688,7 +688,8 @@ def get_translation_object(domain, localedirs=None, languages=None,
         if not translation:
             mofile_fh = open(full_path, 'rb')
             try:
-                translation = _translations.setdefault(full_path, class_(mofile_fh))
+                translation = _translations.setdefault(full_path,
+                        class_(mofile_fh))
             finally:
                 mofile_fh.close()
 
