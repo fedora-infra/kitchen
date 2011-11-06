@@ -118,6 +118,7 @@ yum                                kitchen replacement
     this:
 
     .. code-block:: python
+
         from kitchen.text.converters import EXCEPTION_CONVERTERS, \
             BYTE_EXCEPTION_CONVERTERS, exception_to_unicode, \
             exception_to_bytes

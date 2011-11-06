@@ -569,7 +569,7 @@ def get_translation_object(domain, localedirs=None, languages=None,
         are found, either return a :class:`DummyTranslations` object or raise
         an :exc:`IOError` depending on the value of :attr:`fallback`.
         Rhe default localedir from  :mod:`gettext` which is
-        :path:`os.path.join(sys.prefix, 'share', 'locale')` on Unix is
+        :file:`os.path.join(sys.prefix, 'share', 'locale')` on Unix is
         implicitly appended to the :attr:`localedirs`, making it the last
         directory searched.
     :kwarg languages: Iterator of language codes to check for
