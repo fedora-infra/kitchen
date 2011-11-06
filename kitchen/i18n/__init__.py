@@ -102,9 +102,9 @@ import sys
 
 # We use the _default_localedir definition in get_translation_object
 try:
-    from gettext import _default_localedir
+    from gettext import _default_localedir as _DEFAULT_LOCALEDIR
 except ImportError:
-    _default_localedir = os.path.join(sys.prefix, 'share', 'locale')
+    _DEFAULT_LOCALEDIR = os.path.join(sys.prefix, 'share', 'locale')
 
 from kitchen.text.converters import to_bytes, to_unicode
 
@@ -673,7 +673,7 @@ def get_translation_object(domain, localedirs=None, languages=None,
         class_ = NewGNUTranslations
 
     mofiles = []
-    for localedir in itertools.chain(localedirs, _default_localedir):
+    for localedir in itertools.chain(localedirs, _DEFAULT_LOCALEDIR):
         mofiles.extend(gettext.find(domain, localedir, languages, all=1))
     if not mofiles:
         if fallback:
@@ -686,11 +686,11 @@ def get_translation_object(domain, localedirs=None, languages=None,
         full_path = os.path.abspath(mofile)
         translation = _translations.get(full_path)
         if not translation:
-            fh = open(full_path, 'rb')
+            mofile_fh = open(full_path, 'rb')
             try:
-                translation = _translations.setdefault(full_path, class_(fh))
+                translation = _translations.setdefault(full_path, class_(mofile_fh))
             finally:
-                fh.close()
+                mofile_fh.close()
 
         # Shallow copy the object so that the fallbacks and output charset can
         # differ but the data we read from the mofile is shared.
