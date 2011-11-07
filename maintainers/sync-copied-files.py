@@ -11,6 +11,7 @@ files = {
 'tests/test_defaultdict.py': 'http://hg.python.org/cpython/raw-file/2.7/Lib/test/test_defaultdict.py',
 'kitchen/pycompat24/base64/_base64.py': 'http://hg.python.org/cpython/raw-file/2.7/Lib/base64.py',
 'tests/test_base64.py': 'http://hg.python.org/cpython/raw-file/2.7/Lib/test/test_base64.py',
+'tests/subprocessdata/sigchild_ignore.py': 'http://hg.python.org/cpython/raw-file/2.7/Lib/test/subprocessdata/sigchild_ignore.py',
 }
 if __name__ == '__main__':
     os.chdir('sync')
