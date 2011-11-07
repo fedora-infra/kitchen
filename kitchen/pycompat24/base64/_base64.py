@@ -343,7 +343,11 @@ def test():
         if o == '-u': func = decode
         if o == '-t': test1(); return
     if args and args[0] != '-':
-        func(open(args[0], 'rb'), sys.stdout)
+        fh = open(args[0], 'rb')
+        try:
+            func(fh, sys.stdout)
+        finally:
+            fh.close()
     else:
         func(sys.stdin, sys.stdout)
 
