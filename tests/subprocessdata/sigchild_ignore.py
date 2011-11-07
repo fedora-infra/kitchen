@@ -2,9 +2,6 @@ import os
 import signal, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-log = open('/var/tmp/subprocess', 'w')
-log.write(os.path.join(os.path.dirname(__file__), '..', '..'))
-log.close()
 from kitchen.pycompat27.subprocess import _subprocess as subprocess
 
 # On Linux this causes os.waitpid to fail with OSError as the OS has already
