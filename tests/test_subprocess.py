@@ -3,6 +3,7 @@ from nose.plugins.skip import SkipTest
 from test import test_support
 from kitchen.pycompat27.subprocess import _subprocess as subprocess
 import sys
+import StringIO
 import signal
 import os
 import errno
@@ -163,10 +164,42 @@ class ProcessTestCase(BaseTestCase):
                              env=newenv)
         self.assertEqual(rc, 1)
 
+    def test_invalid_args(self):
+        # Popen() called with invalid arguments should raise TypeError
+        # but Popen.__del__ should not complain (issue #12085)
+        #with test_support.captured_stderr() as s:
+        orig_stderr = getattr(sys, 'stderr')
+        setattr(sys, 'stderr', StringIO.StringIO())
+        s = sys.stderr
+        try:
+            try:
+                subprocess.Popen(invalid_arg_name=1)
+            except TypeError:
+                pass
+            except:
+                self.fail("Expected TypeError")
+            else:
+                self.fail("Expected TypeError")
+            argcount = subprocess.Popen.__init__.__code__.co_argcount
+            too_many_args = [0] * (argcount + 1)
+            try:
+                subprocess.Popen(*too_many_args)
+            except TypeError:
+                pass
+            except:
+                self.fail("Expected TypeError")
+            else:
+                self.fail("Expected TypeError")
+        finally:
+            setattr(sys,'stderr', orig_stderr)
+        self.assertEqual(s.getvalue(), '')
+
     def test_stdin_none(self):
         # .stdin is None when not redirected
         p = subprocess.Popen([sys.executable, "-c", 'print "banana"'],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
         p.wait()
         self.assertEqual(p.stdin, None)
 
@@ -177,6 +210,8 @@ class ProcessTestCase(BaseTestCase):
                              'test of stdout in a different '
                              'process ..."'],
                              stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.addCleanup(p.stdin.close)
+        self.addCleanup(p.stderr.close)
         p.wait()
         self.assertEqual(p.stdout, None)
 
@@ -184,6 +219,8 @@ class ProcessTestCase(BaseTestCase):
         # .stderr is None when not redirected
         p = subprocess.Popen([sys.executable, "-c", 'print "banana"'],
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stdin.close)
         p.wait()
         self.assertEqual(p.stderr, None)
 
@@ -245,6 +282,7 @@ class ProcessTestCase(BaseTestCase):
         p = subprocess.Popen([sys.executable, "-c",
                           'import sys; sys.stdout.write("orange")'],
                          stdout=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
         self.assertEqual(p.stdout.read(), "orange")
 
     def test_stdout_filedes(self):
@@ -273,6 +311,7 @@ class ProcessTestCase(BaseTestCase):
         p = subprocess.Popen([sys.executable, "-c",
                           'import sys; sys.stderr.write("strawberry")'],
                          stderr=subprocess.PIPE)
+        self.addCleanup(p.stderr.close)
         #self.assertStderrEqual(p.stderr.read(), "strawberry")
         self.assertEqual(remove_stderr_debug_decorations(p.stderr.read()),
                          "strawberry")
@@ -311,6 +350,7 @@ class ProcessTestCase(BaseTestCase):
                           'sys.stderr.write("orange")'],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
+        self.addCleanup(p.stdout.close)
         #self.assertStderrEqual(p.stdout.read(), "appleorange")
         output = p.stdout.read()
         stripped = remove_stderr_debug_decorations(output)
@@ -352,6 +392,7 @@ class ProcessTestCase(BaseTestCase):
                           'sys.stdout.write(os.getcwd())'],
                          stdout=subprocess.PIPE,
                          cwd=tmpdir)
+        self.addCleanup(p.stdout.close)
         normcase = os.path.normcase
         self.assertEqual(normcase(p.stdout.read()), normcase(tmpdir))
 
@@ -398,6 +439,9 @@ class ProcessTestCase(BaseTestCase):
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        self.addCleanup(p.stdin.close)
         (stdout, stderr) = p.communicate("banana")
         self.assertEqual(stdout, "banana")
         #self.assertStderrEqual(stderr, "pineapple")
@@ -452,6 +496,9 @@ class ProcessTestCase(BaseTestCase):
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        self.addCleanup(p.stdin.close)
         string_to_write = "abc"*pipe_buf
         (stdout, stderr) = p.communicate(string_to_write)
         self.assertEqual(stdout, string_to_write)
@@ -464,6 +511,9 @@ class ProcessTestCase(BaseTestCase):
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        self.addCleanup(p.stdin.close)
         p.stdin.write("banana")
         (stdout, stderr) = p.communicate("split")
         self.assertEqual(stdout, "bananasplit")
@@ -486,6 +536,7 @@ class ProcessTestCase(BaseTestCase):
                           'sys.stdout.write("\\nline6");'],
                          stdout=subprocess.PIPE,
                          universal_newlines=1)
+        self.addCleanup(p.stdout.close)
         stdout = p.stdout.read()
         if hasattr(file, 'newlines'):
             # Interpreter with universal newline support
@@ -513,6 +564,8 @@ class ProcessTestCase(BaseTestCase):
                           'sys.stdout.write("\\nline6");'],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                          universal_newlines=1)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
         (stdout, stderr) = p.communicate()
         if hasattr(file, 'newlines'):
             # Interpreter with universal newline support
@@ -525,20 +578,44 @@ class ProcessTestCase(BaseTestCase):
 
     def test_no_leaking(self):
         # Make sure we leak no resources
-        if not hasattr(test_support, "is_resource_enabled") \
-               or test_support.is_resource_enabled("subprocess") and not mswindows:
+        if not mswindows:
             max_handles = 1026 # too much for most UNIX systems
         else:
-            max_handles = 65
-        for i in range(max_handles):
-            p = subprocess.Popen([sys.executable, "-c",
-                    "import sys;sys.stdout.write(sys.stdin.read())"],
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-            data = p.communicate("lime")[0]
-            self.assertEqual(data, "lime")
+            max_handles = 2050 # too much for (at least some) Windows setups
+        handles = []
+        try:
+            for i in range(max_handles):
+                try:
+                    handles.append(os.open(test_support.TESTFN,
+                                           os.O_WRONLY | os.O_CREAT))
+                except OSError as e:
+                    if e.errno != errno.EMFILE:
+                        raise
+                    break
+            else:
+                # python-2.3  unittest doesn't have skipTest.  Reimplement with nose
+                #self.skipTest("failed to reach the file descriptor limit "
+                #    "(tried %d)" % max_handles)
+                raise SkipTest("failed to reach the file descriptor limit "
+                    "(tried %d)" % max_handles)
 
+            # Close a couple of them (should be enough for a subprocess)
+            for i in range(10):
+                os.close(handles.pop())
+            # Loop creating some subprocesses. If one of them leaks some fds,
+            # the next loop iteration will fail by reaching the max fd limit.
+            for i in range(15):
+                p = subprocess.Popen([sys.executable, "-c",
+                                      "import sys;"
+                                      "sys.stdout.write(sys.stdin.read())"],
+                                     stdin=subprocess.PIPE,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+                data = p.communicate(b"lime")[0]
+                self.assertEqual(data, b"lime")
+        finally:
+            for h in handles:
+                os.close(h)
 
     def test_list2cmdline(self):
         self.assertEqual(subprocess.list2cmdline(['a b c', 'd', 'e']),
@@ -611,10 +688,52 @@ class ProcessTestCase(BaseTestCase):
             #if c.exception.errno != 2:  # ignore "no such file"
             #    raise c.exception
             # Windows raises IOError
-            except (IOError, OSError), err:
-                if err.errno != 2:  # ignore "no such file"
-                    raise
+            except EnvironmentError, err:
+                if err.errno not in (errno.ENOENT, errno.EACCES):  # ignore "no such file"
+                    raise err
+            except:
+                self.fail("Expected EnvironmentError")
+            else:
+                self.fail("Expected EnvironmentError")
 
+    def test_handles_closed_on_exception(self):
+        # If CreateProcess exits with an error, ensure the
+        # duplicate output handles are released
+        ifhandle, ifname = mkstemp()
+        ofhandle, ofname = mkstemp()
+        efhandle, efname = mkstemp()
+        try:
+            subprocess.Popen (["*"], stdin=ifhandle, stdout=ofhandle,
+              stderr=efhandle)
+        except OSError:
+            os.close(ifhandle)
+            os.remove(ifname)
+            os.close(ofhandle)
+            os.remove(ofname)
+            os.close(efhandle)
+            os.remove(efname)
+        self.assertFalse(os.path.exists(ifname))
+        self.assertFalse(os.path.exists(ofname))
+        self.assertFalse(os.path.exists(efname))
+
+    def test_communicate_epipe(self):
+        # Issue 10963: communicate() should hide EPIPE
+        p = subprocess.Popen([sys.executable, "-c", 'pass'],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        self.addCleanup(p.stdin.close)
+        p.communicate("x" * 2**20)
+
+    def test_communicate_epipe_only_stdin(self):
+        # Issue 10963: communicate() should hide EPIPE
+        p = subprocess.Popen([sys.executable, "-c", 'pass'],
+                             stdin=subprocess.PIPE)
+        self.addCleanup(p.stdin.close)
+        time.sleep(2)
+        p.communicate("x" * 2**20)
 
 # context manager
 class _SuppressCoreFiles(object):
@@ -630,6 +749,20 @@ class _SuppressCoreFiles(object):
         except (ImportError, ValueError, resource.error):
             pass
 
+        if sys.platform == 'darwin':
+            # Check if the 'Crash Reporter' on OSX was configured
+            # in 'Developer' mode and warn that it will get triggered
+            # when it is.
+            #
+            # This assumes that this context manager is used in tests
+            # that might trigger the next manager.
+            value = subprocess.Popen(['/usr/bin/defaults', 'read',
+                    'com.apple.CrashReporter', 'DialogType'],
+                    stdout=subprocess.PIPE).communicate()[0]
+            if value.strip() == b'developer':
+                print "this tests triggers the Crash Reporter, that is intentional"
+                sys.stdout.flush()
+
     def __exit__(self, *args):
         """Return core file behavior to default."""
         if self.old_limit is None:
@@ -639,6 +772,28 @@ class _SuppressCoreFiles(object):
             resource.setrlimit(resource.RLIMIT_CORE, self.old_limit)
         except (ImportError, ValueError, resource.error):
             pass
+
+    # python-2.3 unittest doesn't have skipUnless.  Reimplement as SkipTest from nose
+    #@unittest.skipUnless(hasattr(signal, 'SIGALRM'),
+    #                     "Requires signal.SIGALRM")
+    def test_communicate_eintr(self):
+        if not hasattr(signal, 'SIGALRM'):
+            raise SkipTest('Requires signal.SIGALRM')
+        # Issue #12493: communicate() should handle EINTR
+        def handler(signum, frame):
+            pass
+        old_handler = signal.signal(signal.SIGALRM, handler)
+        self.addCleanup(signal.signal, signal.SIGALRM, old_handler)
+
+        # the process is running for 2 seconds
+        args = [sys.executable, "-c", 'import time; time.sleep(2)']
+        for stream in ('stdout', 'stderr'):
+            kw = {stream: subprocess.PIPE}
+            with subprocess.Popen(args, **kw) as process:
+                signal.alarm(1)
+                # communicate() will be interrupted by SIGALRM
+                process.communicate()
+
 
 # Not available with python-2.3's unittest.  Reimplement with SkipTest from
 # nose
@@ -658,6 +813,8 @@ class POSIXProcessTestCase(BaseTestCase):
         #self.assertIn("os.chdir", c.exception.child_traceback)
         except OSError, e:
             self.assertNotEqual(e.child_traceback.find("os.chdir"), -1)
+        except:
+            self.fail("Expected OSError")
         else:
             self.fail("Expected OSError")
 
@@ -704,6 +861,7 @@ class POSIXProcessTestCase(BaseTestCase):
                               "sys.stdout.write(os.getenv('FRUIT'))"],
                              stdout=subprocess.PIPE,
                              preexec_fn=lambda: os.putenv("FRUIT", "apple"))
+        self.addCleanup(p.stdout.close)
         self.assertEqual(p.stdout.read(), "apple")
 
     def test_args_string(self):
@@ -739,6 +897,7 @@ class POSIXProcessTestCase(BaseTestCase):
         p = subprocess.Popen(["echo $FRUIT"], shell=1,
                              stdout=subprocess.PIPE,
                              env=newenv)
+        self.addCleanup(p.stdout.close)
         self.assertEqual(p.stdout.read().strip(), "apple")
 
     def test_shell_string(self):
@@ -748,6 +907,7 @@ class POSIXProcessTestCase(BaseTestCase):
         p = subprocess.Popen("echo $FRUIT", shell=1,
                              stdout=subprocess.PIPE,
                              env=newenv)
+        self.addCleanup(p.stdout.close)
         self.assertEqual(p.stdout.read().strip(), "apple")
 
     def test_call_string(self):
@@ -762,53 +922,295 @@ class POSIXProcessTestCase(BaseTestCase):
         os.remove(fname)
         self.assertEqual(rc, 47)
 
+    def test_specific_shell(self):
+        # Issue #9265: Incorrect name passed as arg[0].
+        shells = []
+        for prefix in ['/bin', '/usr/bin/', '/usr/local/bin']:
+            for name in ['bash', 'ksh']:
+                sh = os.path.join(prefix, name)
+                if os.path.isfile(sh):
+                    shells.append(sh)
+        if not shells: # Will probably work for any shell but csh.
+
+            # skipTest unavailable on python<2.7 reimplement with nose
+            #self.skipTest("bash or ksh required for this test")
+            raise SkipTest("bash or ksh required for this test")
+        sh = '/bin/sh'
+        if os.path.isfile(sh) and not os.path.islink(sh):
+            # Test will fail if /bin/sh is a symlink to csh.
+            shells.append(sh)
+        for sh in shells:
+            p = subprocess.Popen("echo $0", executable=sh, shell=True,
+                                 stdout=subprocess.PIPE)
+            self.addCleanup(p.stdout.close)
+            self.assertEqual(p.stdout.read().strip(), sh)
+
     def _kill_process(self, method, *args):
         # Do not inherit file handles from the parent.
         # It should fix failures on some platforms.
-        p = subprocess.Popen([sys.executable, "-c", "input()"], close_fds=True,
-                             stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Let the process initialize (Issue #3137)
-        time.sleep(1)
-        # The process should not terminate prematurely
-        self.assertIsNone(p.poll())
-        # Retry if the process do not receive the signal.
-        count, maxcount = 0, 3
-        while count < maxcount and p.poll() is None:
-            getattr(p, method)(*args)
-            time.sleep(1)
-            count += 1
-
-        self.assertIsNotNone(p.poll(), "the subprocess did not terminate")
-        if count > 1:
-            print >>sys.stderr, ("p.{}{} succeeded after "
-                                 "{} attempts".format(method, args, count))
+        p = subprocess.Popen([sys.executable, "-c", """if 1:
+                             import sys, time
+                             sys.stdout.write('x\\n')
+                             sys.stdout.flush()
+                             time.sleep(30)
+                             """],
+                             close_fds=True,
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        # Wait for the interpreter to be completely initialized before
+        # sending any signal.
+        p.stdout.read(1)
+        getattr(p, method)(*args)
         return p
 
     # These are still hanging with x86_64 Fedora 12 (python-2.6)  subprocess
     # backport from current trunk run under nosetests
 
-    #def test_send_signal(self):
-    #    #if hang DISABLED #2777
-    #    p = self._kill_process('send_signal', signal.SIGINT)
-    #    _, stderr = p.communicate()
-    #    #self.assertIn('KeyboardInterrupt', stderr)
-    #    self.assert_('KeyboardInterrupt' in stderr)
-    #    self.assertNotEqual(p.wait(), 0)
+    def test_send_signal(self):
+        #if hang DISABLED #2777
+        p = self._kill_process('send_signal', signal.SIGINT)
+        _, stderr = p.communicate()
+        self.assertIn('KeyboardInterrupt', stderr)
+        self.assertNotEqual(p.wait(), 0)
 
-    #def test_kill(self):
-    #    #if hang DISABLED #2777
-    #    p = self._kill_process('kill')
-    #    _, stderr = p.communicate()
-    #    self.assertStderrEqual(stderr, '')
-    #    self.assertEqual(p.wait(), -signal.SIGKILL)
+    def test_kill(self):
+        #if hang DISABLED #2777
+        p = self._kill_process('kill')
+        _, stderr = p.communicate()
+        self.assertStderrEqual(stderr, '')
+        self.assertEqual(p.wait(), -signal.SIGKILL)
 
-    #def test_terminate(self):
-    #    #if hang DISABLED #2777
-    #    p = self._kill_process('terminate')
-    #    _, stderr = p.communicate()
-    #    self.assertStderrEqual(stderr, '')
-    #    self.assertEqual(p.wait(), -signal.SIGTERM)
+    def test_terminate(self):
+        #if hang DISABLED #2777
+        p = self._kill_process('terminate')
+        _, stderr = p.communicate()
+        self.assertStderrEqual(stderr, '')
+        self.assertEqual(p.wait(), -signal.SIGTERM)
+
+    def check_close_std_fds(self, fds):
+        # Issue #9905: test that subprocess pipes still work properly with
+        # some standard fds closed
+        stdin = 0
+        newfds = []
+        for a in fds:
+            b = os.dup(a)
+            newfds.append(b)
+            if a == 0:
+                stdin = b
+        try:
+            for fd in fds:
+                os.close(fd)
+            out, err = subprocess.Popen([sys.executable, "-c",
+                              'import sys;'
+                              'sys.stdout.write("apple");'
+                              'sys.stdout.flush();'
+                              'sys.stderr.write("orange")'],
+                       stdin=stdin,
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE).communicate()
+            err = re.sub(br"\[\d+ refs\]\r?\n?$", b"", err).strip() 
+            self.assertEqual((out, err), (b'apple', b'orange'))
+        finally:
+            for b, a in zip(newfds, fds):
+                os.dup2(b, a)
+            for b in newfds:
+                os.close(b)
+
+    def test_close_fd_0(self):
+        self.check_close_std_fds([0])
+
+    def test_close_fd_1(self):
+        self.check_close_std_fds([1])
+
+    def test_close_fd_2(self):
+        self.check_close_std_fds([2])
+
+    def test_close_fds_0_1(self):
+        self.check_close_std_fds([0, 1])
+
+    def test_close_fds_0_2(self):
+        self.check_close_std_fds([0, 2])
+
+    def test_close_fds_1_2(self):
+        self.check_close_std_fds([1, 2])
+
+    def test_close_fds_0_1_2(self):
+        # Issue #10806: test that subprocess pipes still work properly with
+        # all standard fds closed.
+        self.check_close_std_fds([0, 1, 2])
+
+    def check_swap_fds(self, stdin_no, stdout_no, stderr_no):
+        # open up some temporary files
+        temps = [mkstemp() for i in range(3)]
+        temp_fds = [fd for fd, fname in temps]
+        try:
+            # unlink the files -- we won't need to reopen them
+            for fd, fname in temps:
+                os.unlink(fname)
+
+            # save a copy of the standard file descriptors
+            saved_fds = [os.dup(fd) for fd in range(3)]
+            try:
+                # duplicate the temp files over the standard fd's 0, 1, 2
+                for fd, temp_fd in enumerate(temp_fds):
+                    os.dup2(temp_fd, fd)
+
+                # write some data to what will become stdin, and rewind
+                os.write(stdin_no, b"STDIN")
+                os.lseek(stdin_no, 0, 0)
+
+                # now use those files in the given order, so that subprocess
+                # has to rearrange them in the child
+                p = subprocess.Popen([sys.executable, "-c",
+                    'import sys; got = sys.stdin.read();'
+                    'sys.stdout.write("got %s"%got); sys.stderr.write("err")'],
+                    stdin=stdin_no,
+                    stdout=stdout_no,
+                    stderr=stderr_no)
+                p.wait()
+
+                for fd in temp_fds:
+                    os.lseek(fd, 0, 0)
+
+                out = os.read(stdout_no, 1024)
+                err = re.sub(br"\[\d+ refs\]\r?\n?$", b"", os.read(stderr_no, 1024)).strip()
+            finally:
+                for std, saved in enumerate(saved_fds):
+                    os.dup2(saved, std)
+                    os.close(saved)
+
+            self.assertEqual(out, b"got STDIN")
+            self.assertEqual(err, b"err")
+
+        finally:
+            for fd in temp_fds:
+                os.close(fd)
+
+    # When duping fds, if there arises a situation where one of the fds is
+    # either 0, 1 or 2, it is possible that it is overwritten (#12607).
+    # This tests all combinations of this.
+    def test_swap_fds(self):
+        self.check_swap_fds(0, 1, 2)
+        self.check_swap_fds(0, 2, 1)
+        self.check_swap_fds(1, 0, 2)
+        self.check_swap_fds(1, 2, 0)
+        self.check_swap_fds(2, 0, 1)
+        self.check_swap_fds(2, 1, 0)
+
+    def test_wait_when_sigchild_ignored(self):
+        # NOTE: sigchild_ignore.py may not be an effective test on all OSes.
+        sigchild_ignore = test_support.findfile("sigchild_ignore.py",
+                                                subdir="subprocessdata")
+        p = subprocess.Popen([sys.executable, sigchild_ignore],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        self.assertEqual(0, p.returncode, "sigchild_ignore.py exited"
+                         " non-zero with this error:\n%s" % stderr)
+
+
+    def test_zombie_fast_process_del(self):
+        # Issue #12650: on Unix, if Popen.__del__() was called before the
+        # process exited, it wouldn't be added to subprocess._active, and would
+        # remain a zombie.
+        # spawn a Popen, and delete its reference before it exits
+        p = subprocess.Popen([sys.executable, "-c",
+                              'import sys, time;'
+                              'time.sleep(0.2)'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        ident = id(p)
+        pid = p.pid
+        del p
+        # check that p is in the active processes list
+        # assertIn not in python< 2.7
+        #self.assertIn(ident, [id(o) for o in subprocess._active])
+        self.assertTrue(ident in [id(o) for o in subprocess._active])
+
+    def test_leak_fast_process_del_killed(self):
+        # Issue #12650: on Unix, if Popen.__del__() was called before the
+        # process exited, and the process got killed by a signal, it would never
+        # be removed from subprocess._active, which triggered a FD and memory
+        # leak.
+        # spawn a Popen, delete its reference and kill it
+        p = subprocess.Popen([sys.executable, "-c",
+                              'import time;'
+                              'time.sleep(3)'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        ident = id(p)
+        pid = p.pid
+        del p
+        os.kill(pid, signal.SIGKILL)
+        # check that p is in the active processes list
+        # assertIn not in python < 2.7
+        self.assertTrue(ident in [id(o) for o in subprocess._active])
+        #self.assertIn(ident, [id(o) for o in subprocess._active])
+
+        # let some time for the process to exit, and create a new Popen: this
+        # should trigger the wait() of p
+        time.sleep(0.2)
+        #with self.assertRaises(EnvironmentError) as c:
+        try:
+            try:
+                proc = subprocess.Popen(['nonexisting_i_hope'],
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+            finally:
+                pass
+        except EnvironmentError:
+            pass
+        except:
+            self.fail('Expected EnvironmentError')
+        else:
+            self.fail('Expected EnvironmentError')
+        # p should have been wait()ed on, and removed from the _active list
+        #self.assertRaises(OSError, os.waitpid, pid, 0)
+        try:
+            os.waitpid(pid, 0)
+        except OSError:
+            pass
+        except:
+            self.fail('Expected OSError')
+        else:
+            self.fail('Expected OSError')
+        #self.assertNotIn(ident, [id(o) for o in subprocess._active])
+        self.assertTrue(ident not in [id(o) for o in subprocess._active])
+
+    def test_pipe_cloexec(self):
+        # Issue 12786: check that the communication pipes' FDs are set CLOEXEC,
+        # and are not inherited by another child process.
+        p1 = subprocess.Popen([sys.executable, "-c",
+                               'import os;'
+                               'os.read(0, 1)'
+                              ],
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+
+        p2 = subprocess.Popen([sys.executable, "-c", """if True:
+                               import os, errno, sys
+                               for fd in %r:
+                                   try:
+                                       os.close(fd)
+                                   except OSError as e:
+                                       if e.errno != errno.EBADF:
+                                           raise
+                                   else:
+                                       sys.exit(1)
+                               sys.exit(0)
+                               """ % [f.fileno() for f in (p1.stdin, p1.stdout,
+                                                           p1.stderr)]
+                              ],
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, close_fds=False)
+        p1.communicate('foo')
+        _, stderr = p2.communicate()
+
+        self.assertEqual(p2.returncode, 0, "Unexpected error: " + repr(stderr))
 
 
 # Not available with python-2.3's unittest, reimplement with SkipTest from
@@ -868,6 +1270,7 @@ class Win32ProcessTestCase(BaseTestCase):
         p = subprocess.Popen(["set"], shell=1,
                              stdout=subprocess.PIPE,
                              env=newenv)
+        self.addCleanup(p.stdout.close)
         #self.assertIn("physalis", p.stdout.read())
         self.assert_("physalis" in p.stdout.read())
 
@@ -878,6 +1281,7 @@ class Win32ProcessTestCase(BaseTestCase):
         p = subprocess.Popen("set", shell=1,
                              stdout=subprocess.PIPE,
                              env=newenv)
+        self.addCleanup(p.stdout.close)
         #self.assertIn("physalis", p.stdout.read())
         self.assert_("physalis" in p.stdout.read())
 
@@ -889,37 +1293,34 @@ class Win32ProcessTestCase(BaseTestCase):
 
     def _kill_process(self, method, *args):
         # Some win32 buildbot raises EOFError if stdin is inherited
-        p = subprocess.Popen([sys.executable, "-c", "input()"],
-                             stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Let the process initialize (Issue #3137)
-        time.sleep(0.1)
-        # The process should not terminate prematurely
-        self.assertIsNone(p.poll())
-        # Retry if the process do not receive the signal.
-        count, maxcount = 0, 3
-        while count < maxcount and p.poll() is None:
-            getattr(p, method)(*args)
-            time.sleep(0.1)
-            count += 1
-
-        returncode = p.poll()
-        self.assertIsNotNone(returncode, "the subprocess did not terminate")
-        if count > 1:
-            print >>sys.stderr, ("p.{}{} succeeded after "
-                                 "{} attempts".format(method, args, count))
+        p = subprocess.Popen([sys.executable, "-c", """if 1:
+                             import sys, time
+                             sys.stdout.write('x\\n')
+                             sys.stdout.flush()
+                             time.sleep(30)
+                             """],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stderr.close)
+        self.addCleanup(p.stdin.close)
+        # Wait for the interpreter to be completely initialized before
+        # sending any signal.
+        p.stdout.read(1)
+        getattr(p, method)(*args)
         _, stderr = p.communicate()
         self.assertStderrEqual(stderr, '')
-        self.assertEqual(p.wait(), returncode)
+        returncode = p.wait()
         self.assertNotEqual(returncode, 0)
 
     def test_send_signal(self):
         #if hang DISABLED #2777
         self._kill_process('send_signal', signal.SIGTERM)
 
-    #def test_kill(self):
-    #    #if hang DISABLED #2777
-    #    self._kill_process('kill')
+    def test_kill(self):
+        #if hang DISABLED #2777
+        self._kill_process('kill')
 
     def test_terminate(self):
         #if hang DISABLED #2777
@@ -966,6 +1367,55 @@ class HelperFunctionTests(unittest.TestCase):
         self.assertEqual((666,),
                          subprocess._eintr_retry_call(fake_os_func, 666))
         self.assertEqual([(256, 999), (666,), (666,)], record_calls)
+
+
+# SkipUnless is not available on python < 2.7, reimplement with nose
+#@unittest.skipUnless(mswindows, "mswindows only")
+class CommandsWithSpaces (BaseTestCase):
+
+    def setUp(self):
+        if not mswindows:
+            raise SkipTest('mswindows only')
+
+        super(CommandsWithSpaces, self).setUp()
+        f, fname = mkstemp(".py", "te st")
+        self.fname = fname.lower ()
+        os.write(f, b"import sys;"
+                    b"sys.stdout.write('%d %s' % (len(sys.argv), [a.lower () for a in sys.argv]))"
+        )
+        os.close(f)
+
+    def tearDown(self):
+        os.remove(self.fname)
+        super(CommandsWithSpaces, self).tearDown()
+
+    def with_spaces(self, *args, **kwargs):
+        kwargs['stdout'] = subprocess.PIPE
+        p = subprocess.Popen(*args, **kwargs)
+        self.addCleanup(p.stdout.close)
+        self.assertEqual(
+          p.stdout.read ().decode("mbcs"),
+          "2 [%r, 'ab cd']" % self.fname
+        )
+
+    def test_shell_string_with_spaces(self):
+        # call() function with string argument with spaces on Windows
+        self.with_spaces('"%s" "%s" "%s"' % (sys.executable, self.fname,
+                                             "ab cd"), shell=1)
+
+    def test_shell_sequence_with_spaces(self):
+        # call() function with sequence argument with spaces on Windows
+        self.with_spaces([sys.executable, self.fname, "ab cd"], shell=1)
+
+    def test_noshell_string_with_spaces(self):
+        # call() function with string argument with spaces on Windows
+        self.with_spaces('"%s" "%s" "%s"' % (sys.executable, self.fname,
+                             "ab cd"))
+
+    def test_noshell_sequence_with_spaces(self):
+        # call() function with sequence argument with spaces on Windows
+        self.with_spaces([sys.executable, self.fname, "ab cd"])
+
 
 # We're using nosetests so we don't need this.  This just leads to tests being
 # run twice
