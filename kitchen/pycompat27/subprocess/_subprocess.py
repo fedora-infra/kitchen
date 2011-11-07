@@ -398,6 +398,11 @@ import gc
 import signal
 import errno
 
+try:
+    set()
+except:
+    from kitchen.pycompat24.sets import set
+
 # Exception classes used by this module.
 class CalledProcessError(Exception):
     """This exception is raised when a process run by check_call() or
@@ -441,10 +446,10 @@ __all__ = ["Popen", "PIPE", "STDOUT", "call", "check_call",
            "check_output", "CalledProcessError"]
 
 if mswindows:
-    from _subprocess import (CREATE_NEW_CONSOLE, CREATE_NEW_PROCESS_GROUP,
-                             STD_INPUT_HANDLE, STD_OUTPUT_HANDLE,
-                             STD_ERROR_HANDLE, SW_HIDE,
-                             STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW)
+    from _subprocess import CREATE_NEW_CONSOLE, CREATE_NEW_PROCESS_GROUP, \
+                             STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, \
+                             STD_ERROR_HANDLE, SW_HIDE, \
+                             STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW
 
     __all__.extend(["CREATE_NEW_CONSOLE", "CREATE_NEW_PROCESS_GROUP",
                     "STD_INPUT_HANDLE", "STD_OUTPUT_HANDLE",
@@ -868,7 +873,7 @@ class Popen(object):
                 startupinfo.wShowWindow = _subprocess.SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
                 args = "%s /c %s" % (comspec, args)
-                if (_subprocess.GetVersion() >= 0x80000000 or
+                if (_subprocess.GetVersion() >= 0x80000000L or
                         os.path.basename(comspec).lower() == "command.com"):
                     # Win9x, or using command.com on NT. We need to
                     # use the w9xpopen intermediate program. For more
@@ -886,20 +891,21 @@ class Popen(object):
 
             # Start the process
             try:
-                hp, ht, pid, tid = _subprocess.CreateProcess(executable, args,
-                                         # no special security
-                                         None, None,
-                                         int(not close_fds),
-                                         creationflags,
-                                         env,
-                                         cwd,
-                                         startupinfo)
-            except pywintypes.error, e:
-                # Translate pywintypes.error to WindowsError, which is
-                # a subclass of OSError.  FIXME: We should really
-                # translate errno using _sys_errlist (or similar), but
-                # how can this be done from Python?
-                raise WindowsError(*e.args)
+                try:
+                    hp, ht, pid, tid = _subprocess.CreateProcess(executable, args,
+                                             # no special security
+                                             None, None,
+                                             int(not close_fds),
+                                             creationflags,
+                                             env,
+                                             cwd,
+                                             startupinfo)
+                except pywintypes.error, e:
+                    # Translate pywintypes.error to WindowsError, which is
+                    # a subclass of OSError.  FIXME: We should really
+                    # translate errno using _sys_errlist (or similar), but
+                    # how can this be done from Python?
+                    raise WindowsError(*e.args)
             finally:
                 # Child is launched. Close the parent's copy of those pipe
                 # handles that only the child should have open.  You need
@@ -972,7 +978,7 @@ class Popen(object):
                 if input is not None:
                     try:
                         self.stdin.write(input)
-                    except IOError as e:
+                    except IOError, e:
                         if e.errno != errno.EPIPE:
                             raise
                 self.stdin.close()
@@ -1181,7 +1187,7 @@ class Popen(object):
 
                             # Close pipe fds.  Make sure we don't close the
                             # same fd more than once, or standard fds.
-                            closed = { None }
+                            closed = set( None )
                             for fd in [p2cread, c2pwrite, errwrite]:
                                 if fd not in closed and fd > 2:
                                     os.close(fd)

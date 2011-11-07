@@ -611,8 +611,8 @@ class ProcessTestCase(BaseTestCase):
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE)
-                data = p.communicate(b"lime")[0]
-                self.assertEqual(data, b"lime")
+                data = p.communicate("lime")[0]
+                self.assertEqual(data, "lime")
         finally:
             for h in handles:
                 os.close(h)
@@ -759,7 +759,7 @@ class _SuppressCoreFiles(object):
             value = subprocess.Popen(['/usr/bin/defaults', 'read',
                     'com.apple.CrashReporter', 'DialogType'],
                     stdout=subprocess.PIPE).communicate()[0]
-            if value.strip() == b'developer':
+            if value.strip() == 'developer':
                 print "this tests triggers the Crash Reporter, that is intentional"
                 sys.stdout.flush()
 
@@ -1013,8 +1013,8 @@ class POSIXProcessTestCase(BaseTestCase):
                        stdin=stdin,
                        stdout=subprocess.PIPE,
                        stderr=subprocess.PIPE).communicate()
-            err = re.sub(br"\[\d+ refs\]\r?\n?$", b"", err).strip() 
-            self.assertEqual((out, err), (b'apple', b'orange'))
+            err = re.sub(r"\[\d+ refs\]\r?\n?$", "", err).strip() 
+            self.assertEqual((out, err), ('apple', 'orange'))
         finally:
             for b, a in zip(newfds, fds):
                 os.dup2(b, a)
@@ -1061,7 +1061,7 @@ class POSIXProcessTestCase(BaseTestCase):
                     os.dup2(temp_fd, fd)
 
                 # write some data to what will become stdin, and rewind
-                os.write(stdin_no, b"STDIN")
+                os.write(stdin_no, "STDIN")
                 os.lseek(stdin_no, 0, 0)
 
                 # now use those files in the given order, so that subprocess
@@ -1078,14 +1078,14 @@ class POSIXProcessTestCase(BaseTestCase):
                     os.lseek(fd, 0, 0)
 
                 out = os.read(stdout_no, 1024)
-                err = re.sub(br"\[\d+ refs\]\r?\n?$", b"", os.read(stderr_no, 1024)).strip()
+                err = re.sub(r"\[\d+ refs\]\r?\n?$", "", os.read(stderr_no, 1024)).strip()
             finally:
                 for std, saved in enumerate(saved_fds):
                     os.dup2(saved, std)
                     os.close(saved)
 
-            self.assertEqual(out, b"got STDIN")
-            self.assertEqual(err, b"err")
+            self.assertEqual(out, "got STDIN")
+            self.assertEqual(err, "err")
 
         finally:
             for fd in temp_fds:
@@ -1384,8 +1384,8 @@ class CommandsWithSpaces (BaseTestCase):
         super(CommandsWithSpaces, self).setUp()
         f, fname = mkstemp(".py", "te st")
         self.fname = fname.lower ()
-        os.write(f, b"import sys;"
-                    b"sys.stdout.write('%d %s' % (len(sys.argv), [a.lower () for a in sys.argv]))"
+        os.write(f, "import sys;"
+                    "sys.stdout.write('%d %s' % (len(sys.argv), [a.lower () for a in sys.argv]))"
         )
         os.close(f)
 
