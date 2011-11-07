@@ -66,6 +66,16 @@ except AttributeError:
 
 
 class BaseTestCase(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        unittest.TestCase.__init__(self, *args, **kwargs)
+        if not hasattr(self, '_cleanups'):
+            self._cleanups = []
+        if not hasattr(self, 'addCleanup'):
+            self.addCleanup = self._addCleanup
+
+    def _addCleanup(self, function, *args, **kwargs):
+        self._cleanups.append((function, args, kwargs))
+
     def setUp(self):
         # Try to minimize the number of children we have so this test
         # doesn't crash on some buildbots (Alphas in particular).
@@ -77,6 +87,15 @@ class BaseTestCase(unittest.TestCase):
         subprocess._cleanup()
         # assertFalse is not available in python-2.3
         self.failIf(subprocess._active, "subprocess._active not empty")
+
+        if not hasattr(self, 'doCleanups'):
+            ok = True
+            while self._cleanups:
+                function, args, kwargs = self._cleanups.pop(-1)
+                try:
+                    function(*args, **kwargs)
+                except Exception:
+                    ok = False
 
     def assertStderrEqual(self, stderr, expected, msg=None):
         # In a debug build, stuff like "[6580 refs]" is printed to stderr at
@@ -180,7 +199,7 @@ class ProcessTestCase(BaseTestCase):
                 self.fail("Expected TypeError")
             else:
                 self.fail("Expected TypeError")
-            argcount = subprocess.Popen.__init__.__code__.co_argcount
+            argcount = subprocess.Popen.__init__.func_code.co_argcount
             too_many_args = [0] * (argcount + 1)
             try:
                 subprocess.Popen(*too_many_args)
@@ -712,9 +731,9 @@ class ProcessTestCase(BaseTestCase):
             os.remove(ofname)
             os.close(efhandle)
             os.remove(efname)
-        self.assertFalse(os.path.exists(ifname))
-        self.assertFalse(os.path.exists(ofname))
-        self.assertFalse(os.path.exists(efname))
+        self.assert_(not os.path.exists(ifname))
+        self.assert_(not os.path.exists(ofname))
+        self.assert_(not os.path.exists(efname))
 
     def test_communicate_epipe(self):
         # Issue 10963: communicate() should hide EPIPE
@@ -975,7 +994,7 @@ class POSIXProcessTestCase(BaseTestCase):
         #if hang DISABLED #2777
         p = self._kill_process('send_signal', signal.SIGINT)
         _, stderr = p.communicate()
-        self.assertIn('KeyboardInterrupt', stderr)
+        self.assert_('KeyboardInterrupt' in stderr)
         self.assertNotEqual(p.wait(), 0)
 
     def test_kill(self):
@@ -1104,8 +1123,8 @@ class POSIXProcessTestCase(BaseTestCase):
 
     def test_wait_when_sigchild_ignored(self):
         # NOTE: sigchild_ignore.py may not be an effective test on all OSes.
-        sigchild_ignore = test_support.findfile("sigchild_ignore.py",
-                                                subdir="subprocessdata")
+        sigchild_ignore = test_support.findfile(os.path.join("subprocessdata",
+            "sigchild_ignore.py"))
         p = subprocess.Popen([sys.executable, sigchild_ignore],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
@@ -1131,7 +1150,7 @@ class POSIXProcessTestCase(BaseTestCase):
         # check that p is in the active processes list
         # assertIn not in python< 2.7
         #self.assertIn(ident, [id(o) for o in subprocess._active])
-        self.assertTrue(ident in [id(o) for o in subprocess._active])
+        self.assert_(ident in [id(o) for o in subprocess._active])
 
     def test_leak_fast_process_del_killed(self):
         # Issue #12650: on Unix, if Popen.__del__() was called before the
@@ -1152,7 +1171,7 @@ class POSIXProcessTestCase(BaseTestCase):
         os.kill(pid, signal.SIGKILL)
         # check that p is in the active processes list
         # assertIn not in python < 2.7
-        self.assertTrue(ident in [id(o) for o in subprocess._active])
+        self.assert_(ident in [id(o) for o in subprocess._active])
         #self.assertIn(ident, [id(o) for o in subprocess._active])
 
         # let some time for the process to exit, and create a new Popen: this
@@ -1183,7 +1202,7 @@ class POSIXProcessTestCase(BaseTestCase):
         else:
             self.fail('Expected OSError')
         #self.assertNotIn(ident, [id(o) for o in subprocess._active])
-        self.assertTrue(ident not in [id(o) for o in subprocess._active])
+        self.assert_(ident not in [id(o) for o in subprocess._active])
 
     def test_pipe_cloexec(self):
         # Issue 12786: check that the communication pipes' FDs are set CLOEXEC,
@@ -1200,7 +1219,7 @@ class POSIXProcessTestCase(BaseTestCase):
                                for fd in %r:
                                    try:
                                        os.close(fd)
-                                   except OSError as e:
+                                   except OSError, e:
                                        if e.errno != errno.EBADF:
                                            raise
                                    else:
