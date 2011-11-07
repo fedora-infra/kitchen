@@ -588,7 +588,7 @@ class ProcessTestCase(BaseTestCase):
                 try:
                     handles.append(os.open(test_support.TESTFN,
                                            os.O_WRONLY | os.O_CREAT))
-                except OSError as e:
+                except OSError, e:
                     if e.errno != errno.EMFILE:
                         raise
                     break
@@ -789,10 +789,14 @@ class _SuppressCoreFiles(object):
         args = [sys.executable, "-c", 'import time; time.sleep(2)']
         for stream in ('stdout', 'stderr'):
             kw = {stream: subprocess.PIPE}
-            with subprocess.Popen(args, **kw) as process:
+            #with subprocess.Popen(args, **kw) as process:
+            try:
+                process = subprocess.Popen(args, **kw)
                 signal.alarm(1)
                 # communicate() will be interrupted by SIGALRM
                 process.communicate()
+            finally:
+                process.close()
 
 
 # Not available with python-2.3's unittest.  Reimplement with SkipTest from
