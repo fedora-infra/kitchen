@@ -107,6 +107,7 @@ except ImportError:
     _DEFAULT_LOCALEDIR = os.path.join(sys.prefix, 'share', 'locale')
 
 from kitchen.text.converters import to_bytes, to_unicode
+from kitchen.text.misc import byte_string_valid_encoding
 
 # We cache parts of the translation objects just like stdlib's gettext so that
 # we don't reparse the message files and keep them in memory separately if the
@@ -186,6 +187,16 @@ class DummyTranslations(object, gettext.NullTranslations):
         :class:`gettext.NullTranslations`
             For information about what methods are available and what they do.
 
+    .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
+        Although we had adapted :meth:`gettext`, :meth:`ngettext`,
+        :meth:`lgettext`, and :meth:`lngettext` to always return
+        byte :class:`str`, we hadn't forced those byte :class:`str` to always
+        be in a specified charset.  We now make sure that :meth:`gettext` and
+        :meth:`ngettext` return byte :class:`str` encoded using
+        :attr:`output_charset` if set, otherwise :attr:`charset` and if
+        neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
+        :meth:`lngettext` :attr:`output_charset` if set, otherwise
+        :func:`locale.getpreferredencoding`.
     '''
     #pylint: disable-msg=C0103,C0111
     def __init__(self, fp=None):
@@ -211,23 +222,50 @@ class DummyTranslations(object, gettext.NullTranslations):
         '''Compatibility for python2.3 which doesn't have output_charset'''
         return self._output_charset
 
-    def gettext(self, message):
-        if not isinstance(message, basestring):
-            return ''
-        if self._fallback:
-            msg = to_unicode(message, encoding=self.input_charset)
+    def _reencode_if_necessary(self, message, output_encoding):
+        '''Return a byte string that's valid in a specific charset.
+
+        .. warning:: This method may mangle the message if the inpput encoding
+            is not known or the message isn't represntable in the chosen
+            output encoding.
+        '''
+        valid = False
+        msg = None
+        try:
+            valid = byte_string_valid_encoding(message, output_encoding)
+        except TypeError:
+            # input was unicode, so it needs to be encoded
+            msg = message
+
+        if valid:
+            return message
+        elif not msg:
             try:
-                message = self._fallback.gettext(msg)
+                # Decode to unicode so we can re-encode to desired encoding
+                msg = to_unicode(message, encoding=self.input_charset,
+                        nonstring='strict')
+            except TypeError:
+                # Not a string; return an empty byte string
+                return ''
+
+        # Make sure that we're returning a str of the desired encoding
+        return to_bytes(msg, encoding=output_encoding)
+
+    def gettext(self, message):
+        # First use any fallback gettext objects.  Since DummyTranslations
+        # doesn't do any translation on its own, this is a good first step.
+        if self._fallback:
+            try:
+                message = self._fallback.gettext(message)
             except UnicodeError:
                 # Ignore UnicodeErrors: We'll do our own encoding next
                 pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        elif self._charset:
-            return to_bytes(message, encoding=self._charset)
-        return to_bytes(message)
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or self._charset or
+                self.input_charset)
+
+        return self._reencode_if_necessary(message, output_encoding)
 
     def ngettext(self, msgid1, msgid2, n):
         # Default
@@ -235,42 +273,36 @@ class DummyTranslations(object, gettext.NullTranslations):
             message = msgid1
         else:
             message = msgid2
+
         # The fallback method might return something different
         if self._fallback:
-            msgid1 = to_unicode(msgid1, encoding=self.input_charset)
-            msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.ngettext(msgid1, msgid2, n)
-            except UnicodeError:
+            except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: We'll do our own encoding next
                 pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset,
-                    nonstring='empty')
-        elif self._charset:
-            return to_bytes(message, encoding=self._charset,
-                    nonstring='empty')
-        return to_bytes(message, nonstring='empty')
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or self._charset or
+                self.input_charset)
+
+        return self._reencode_if_necessary(message, output_encoding)
 
     def lgettext(self, message):
-        if not isinstance(message, basestring):
-            return ''
         if self._fallback:
-            msg = to_unicode(message, encoding=self.input_charset)
             try:
-                message = self._fallback.lgettext(msg)
+                message = self._fallback.lgettext(message)
             except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: we'll do our own encoding next
                 # AttributeErrors happen on py2.3 where lgettext is not
                 # implemented
                 pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset)
-        return to_bytes(message, encoding=locale.getpreferredencoding())
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or
+                locale.getpreferredencoding())
+
+        return self._reencode_if_necessary(message, output_encoding)
 
     def lngettext(self, msgid1, msgid2, n):
         # Default
@@ -280,8 +312,6 @@ class DummyTranslations(object, gettext.NullTranslations):
             message = msgid2
         # Fallback method might have something different
         if self._fallback:
-            msgid1 = to_unicode(msgid1, encoding=self.input_charset)
-            msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.lngettext(msgid1, msgid2, n)
             except (AttributeError, UnicodeError):
@@ -290,12 +320,11 @@ class DummyTranslations(object, gettext.NullTranslations):
                 # implemented
                 pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(message, encoding=self._output_charset,
-                    nonstring='empty')
-        return to_bytes(message, encoding=locale.getpreferredencoding(),
-                nonstring='empty')
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or self._charset or
+                self.input_charset)
+
+        return self._reencode_if_necessary(message, output_encoding)
 
     def ugettext(self, message):
         if not isinstance(message, basestring):
@@ -405,6 +434,16 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         :class:`gettext.GNUTranslations.gettext`
             For information about what methods this class has and what they do
 
+    .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
+        Although we had adapted :meth:`gettext`, :meth:`ngettext`,
+        :meth:`lgettext`, and :meth:`lngettext` to always return
+        byte :class:`str`, we hadn't forced those byte :class:`str` to always
+        be in a specified charset.  We now make sure that :meth:`gettext` and
+        :meth:`ngettext` return byte :class:`str` encoded using
+        :attr:`output_charset` if set, otherwise :attr:`charset` and if
+        neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
+        :meth:`lngettext` :attr:`output_charset` if set, otherwise
+        :func:`locale.getpreferredencoding`.
     '''
     #pylint: disable-msg=C0103,C0111
     def _parse(self, fp):
