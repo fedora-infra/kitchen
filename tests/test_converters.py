@@ -59,7 +59,7 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'nonstring': 'foo'})
 
     def test_to_unicode_errors(self):
-        tools.ok_(converters.to_unicode(self.latin1_spanish) == self.u_spanish_replace)
+        tools.ok_(converters.to_unicode(self.latin1_spanish) == self.u_mangled_spanish_latin1_as_utf8)
         tools.ok_(converters.to_unicode(self.latin1_spanish, errors='ignore') == self.u_spanish_ignore)
         tools.assert_raises(UnicodeDecodeError, converters.to_unicode,
                 *[self.latin1_spanish], **{'errors': 'strict'})
