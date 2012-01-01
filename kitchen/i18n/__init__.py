@@ -463,12 +463,11 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(tmsg, encoding=self._output_charset)
-        elif self._charset:
-            return to_bytes(tmsg, encoding=self._charset)
-        return to_bytes(tmsg)
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or self._charset or
+                self.input_charset)
+
+        return self._reencode_if_necessary(tmsg, output_encoding)
 
     def ngettext(self, msgid1, msgid2, n):
         if n == 1:
@@ -490,13 +489,11 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(tmsg, encoding=self._output_charset,
-                    nonstring='empty')
-        elif self._charset:
-            return to_bytes(tmsg, encoding=self._charset, nonstring='empty')
-        return to_bytes(tmsg, nonstring='empty')
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or self._charset or
+                self.input_charset)
+
+        return self._reencode_if_necessary(tmsg, output_encoding)
 
     def lgettext(self, message):
         if not isinstance(message, basestring):
@@ -513,10 +510,11 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(tmsg, encoding=self._output_charset)
-        return to_bytes(tmsg, encoding=locale.getpreferredencoding())
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or
+                locale.getpreferredencoding())
+
+        return self._reencode_if_necessary(tmsg, output_encoding)
 
     def lngettext(self, msgid1, msgid2, n):
         if n == 1:
@@ -538,12 +536,12 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
-        # Make sure that we're returning a str
-        if self._output_charset:
-            return to_bytes(tmsg, encoding=self._output_charset,
-                    nonstring='empty')
-        return to_bytes(tmsg, encoding=locale.getpreferredencoding(),
-                nonstring='empty')
+        # Next decide what encoding to use for the strings we return
+        output_encoding = (self._output_charset or
+                locale.getpreferredencoding())
+
+        return self._reencode_if_necessary(tmsg, output_encoding)
+
 
     def ugettext(self, message):
         if not isinstance(message, basestring):
