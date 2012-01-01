@@ -80,13 +80,13 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 (self.u_japanese, self.utf8_japanese),
                 (self.b_ascii, self.b_ascii),
                 (self.utf8_spanish, self.utf8_spanish),
-                (self.latin1_spanish, self.latin1_spanish),
+                (self.latin1_spanish, self.utf8_mangled_spanish_latin1_as_utf8),
                 (self.utf8_japanese, self.utf8_japanese),
                 ),
                 ( # Second set is with output_charset of latin1 (ISO-8859-1)
                 (self.u_ascii, self.b_ascii),
                 (self.u_spanish, self.latin1_spanish),
-                (self.u_japanese, self.latin1_japanese_replace),
+                (self.u_japanese, self.latin1_mangled_japanese_replace_as_latin1),
                 (self.b_ascii, self.b_ascii),
                 (self.utf8_spanish, self.utf8_spanish),
                 (self.latin1_spanish, self.latin1_spanish),
@@ -94,12 +94,12 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 ),
                 ( # Third set is with output_charset of C
                 (self.u_ascii, self.b_ascii),
-                (self.u_spanish, self.ascii_spanish_replace),
-                (self.u_japanese, self.ascii_japanese_replace),
+                (self.u_spanish, self.ascii_mangled_spanish_as_ascii),
+                (self.u_japanese, self.ascii_mangled_japanese_replace_as_latin1),
                 (self.b_ascii, self.b_ascii),
-                (self.utf8_spanish, self.utf8_spanish),
-                (self.latin1_spanish, self.latin1_spanish),
-                (self.utf8_japanese, self.utf8_japanese),
+                (self.utf8_spanish, self.ascii_mangled_spanish_as_ascii),
+                (self.latin1_spanish, self.ascii_mangled_spanish_as_ascii),
+                (self.utf8_japanese, self.ascii_mangled_japanese_replace_as_latin1),
                 ),
             ),
             'unicode': (( # First set is with the default charset (utf8)
@@ -108,7 +108,7 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 (self.u_japanese, self.u_japanese),
                 (self.b_ascii, self.u_ascii),
                 (self.utf8_spanish, self.u_spanish),
-                (self.latin1_spanish, self.u_spanish_replace), # String is mangled but no exception
+                (self.latin1_spanish, self.u_mangled_spanish_latin1_as_utf8), # String is mangled but no exception
                 (self.utf8_japanese, self.u_japanese),
                 ),
                 ( # Second set is with _charset of latin1 (ISO-8859-1)
@@ -138,41 +138,63 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
 
     def check_gettext(self, message, value, charset=None):
         self.translations.set_output_charset(charset)
-        tools.ok_(self.translations.gettext(message) == value)
+        tools.eq_(self.translations.gettext(message), value,
+                msg='gettext(%s): trans: %s != val: %s (charset=%s)'
+                % (repr(message), repr(self.translations.gettext(message)),
+                    repr(value), charset))
 
-    def check_lgettext(self, message, value, charset=None, locale='en_US.UTF-8'):
+    def check_lgettext(self, message, value, charset=None,
+            locale='en_US.UTF-8'):
         os.environ['LC_ALL'] = locale
         self.translations.set_output_charset(charset)
-        tools.ok_(self.translations.lgettext(message) == value)
+        tools.eq_(self.translations.lgettext(message), value,
+                msg='lgettext(%s): trans: %s != val: %s (charset=%s, locale=%s)'
+                % (repr(message), repr(self.translations.lgettext(message)),
+                    repr(value), charset, locale))
 
     # Note: charset has a default value because nose isn't invoking setUp and
     # tearDown each time check_* is run.
     def check_ugettext(self, message, value, charset='utf-8'):
         '''ugettext method with default values'''
         self.translations.input_charset = charset
-        tools.ok_(self.translations.ugettext(message) == value)
+        tools.eq_(self.translations.ugettext(message), value,
+                msg='ugettext(%s): trans: %s != val: %s (charset=%s)'
+                % (repr(message), repr(self.translations.ugettext(message)),
+                    repr(value), charset))
 
     def check_ngettext(self, message, value, charset=None):
         self.translations.set_output_charset(charset)
-        tools.ok_(self.translations.ngettext(message, 'blank', 1) == value)
-        tools.ok_(self.translations.ngettext('blank', message, 2) == value)
+        tools.eq_(self.translations.ngettext(message, 'blank', 1), value)
+        tools.eq_(self.translations.ngettext('blank', message, 2), value)
         tools.ok_(self.translations.ngettext(message, 'blank', 2) != value)
         tools.ok_(self.translations.ngettext('blank', message, 1) != value)
 
     def check_lngettext(self, message, value, charset=None, locale='en_US.UTF-8'):
         os.environ['LC_ALL'] = locale
         self.translations.set_output_charset(charset)
-        tools.ok_(self.translations.lngettext(message, 'blank', 1) == value)
-        tools.ok_(self.translations.lngettext('blank', message, 2) == value)
-        tools.ok_(self.translations.lngettext(message, 'blank', 2) != value)
-        tools.ok_(self.translations.lngettext('blank', message, 1) != value)
+        tools.eq_(self.translations.lngettext(message, 'blank', 1), value,
+                msg='lngettext(%s, "blank", 1): trans: %s != val: %s (charset=%s, locale=%s)'
+                % (repr(message), repr(self.translations.lngettext(message,
+                    'blank', 1)), repr(value), charset, locale))
+        tools.eq_(self.translations.lngettext('blank', message, 2), value,
+                msg='lngettext("blank", %s, 2): trans: %s != val: %s (charset=%s, locale=%s)'
+                % (repr(message), repr(self.translations.lngettext('blank',
+                    message, 2)), repr(value), charset, locale))
+        tools.ok_(self.translations.lngettext(message, 'blank', 2) != value,
+                msg='lngettext(%s, "blank", 2): trans: %s != val: %s (charset=%s, locale=%s)'
+                % (repr(message), repr(self.translations.lngettext(message,
+                    'blank', 2)), repr(value), charset, locale))
+        tools.ok_(self.translations.lngettext('blank', message, 1) != value,
+                msg='lngettext("blank", %s, 1): trans: %s != val: %s (charset=%s, locale=%s)'
+                % (repr(message), repr(self.translations.lngettext('blank',
+                    message, 1)), repr(value), charset, locale))
 
     # Note: charset has a default value because nose isn't invoking setUp and
     # tearDown each time check_* is run.
     def check_ungettext(self, message, value, charset='utf-8'):
         self.translations.input_charset = charset
-        tools.ok_(self.translations.ungettext(message, 'blank', 1) == value)
-        tools.ok_(self.translations.ungettext('blank', message, 2) == value)
+        tools.eq_(self.translations.ungettext(message, 'blank', 1), value)
+        tools.eq_(self.translations.ungettext('blank', message, 2), value)
         tools.ok_(self.translations.ungettext(message, 'blank', 2) != value)
         tools.ok_(self.translations.ungettext('blank', message, 1) != value)
 
@@ -265,12 +287,12 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
             yield self.check_ungettext, message, value, 'ascii'
 
     def test_nonbasestring(self):
-        tools.ok_(self.translations.gettext(dict(hi='there')) == '')
-        tools.ok_(self.translations.ngettext(dict(hi='there'), dict(hi='two'), 1) == '')
-        tools.ok_(self.translations.lgettext(dict(hi='there')) == '')
-        tools.ok_(self.translations.lngettext(dict(hi='there'), dict(hi='two'), 1) == '')
-        tools.ok_(self.translations.ugettext(dict(hi='there')) == u'')
-        tools.ok_(self.translations.ungettext(dict(hi='there'), dict(hi='two'), 1) == u'')
+        tools.eq_(self.translations.gettext(dict(hi='there')), '')
+        tools.eq_(self.translations.ngettext(dict(hi='there'), dict(hi='two'), 1), '')
+        tools.eq_(self.translations.lgettext(dict(hi='there')), '')
+        tools.eq_(self.translations.lngettext(dict(hi='there'), dict(hi='two'), 1), '')
+        tools.eq_(self.translations.ugettext(dict(hi='there')), u'')
+        tools.eq_(self.translations.ungettext(dict(hi='there'), dict(hi='two'), 1), u'')
 
 
 class TestI18N_Latin1(unittest.TestCase):
