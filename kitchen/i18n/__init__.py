@@ -207,16 +207,28 @@ class DummyTranslations(object, gettext.NullTranslations):
             self._output_charset = None
         if not hasattr(self, 'output_charset'):
             self.output_charset = self.__output_charset
-        if not hasattr(self, 'set_output_charset'):
-            self.set_output_charset = self.__set_output_charset
 
         # Extension for making ugettext and ungettext more sane
         # 'utf-8' is only a default here.  Users can override.
         self.input_charset = 'utf-8'
 
-    def __set_output_charset(self, charset):
-        ''' Compatibility for python2.3 which doesn't have output_charset'''
-        self._output_charset = charset
+    def set_output_charset(self, charset):
+        '''Set the output charset
+
+        This serves two purposes.  The normal
+        :meth:`gettext.NullTranslations.set_output_charset` does not set the
+        output on fallback objects.  On python-2.3,
+        :class:`gettext.NullTranslations` objects don't contain this method.
+        '''
+        if self._fallback:
+            try:
+                self._fallback.set_output_charset(charset)
+            except AttributeError:
+                pass
+        try:
+            gettext.NullTranslations.set_output_charset(self, charset)
+        except AttributeError:
+            self._output_charset = charset
 
     def __output_charset(self):
         '''Compatibility for python2.3 which doesn't have output_charset'''
