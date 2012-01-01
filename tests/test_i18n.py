@@ -358,10 +358,12 @@ class TestNewGNURealTranslations_UTF8(unittest.TestCase):
         tools.ok_(_('kitchen sink')=='pia da cozinha')
         tools.ok_(_('Kuratomi')=='くらとみ')
         tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.ok_(_('Only café in fallback')=='Only café in fallback')
 
         tools.ok_(_(u'kitchen sink')=='pia da cozinha')
         tools.ok_(_(u'くらとみ')=='Kuratomi')
         tools.ok_(_(u'Kuratomi')=='くらとみ')
+        tools.ok_(_(u'Only café in fallback')=='Only café in fallback')
 
     def test_ngettext(self):
         _ = self.translations.ngettext
@@ -380,10 +382,12 @@ class TestNewGNURealTranslations_UTF8(unittest.TestCase):
         tools.ok_(_('kitchen sink')=='pia da cozinha')
         tools.ok_(_('Kuratomi')=='くらとみ')
         tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.ok_(_('Only café in fallback')=='Only café in fallback')
 
         tools.ok_(_(u'kitchen sink')=='pia da cozinha')
         tools.ok_(_(u'くらとみ')=='Kuratomi')
         tools.ok_(_(u'Kuratomi')=='くらとみ')
+        tools.ok_(_(u'Only café in fallback')=='Only café in fallback')
 
     def test_lngettext(self):
         _ = self.translations.lngettext
@@ -402,10 +406,12 @@ class TestNewGNURealTranslations_UTF8(unittest.TestCase):
         tools.ok_(_('kitchen sink')==u'pia da cozinha')
         tools.ok_(_('Kuratomi')==u'くらとみ')
         tools.ok_(_('くらとみ')==u'Kuratomi')
+        tools.ok_(_('Only café in fallback')==u'Only café in fallback')
 
         tools.ok_(_(u'kitchen sink')==u'pia da cozinha')
         tools.ok_(_(u'くらとみ')==u'Kuratomi')
         tools.ok_(_(u'Kuratomi')==u'くらとみ')
+        tools.ok_(_(u'Only café in fallback')==u'Only café in fallback')
 
     def test_ungettext(self):
         _ = self.translations.ungettext
@@ -434,13 +440,16 @@ class TestNewGNURealTranslations_Latin1(TestNewGNURealTranslations_UTF8):
 
     def test_lgettext(self):
         _ = self.translations.lgettext
-        tools.ok_(_('kitchen sink')=='pia da cozinha')
-        tools.ok_(_('Kuratomi')=='????')
-        tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.eq_(_('kitchen sink'), 'pia da cozinha')
+        tools.eq_(_('Kuratomi'), '????')
+        tools.eq_(_('くらとみ'), 'Kuratomi')
+        #tools.eq_(_('Only café in fallback'), 'Only caf\xe9 in fallback')
+        tools.eq_(_('Only café in fallback'), 'Only café in fallback')
 
-        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
-        tools.ok_(_(u'くらとみ')=='Kuratomi')
-        tools.ok_(_(u'Kuratomi')=='????')
+        tools.eq_(_(u'kitchen sink'), 'pia da cozinha')
+        tools.eq_(_(u'くらとみ'), 'Kuratomi')
+        tools.eq_(_(u'Kuratomi'), '????')
+        tools.eq_(_(u'Only café in fallback'), 'Only caf\xe9 in fallback')
 
     def test_lngettext(self):
         _ = self.translations.lngettext
@@ -453,3 +462,91 @@ class TestNewGNURealTranslations_Latin1(TestNewGNURealTranslations_UTF8):
         tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
         tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='? lim\xf5es')
         tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+
+class TestFallbackNewGNURealTranslations_UTF8(unittest.TestCase):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.UTF8'
+        self.translations = i18n.get_translation_object('test',
+                ['%s/data/locale/' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)])
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
+
+    def test_gettext(self):
+        _ = self.translations.gettext
+        tools.ok_(_('kitchen sink')=='pia da cozinha')
+        tools.ok_(_('Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='くらとみ')
+        tools.ok_(_(u'Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+
+    def test_ngettext(self):
+        _ = self.translations.ngettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)=='一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)=='1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+    def test_lgettext(self):
+        _ = self.translations.lgettext
+        tools.eq_(_('kitchen sink'), 'pia da cozinha')
+        tools.ok_(_('Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ')=='Kuratomi')
+        tools.ok_(_('Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+
+        tools.ok_(_(u'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(u'くらとみ')=='Kuratomi')
+        tools.ok_(_(u'Kuratomi')=='くらとみ')
+        tools.ok_(_(u'Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+
+    def test_lngettext(self):
+        _ = self.translations.lngettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)=='一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)=='1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+    def test_ugettext(self):
+        _ = self.translations.ugettext
+        tools.ok_(_('kitchen sink')==u'pia da cozinha')
+        tools.ok_(_('Kuratomi')==u'くらとみ')
+        tools.ok_(_('くらとみ')==u'Kuratomi')
+        tools.ok_(_('Only café in fallback')==u'Yes, only caf\xe9 in fallback')
+
+        tools.ok_(_(u'kitchen sink')==u'pia da cozinha')
+        tools.ok_(_(u'くらとみ')==u'Kuratomi')
+        tools.ok_(_(u'Kuratomi')==u'くらとみ')
+        tools.ok_(_(u'Only café in fallback')==u'Yes, only caf\xe9 in fallback')
+
+    def test_ungettext(self):
+        _ = self.translations.ungettext
+        tools.ok_(_('1 lemon', '4 lemons', 1)==u'一 limão')
+        tools.ok_(_('一 limão', '四 limões', 1)==u'1 lemon')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 1)==u'一 limão')
+        tools.ok_(_(u'一 limão', u'四 limões', 1)==u'1 lemon')
+
+        tools.ok_(_('1 lemon', '4 lemons', 2)==u'四 limões')
+        tools.ok_(_('一 limão', '四 limões', 2)==u'4 lemons')
+        tools.ok_(_(u'1 lemon', u'4 lemons', 2)==u'四 limões')
+        tools.ok_(_(u'一 limão', u'四 limões', 2)==u'4 lemons')
+

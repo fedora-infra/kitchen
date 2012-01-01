@@ -4,7 +4,7 @@ NEWS
 
 :Authors: Toshio Kuratomi
 :Date: 19 Mar 2011
-:Version: 1.0.0
+:Version: 1.1.0
 
 ------------------
 1.1.0 (unreleased)
@@ -19,6 +19,10 @@ NEWS
   - Change the way we use localedirs.  We cycle through them until we find a
     suitable locale file rather than simply cycling through until we find a
     directory that exists.
+* Change the return values from gettext and lgettext family of functions.
+  Instead of simply guaranteeing a byte str will be returned we now guarantee
+  the byte str will be valid in a certain encoding (the str may still be
+  mangled but it will be valid).
 * Updated subprocess and base64 modules from latest python-2.7 branch.
 
 -----
