@@ -328,7 +328,7 @@ class TestI18N_Latin1(unittest.TestCase):
         tools.ok_(bN_(u'café', u'cafés', 2) == 'caf\xe9s')
 
 
-class TestNewGNUTranslationsFallback(TestDummyTranslations):
+class TestNewGNUTranslationsNoMatch(TestDummyTranslations):
     def setUp(self):
         self.old_LC_ALL = os.environ.get('LC_ALL', None)
         os.environ['LC_ALL'] = 'pt_BR.utf8'
@@ -465,6 +465,21 @@ class TestNewGNURealTranslations_Latin1(TestNewGNURealTranslations_UTF8):
         tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
         tools.ok_(_(u'1 lemon', u'4 lemons', 2)=='? lim\xf5es')
         tools.ok_(_(u'一 limão', u'四 limões', 2)=='4 lemons')
+
+
+class TestFallbackNewGNUTranslationsNoMatch(TestDummyTranslations):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.utf8'
+        self.translations = i18n.get_translation_object('test',
+                ['%s/data/locale/' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)])
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
 
 
 class TestFallbackNewGNURealTranslations_UTF8(unittest.TestCase):
