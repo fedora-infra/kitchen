@@ -235,18 +235,17 @@ class DummyTranslations(object, gettext.NullTranslations):
             valid = byte_string_valid_encoding(message, output_encoding)
         except TypeError:
             # input was unicode, so it needs to be encoded
-            msg = message
+            pass
 
         if valid:
             return message
-        elif not msg:
-            try:
-                # Decode to unicode so we can re-encode to desired encoding
-                msg = to_unicode(message, encoding=self.input_charset,
-                        nonstring='strict')
-            except TypeError:
-                # Not a string; return an empty byte string
-                return ''
+        try:
+            # Decode to unicode so we can re-encode to desired encoding
+            msg = to_unicode(message, encoding=self.input_charset,
+                    nonstring='strict')
+        except TypeError:
+            # Not a string; return an empty byte string
+            return ''
 
         # Make sure that we're returning a str of the desired encoding
         return to_bytes(msg, encoding=output_encoding)
@@ -321,8 +320,8 @@ class DummyTranslations(object, gettext.NullTranslations):
                 pass
 
         # Next decide what encoding to use for the strings we return
-        output_encoding = (self._output_charset or self._charset or
-                self.input_charset)
+        output_encoding = (self._output_charset or
+                locale.getpreferredencoding())
 
         return self._reencode_if_necessary(message, output_encoding)
 
