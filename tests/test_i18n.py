@@ -61,9 +61,16 @@ class TestI18N_UTF8(unittest.TestCase):
         '''
         translations = i18n.get_translation_object('foo', ['%s/data/locale/' % os.path.dirname(__file__)])
         tools.ok_(translations.__class__==i18n.DummyTranslations)
+        tools.assert_raises(IOError, i18n.get_translation_object, 'foo', ['%s/data/locale/' % os.path.dirname(__file__)], fallback=False)
 
         translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
         tools.ok_(translations.__class__==i18n.NewGNUTranslations)
+
+        translations = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)])
+        tools.ok_(translations.__class__==i18n.NewGNUTranslations)
+        tools.ok_(translations._fallback.__class__==i18n.NewGNUTranslations)
 
     def test_dummy_translation(self):
         '''Test that we can create a DummyTranslation obejct
