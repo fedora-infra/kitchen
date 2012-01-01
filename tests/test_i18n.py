@@ -443,8 +443,11 @@ class TestNewGNURealTranslations_Latin1(TestNewGNURealTranslations_UTF8):
         tools.eq_(_('kitchen sink'), 'pia da cozinha')
         tools.eq_(_('Kuratomi'), '????')
         tools.eq_(_('くらとみ'), 'Kuratomi')
-        #tools.eq_(_('Only café in fallback'), 'Only caf\xe9 in fallback')
-        tools.eq_(_('Only café in fallback'), 'Only café in fallback')
+        # The following returns utf-8 because latin-1 can hold all of the
+        # bytes that are present in utf-8 encodings.  Therefore, we cannot
+        # tell that we should reencode the string.  This will be displayed as
+        # mangled text if used in a program
+        tools.eq_(_('Only café in fallback'), 'Only caf\xc3\xa9 in fallback')
 
         tools.eq_(_(u'kitchen sink'), 'pia da cozinha')
         tools.eq_(_(u'くらとみ'), 'Kuratomi')
