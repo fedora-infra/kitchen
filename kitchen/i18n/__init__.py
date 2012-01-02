@@ -283,7 +283,7 @@ class DummyTranslations(object, gettext.NullTranslations):
         if self._fallback:
             try:
                 message = self._fallback.gettext(message)
-            except UnicodeError:
+            except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: We'll do our own encoding next
                 pass
 
@@ -359,7 +359,7 @@ class DummyTranslations(object, gettext.NullTranslations):
             msg = to_unicode(message, encoding=self.input_charset)
             try:
                 message = self._fallback.ugettext(msg)
-            except UnicodeError:
+            except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: We'll do our own decoding later
                 pass
 
@@ -378,7 +378,7 @@ class DummyTranslations(object, gettext.NullTranslations):
             msgid2 = to_unicode(msgid2, encoding=self.input_charset)
             try:
                 message = self._fallback.ungettext(msgid1, msgid2, n)
-            except UnicodeError:
+            except (AttributeError, UnicodeError):
                 # Ignore UnicodeErrors: We'll do our own decoding later
                 pass
 
@@ -486,7 +486,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     tmsg = self._fallback.gettext(message)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
@@ -512,7 +512,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     tmsg = self._fallback.ngettext(msgid1, msgid2, n)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
@@ -533,7 +533,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     tmsg = self._fallback.lgettext(message)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
@@ -559,7 +559,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     tmsg = self._fallback.ngettext(msgid1, msgid2, n)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
@@ -580,7 +580,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     message = self._fallback.ugettext(message)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
@@ -603,7 +603,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             if self._fallback:
                 try:
                     tmsg = self._fallback.ungettext(msgid1, msgid2, n)
-                except UnicodeError:
+                except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass
 
