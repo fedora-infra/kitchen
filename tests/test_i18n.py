@@ -671,3 +671,38 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
         tools.ok_(_(u'一 limão', u'四 limões', 2)==u'4 lemons')
 
 
+class TestFallback(unittest.TestCase):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.ISO8859-1'
+        self.gtranslations = i18n.get_translation_object('test',
+                ['%s/data/locale/' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)])
+        self.gtranslations.add_fallback(object())
+        self.dtranslations = i18n.get_translation_object('nonexistent',
+                ['%s/data/locale/' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)])
+        self.dtranslations.add_fallback(object())
+
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
+
+    def test_invalid_fallback_no_raise(self):
+        '''Test when we have an invalid fallback that it does not raise.'''
+        tools.eq_(self.gtranslations.gettext('abc'), 'abc')
+        tools.eq_(self.gtranslations.ugettext('abc'), 'abc')
+        tools.eq_(self.gtranslations.lgettext('abc'), 'abc')
+        tools.eq_(self.dtranslations.gettext('abc'), 'abc')
+        tools.eq_(self.dtranslations.ugettext('abc'), 'abc')
+        tools.eq_(self.dtranslations.lgettext('abc'), 'abc')
+
+        tools.eq_(self.dtranslations.ngettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.dtranslations.ungettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.dtranslations.lngettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.gtranslations.ngettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.gtranslations.ungettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.gtranslations.lngettext('abc', 'cde', 1), 'abc')
