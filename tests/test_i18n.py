@@ -72,6 +72,22 @@ class TestI18N_UTF8(unittest.TestCase):
         tools.ok_(translations.__class__==i18n.NewGNUTranslations)
         tools.ok_(translations._fallback.__class__==i18n.NewGNUTranslations)
 
+        translations2 = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)], codeset='latin-1')
+        translations2.input_charset = 'latin-1'
+        tools.ok_(translations2.__class__==i18n.NewGNUTranslations)
+        tools.ok_(translations2._fallback.__class__==i18n.NewGNUTranslations)
+
+        # Test that portions of the translation objects are the same and other
+        # portions are different (which is a space optimization so that the
+        # translation data isn't in memory multiple times)
+        tools.ok_(id(translations._fallback) != id(translations2._fallback))
+        tools.ok_(id(translations.output_charset()) != id(translations2.output_charset()))
+        tools.ok_(id(translations.input_charset) != id(translations2.input_charset))
+        tools.ok_(id(translations.input_charset) != id(translations2.input_charset))
+        tools.eq_(id(translations._catalog), id(translations2._catalog))
+
     def test_dummy_translation(self):
         '''Test that we can create a DummyTranslation obejct
         '''
