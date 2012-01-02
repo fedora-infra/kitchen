@@ -479,9 +479,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, basestring):
             return ''
         tmsg = message
-        message = to_unicode(message, encoding=self.input_charset)
+        u_message = to_unicode(message, encoding=self.input_charset)
         try:
-            tmsg = self._catalog[message] #pylint:disable-msg=E1101
+            tmsg = self._catalog[u_message] #pylint:disable-msg=E1101
         except KeyError:
             if self._fallback:
                 try:
@@ -504,10 +504,10 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         if not isinstance(msgid1, basestring):
             return ''
-        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+        u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
-            tmsg = self._catalog[(msgid1, self.plural(n))]
+            tmsg = self._catalog[(u_msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
                 try:
@@ -526,9 +526,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         if not isinstance(message, basestring):
             return ''
         tmsg = message
-        message = to_unicode(message, encoding=self.input_charset)
+        u_message = to_unicode(message, encoding=self.input_charset)
         try:
-            tmsg = self._catalog[message] #pylint:disable-msg=E1101
+            tmsg = self._catalog[u_message] #pylint:disable-msg=E1101
         except KeyError:
             if self._fallback:
                 try:
@@ -551,10 +551,10 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         if not isinstance(msgid1, basestring):
             return ''
-        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+        u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
-            tmsg = self._catalog[(msgid1, self.plural(n))]
+            tmsg = self._catalog[(u_msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
                 try:
@@ -595,10 +595,10 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         if not isinstance(msgid1, basestring):
             return u''
-        msgid1 = to_unicode(msgid1, encoding=self.input_charset)
+        u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
-            tmsg = self._catalog[(msgid1, self.plural(n))]
+            tmsg = self._catalog[(u_msgid1, self.plural(n))]
         except KeyError:
             if self._fallback:
                 try:
