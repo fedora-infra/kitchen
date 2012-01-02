@@ -132,8 +132,7 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 (self.u_spanish, self.u_spanish),
                 (self.u_japanese, self.u_japanese),
                 (self.b_ascii, self.u_ascii),
-                (self.utf8_spanish, self.u_mangled_spanish_utf8_as_ascii
-                    ), # String mangled but no exception
+                (self.utf8_spanish, self.u_mangled_spanish_utf8_as_ascii), # String mangled but no exception
                 (self.latin1_spanish, self.u_mangled_spanish_latin1_as_ascii), # String mangled but no exception
                 (self.utf8_japanese, self.u_mangled_japanese_utf8_as_ascii), # String mangled but no exception
                 ),

@@ -188,15 +188,17 @@ class DummyTranslations(object, gettext.NullTranslations):
             For information about what methods are available and what they do.
 
     .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
-        Although we had adapted :meth:`gettext`, :meth:`ngettext`,
-        :meth:`lgettext`, and :meth:`lngettext` to always return
-        byte :class:`str`, we hadn't forced those byte :class:`str` to always
-        be in a specified charset.  We now make sure that :meth:`gettext` and
-        :meth:`ngettext` return byte :class:`str` encoded using
-        :attr:`output_charset` if set, otherwise :attr:`charset` and if
-        neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
-        :meth:`lngettext` :attr:`output_charset` if set, otherwise
-        :func:`locale.getpreferredencoding`.
+        * Although we had adapted :meth:`gettext`, :meth:`ngettext`,
+          :meth:`lgettext`, and :meth:`lngettext` to always return byte
+          :class:`str`, we hadn't forced those byte :class:`str` to always be
+          in a specified charset.  We now make sure that :meth:`gettext` and
+          :meth:`ngettext` return byte :class:`str` encoded using
+          :attr:`output_charset` if set, otherwise :attr:`charset` and if
+          neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
+          :meth:`lngettext` :attr:`output_charset` if set, otherwise
+          :func:`locale.getpreferredencoding`.
+        * Make setting :attr:`input_charset` and :attr:`output_charset` also
+          set those attributes on any fallback translation objects.
     '''
     #pylint: disable-msg=C0103,C0111
     def __init__(self, fp=None):
@@ -210,7 +212,20 @@ class DummyTranslations(object, gettext.NullTranslations):
 
         # Extension for making ugettext and ungettext more sane
         # 'utf-8' is only a default here.  Users can override.
-        self.input_charset = 'utf-8'
+        self._input_charset = 'utf-8'
+
+    def _set_input_charset(self, charset):
+        if self._fallback:
+            try:
+                self._fallback.input_charset = charset
+            except AttributeError:
+                pass
+        self._input_charset = charset
+
+    def _get_input_charset(self):
+        return self._input_charset
+
+    input_charset = property(_get_input_charset, _set_input_charset)
 
     def set_output_charset(self, charset):
         '''Set the output charset

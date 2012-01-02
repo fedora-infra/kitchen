@@ -24,6 +24,8 @@ NEWS
   the byte str will be valid in a certain encoding (the str may still be
   mangled but it will be valid).
 * Updated subprocess and base64 modules from latest python-2.7 branch.
+* Fix i18n Translation objects to set input_charset and output_charset on any
+  fallback objects.
 
 -----
 1.0.0
