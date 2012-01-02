@@ -3,8 +3,8 @@ Kitchen.core Module
 ===================
 
 :Author: Toshio Kuratomi
-:Date: 20 Feb 2011
-:Version: 0.2.x
+:Date: 2 Jan 2012
+:Version: 1.1.x
 
 The Kitchen module provides a python API for all sorts of little useful
 snippets of code that everybody ends up writing for their projects but never
