@@ -121,7 +121,7 @@ class TestDummyTranslations(base_classes.UnicodeTestData):
                 (self.u_japanese, self.ascii_mangled_japanese_replace_as_latin1),
                 (self.b_ascii, self.b_ascii),
                 (self.utf8_spanish, self.ascii_mangled_spanish_as_ascii),
-                (self.latin1_spanish, self.ascii_mangled_spanish_as_ascii),
+                (self.latin1_spanish, self.ascii_twice_mangled_spanish_latin1_as_utf8_as_ascii),
                 (self.utf8_japanese, self.ascii_mangled_japanese_replace_as_latin1),
                 ),
             ),

@@ -30,6 +30,7 @@ class UnicodeTestData(object):
     u_mangled_spanish_utf8_as_ascii = unicode(utf8_spanish, encoding='ascii', errors='replace')
     u_mangled_spanish_latin1_as_ascii = unicode(latin1_spanish, encoding='ascii', errors='replace')
     u_mangled_spanish_latin1_as_utf8 = unicode(latin1_spanish, encoding='utf-8', errors='replace')
+    ascii_twice_mangled_spanish_latin1_as_utf8_as_ascii = u_mangled_spanish_latin1_as_utf8.encode('ascii', 'replace')
     utf8_mangled_spanish_latin1_as_utf8 = u_mangled_spanish_latin1_as_utf8.encode('utf-8')
     u_spanish_ignore = unicode(latin1_spanish, encoding='utf8', errors='ignore')
 
