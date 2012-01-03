@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.net
+
+[kitchen.kitchenpot]
+file_filter = po/<lang>.po
+source_file = po/kitchen.pot
+source_lang = en
