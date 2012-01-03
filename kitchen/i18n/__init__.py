@@ -207,8 +207,6 @@ class DummyTranslations(object, gettext.NullTranslations):
         # Python 2.3 compat
         if not hasattr(self, '_output_charset'):
             self._output_charset = None
-        if not hasattr(self, 'output_charset'):
-            self.output_charset = self.__output_charset
 
         # Extension for making ugettext and ungettext more sane
         # 'utf-8' is only a default here.  Users can override.
@@ -245,9 +243,10 @@ class DummyTranslations(object, gettext.NullTranslations):
         except AttributeError:
             self._output_charset = charset
 
-    def __output_charset(self):
-        '''Compatibility for python2.3 which doesn't have output_charset'''
-        return self._output_charset
+    if not hasattr(gettext.NullTranslations, 'output_charset'):
+        def output_charset(self):
+            '''Compatibility for python2.3 which doesn't have output_charset'''
+            return self._output_charset
 
     def _reencode_if_necessary(self, message, output_encoding):
         '''Return a byte string that's valid in a specific charset.

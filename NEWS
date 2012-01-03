@@ -26,6 +26,9 @@ NEWS
 * Updated subprocess and base64 modules from latest python-2.7 branch.
 * Fix i18n Translation objects to set input_charset and output_charset on any
   fallback objects.
+* Fix kitchen.i18n Translation objects' output_encoding() method on python-2.3.
+  It was accessing a different self object than we wanted it to.  Defining it
+  in a different way makes it work on python-2.3.
 
 -----
 1.0.0
