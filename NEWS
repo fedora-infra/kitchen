@@ -19,6 +19,9 @@ NEWS
   - Change the way we use localedirs.  We cycle through them until we find a
     suitable locale file rather than simply cycling through until we find a
     directory that exists.
+  - When multiple message catalogs are found in localedirs (and via environment
+    variables), set up the extra ones as fallbacks if the message isn't found
+    in the first catalog.
 * Change the return values from gettext and lgettext family of functions.
   Instead of simply guaranteeing a byte str will be returned we now guarantee
   the byte str will be valid in a certain encoding (the str may still be
