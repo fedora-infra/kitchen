@@ -1,0 +1,99 @@
+================================
+Some notes on hacking on kitchen
+================================
+
+:Author: Toshio Kuratomi
+:Date: 2 Jan 2012
+:Version: 1.1.x
+
+For coding and kitchen, see the style guide in the documentation.
+
+This file documents meta-information about kitchen such as where to get the
+code and how to make a release.
+
+.. contents::
+
+--------------
+Get translated
+--------------
+
+We use the translation services at transifex.net to manage po files, coordinate
+people translating strings, and merge new strings to the files.  The following
+instructions briefly tell how to use transifex to update the source languages'
+files and pull new translations for release.  Actually doing translations can
+be found in the `transifex user's guide`_.
+
+.. `transifex user's guide`:: http://help.transifex.net/user-guide/translating.html
+
+To generate the POT file (located in the po/ subdirectory), use pybabel to
+extract the messages.  Tun the following from the top level directory::
+
+  pybabel extract -F pybabel.conf -o po/kitchen.pot kitchen
+
+Then commit this pot file and upload to transifex::
+
+  tx push -s
+  bzr commit -m 'Extract new strings from the source files' po/kitchen.pot
+  bzr push
+
+To pull messages from transifex prior to making a release, do::
+
+  tx pull -a
+  bzr commit -m 'Merge new translations from transifex' po/*.po
+
+If you see a status message from transifex like this::
+  Pulling new translations for resource kitchen.kitchenpot (source: po/kitchen.pot)
+     -> fr: po/fr.po
+
+it means that transifex has created a brand new po file for you.  You need to
+add the new file to source control and commit it like this::
+
+  bzr add po/fr.po
+  bzr commit -m 'New French translation' po/fr.po
+
+
+TODO: Add information about announcing string freeze.  Using transifex's add
+release function to coordinate with translators.  Mailing a translators list,
+etc.
+
+--------
+Releases
+--------
+
+.. note:: If a release is not time critical, make an effort to get the
+    software translated first.  See :id:`Get translated` for details.
+
+Testing
+=======
+
+Test that docs build
+--------------------
+
+Unittest
+--------
+
+Creating the release
+====================
+
+1. Make sure that any feature branches you want have been merged.
+2. Pull in new translations and verify they are valid::
+    tx pull -a
+    python setup.py make_catalogs
+    bzr commit -m 'Merge new translations from transifex.net'
+3. Update the version in kitchen/release.py and NEWS.
+4. Make a fresh clone of the repository::
+    cd $PATH_TO_MY_SHARED_REPO
+    bzr branch bzr://bzr.fedorahosted.org/bzr/kitchen/devel release
+5. Make the source tarball in that directory::
+    cd release
+    python setup.py sdist
+6. Upload the docs to pypi::
+    python setup.py upload_docs
+6. Upload the tarball to pypi::
+    python setup.py upload --sign
+7. Upload the tarball to fedorahosted::
+    scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
+
+8. Tag the release::
+    bzr tag $RELEASE_VERSION
+    bzr push
