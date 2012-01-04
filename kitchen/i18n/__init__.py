@@ -611,7 +611,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
                 nonstring='empty')
 
 
-def get_translation_object(domain, localedirs=None, languages=None,
+def get_translation_object(domain, localedirs=tuple(), languages=None,
         class_=None, fallback=True, codeset=None):
     '''Get a translation object bound to the :term:`message catalogs`
 

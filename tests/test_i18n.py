@@ -66,18 +66,24 @@ class TestI18N_UTF8(unittest.TestCase):
         translations = i18n.get_translation_object('test', ['%s/data/locale/' % os.path.dirname(__file__)])
         tools.ok_(translations.__class__==i18n.NewGNUTranslations)
 
+    def test_get_translation_object_create_fallback(self):
+        '''Test get_translation_object creates fallbacks for additional catalogs'''
         translations = i18n.get_translation_object('test',
                 ['%s/data/locale' % os.path.dirname(__file__),
                     '%s/data/locale-old' % os.path.dirname(__file__)])
         tools.ok_(translations.__class__==i18n.NewGNUTranslations)
         tools.ok_(translations._fallback.__class__==i18n.NewGNUTranslations)
 
+    def test_get_translation_object_copy(self):
+        '''Test get_translation_object shallow copies the message catalog'''
+        translations = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)], codeset='utf-8')
+        translations.input_charset = 'utf-8'
         translations2 = i18n.get_translation_object('test',
                 ['%s/data/locale' % os.path.dirname(__file__),
                     '%s/data/locale-old' % os.path.dirname(__file__)], codeset='latin-1')
         translations2.input_charset = 'latin-1'
-        tools.ok_(translations2.__class__==i18n.NewGNUTranslations)
-        tools.ok_(translations2._fallback.__class__==i18n.NewGNUTranslations)
 
         # Test that portions of the translation objects are the same and other
         # portions are different (which is a space optimization so that the
@@ -88,8 +94,13 @@ class TestI18N_UTF8(unittest.TestCase):
         tools.ok_(id(translations.input_charset) != id(translations2.input_charset))
         tools.eq_(id(translations._catalog), id(translations2._catalog))
 
+    def test_get_translation_object_optional_params(self):
+        '''Smoketest leaving out optional parameters'''
+        translations = i18n.get_translation_object('test')
+        tools.ok_(translations.__class__ in (i18n.NewGNUTranslations, i18n.DummyTranslations))
+
     def test_dummy_translation(self):
-        '''Test that we can create a DummyTranslation obejct
+        '''Test that we can create a DummyTranslation object
         '''
         tools.ok_(isinstance(i18n.DummyTranslations(), i18n.DummyTranslations))
 
