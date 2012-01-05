@@ -6,8 +6,6 @@ import os
 import shutil
 import subprocess
 
-import babel.messages.frontend
-
 class MsgFmt(object):
     def run(self, args):
         cmd = subprocess.Popen(args, shell=False)
@@ -18,6 +16,8 @@ def setup_message_compiler():
     try:
         subprocess.Popen(['msgfmt', '-h'], stdout=subprocess.PIPE)
     except OSError:
+        import babel.messages.frontend
+
         return (babel.messages.frontend.CommandLineInterface(),
             'pybbel compile -D %(domain)s -d locale -i %(pofile)s -l %(lang)s'
             )
