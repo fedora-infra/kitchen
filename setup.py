@@ -1,8 +1,29 @@
 #!/usr/bin/python -tt
 # -*- coding: utf-8 -*-
 
+from distutils.command.sdist import sdist as _sdist
+import glob
+import os
+
 from setuptools import find_packages, setup
 import kitchen.release
+
+import releaseutils
+
+# Override sdist command to compile the message catalogs as well
+class Sdist(_sdist, object):
+    def run(self):
+        releaseutils.main()
+        data_files = []
+        for langfile in filter(os.path.isfile, glob.glob('locale/*/*/*.mo')):
+            data_files.append((os.path.dirname(langfile), [langfile]))
+        if self.distribution.data_files and \
+                hasattr(self.distribution.data_files, 'extend'):
+            self.distribution.data_files.extend(data_files)
+        else:
+            self.distribution.data_files = data_files
+        super(Sdist, self).run()
+
 
 setup(name='kitchen',
       version=str(kitchen.release.__version__),
@@ -15,6 +36,8 @@ setup(name='kitchen',
       license=kitchen.release.LICENSE,
       url=kitchen.release.URL,
       download_url=kitchen.release.DOWNLOAD_URL,
+      cmdclass={'sdist': Sdist
+          },
       keywords='Useful Small Code Snippets',
       classifiers=[
             'Development Status :: 4 - Beta',
@@ -30,5 +53,5 @@ setup(name='kitchen',
             'Topic :: Text Processing :: General',
           ],
       packages=find_packages(),
-      data_files = [],
+      data_files=[],
 )
