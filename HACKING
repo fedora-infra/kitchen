@@ -13,6 +13,20 @@ code and how to make a release.
 
 .. contents::
 
+-----------------------------------------
+Extra software needed for making releases
+-----------------------------------------
+Although kitchen has very few requirements for running, there are a few more
+that are required for making a release:
+
+* python-2.4+ (tested on python-2.7)
+* transifex-client (/usr/bin/tx)
+* gettext (/usr/bin/msgfmt)
+* python-babel (/usr/bin/pybabel)
+* python-sphinx (/usr/bin/sphinx-build)
+* python-nose (/usr/bin/nosetests)
+* python-coverage (/usr/bin/coverage)
+
 --------------
 Get translated
 --------------
@@ -28,7 +42,7 @@ be found in the `transifex user's guide`_.
 To generate the POT file (located in the po/ subdirectory), use pybabel to
 extract the messages.  Tun the following from the top level directory::
 
-  pybabel extract -F pybabel.conf -o po/kitchen.pot kitchen
+  pybabel extract -o po/kitchen.pot kitchen -kb_ -kbN_
 
 Then commit this pot file and upload to transifex::
 
@@ -66,8 +80,50 @@ Releases
 Testing
 =======
 
+Even though python is a compiled language, there's several ways to test that
+the software is correct.
+
 Test that docs build
 --------------------
+
+Documentation is written in ReStructuredText format and built via the
+:mod:`sphinx` documentation system for python.  There is a variety of
+hand-written and formatted documentation in the :file:`docs` directory.  Those
+documents also pull some documentation out of the docstrings in the code.
+
+Any of those places may have formatting that is not valid in the sphinx
+system.  Building the documentation into html will see if there's any spots
+that need to be fixed::
+
+  python setup.py build_sphinx --fresh-env
+
+The command will attempt to turn the documentation into html.  Any errors or
+warnings in the output mean that there's some piece of documentation that
+sphinx doesn't know how to deal with.  That should be fixed before publishing
+the release.
+
+
+Test that message catalogs compile
+----------------------------------
+
+One of the pieces of creating a new release is downloading new message
+catalogs from transifex.  Once in a great while, a translator will upload a
+translation there that causes problems (for instance, adding or omitting
+format strings from a translated string.)  Luckily the commands to create the
+message catalogs will detect things like this so just compiling the catalogs
+will determine if any translations need to be adjusted::
+
+    ./compile-message-catalogs.py
+
+This will iterate through all the message catalogs that transifex downloaded
+to the :file:`po` directory and compile them into the :file:`locale`
+directory.
+
+..warning:: If :file:/usr/bin/msgfmt is not installed, this command will still
+    compile the message catalogs but it will use babel.  Babel, unfortunately,
+    doesn't check for all the errors in message catalogs that msgfmt does so
+    it may say that the messages are fine when they really aren't.  Make sure
+    you have msgfmt available by installing gettext.
 
 Unittest
 --------
