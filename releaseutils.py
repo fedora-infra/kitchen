@@ -10,7 +10,8 @@ import babel.messages.frontend
 
 class MsgFmt(object):
     def run(self, args):
-        subprocess.Popen(args, shell=False)
+        cmd = subprocess.Popen(args, shell=False)
+        cmd.wait()
 
 def setup_message_compiler():
     # Look for msgfmt
@@ -23,8 +24,7 @@ def setup_message_compiler():
     else:
         return (MsgFmt(), 'msgfmt -c -o locale/%(lang)s/LC_MESSAGES/%(domain)s.mo %(pofile)s')
 
-compile_args = ['pybbel', 'compile', '-D', 'kitchen', '-d', 'locale', '-i', '<lang>.po', '-l', '<lang>']
-if __name__ == '__main__':
+def main():
     # Get the directory with message catalogs
     # Reuse transifex's config file first as it will know this
     cfg = ConfigParser.SafeConfigParser()
@@ -59,3 +59,6 @@ if __name__ == '__main__':
             compile_args = args % arg_values
             compile_args = compile_args.split(' ')
             cmd.run(compile_args)
+
+if __name__ == '__main__':
+    main()
