@@ -39,6 +39,10 @@ moment kitchen only requires
 
 :python: 2.3.1 or later
 
+.. warning:: Kitchen-1.1.0 is likely to be the last release that supports
+    python-2.3.x.  Future releases will target python-2.4 as the minimum
+    required version.
+
 Soft Requirements
 =================
 
