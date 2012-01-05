@@ -4,7 +4,7 @@ import ConfigParser
 import glob
 import os
 import shutil
-import subprocess
+from kitchen.pycompat27 import subprocess
 
 class MsgFmt(object):
     def run(self, args):
@@ -39,7 +39,7 @@ def main():
         if e.errno != 2:
             raise
 
-    for section in (s for s in cfg.sections() if s != 'main'):
+    for section in [s for s in cfg.sections() if s != 'main']:
         try:
             file_filter = cfg.get(section, 'file_filter')
             source_file = cfg.get(section, 'source_file')
