@@ -1,4 +1,4 @@
-include COPYING COPYING.LESSER NEWS
+include COPYING COPYING.LESSER NEWS HACKING
 include releaseutils.py
 recursive-include tests *.py *.po *.pot *.mo
 recursive-include docs *
