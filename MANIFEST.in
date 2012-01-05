@@ -1,3 +1,5 @@
 include COPYING COPYING.LESSER NEWS
+include releaseutils.py
 recursive-include tests *.py *.po *.pot *.mo
 recursive-include docs *
+recursive-include po
