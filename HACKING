@@ -128,18 +128,7 @@ directory.
 Unittest
 --------
 
-Kitchen has a large set of unittests.  It is important to be sure that they
-pass on the supported major python versions before any release.  This means
-running the unittests under python-2.3, python-2.4, python-2.6, and
-python-2.7.  A combination of Fedora and CentOS/RHEL boxes can meet this need:
-(RHEL4, RHEL5, RHEL6, and Fedora16, for instance).  A buildbot with the
-necessary python interpreter and modules can also be used.  We currently have
-access to a buildbot at: http://ci.csh.rit.edu:8080/view/Kitchen/ which
-performs builds.  It checks for new commits to the bzr repository hourly and
-performs a new build on python-2.7, python-2.6, and python-2.4.  We were
-unable to get python-2.3 running on the buildbot so that needs to be tested
-separately (I use a CentOS4 VM).
-
+Kitchen has a large set of unittests.  All of them should pass before release.
 You can run the unittests with the following command::
     nosetests --with-coverage --cover-package kitchen
 
@@ -154,6 +143,20 @@ some statistics about which lines of code were not accessed when kitchen ran.
     what encoding is specified in certain environment variables.  You can take
     a look at :file:`test_i18n.py` and :file:`test_converters.py` to see tests
     that attempt to cover enough input values to detect problems.
+
+Since kitchen is currently supported on python-2.3.1+, it is desirable to test
+kitchen on at least one python major version from python-2.3 through
+python-2.7.  We currently have access to a buildbot that has access to
+python-2.4, python-2.6, and python-2.7.  You can view it at
+http://ci.csh.rit.edu:8080/view/Kitchen/ .  The buildbot checks the devel
+repository hourly and if new checkins have occurred, it attempts to rebuild.
+If you need access to invoke builds on the buildbot more regularly than that,
+contact Toshio to get access.
+
+We were unable to get python-2.3 working in the buildbot so I manually run the
+unittests on a CentOS-4 virtual machine (with python-2.3).  I currently don't
+test on python-2.5 but I'd be happy to take bug reports or get a new committer
+that was interested in that platform.
 
 Creating the release
 ====================
