@@ -163,7 +163,7 @@ Creating the release
     tx pull -a
     python setup.py make_catalogs
     bzr commit -m 'Merge new translations from transifex.net'
-3. Update the version in kitchen/release.py and NEWS.
+3. Update the version in kitchen/__init__.py and NEWS.
 4. Make a fresh clone of the repository::
     cd $PATH_TO_MY_SHARED_REPO
     bzr branch bzr://bzr.fedorahosted.org/bzr/kitchen/devel release
