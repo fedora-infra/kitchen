@@ -164,7 +164,8 @@ Creating the release
 1. Make sure that any feature branches you want have been merged.
 2. Pull in new translations and verify they are valid::
     tx pull -a
-    python setup.py make_catalogs
+    ./releaseutils.py  # If msgfmt is installed, this will check that the
+    # catalogs are valid
     bzr commit -m 'Merge new translations from transifex.net'
 3. Update the version in kitchen/__init__.py and NEWS.
 4. Make a fresh clone of the repository::
