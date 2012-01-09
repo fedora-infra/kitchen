@@ -113,7 +113,7 @@ format strings from a translated string.)  Luckily the commands to create the
 message catalogs will detect things like this so just compiling the catalogs
 will determine if any translations need to be adjusted::
 
-    ./compile-message-catalogs.py
+    ./releaseutils.py
 
 This will iterate through all the message catalogs that transifex downloaded
 to the :file:`po` directory and compile them into the :file:`locale`
@@ -164,8 +164,8 @@ Creating the release
 1. Make sure that any feature branches you want have been merged.
 2. Pull in new translations and verify they are valid::
     tx pull -a
-    ./releaseutils.py  # If msgfmt is installed, this will check that the
-    # catalogs are valid
+    # If msgfmt is installed, this will check that the catalogs are valid
+    ./releaseutils.py
     bzr commit -m 'Merge new translations from transifex.net'
 3. Update the version in kitchen/__init__.py and NEWS.
 4. Make a fresh clone of the repository::
