@@ -177,13 +177,15 @@ Creating the release
 6. Make sure that the source tarball contains all of the files we want in the release::
     cd ..
     tar -xzvf release/dist/kitchen*tar.gz
-    diff -uNr devel kitchen-${VERSION}
+    diff -uNr devel kitchen-$RELEASE_VERSION
 7. Upload the docs to pypi::
+    cd release
     python setup.py upload_docs
 8. Upload the tarball to pypi::
     python setup.py sdist upload --sign
 9. Upload the tarball to fedorahosted::
     scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
 10. Tag the release::
+        cd ../devel
         bzr tag $RELEASE_VERSION
         bzr push
