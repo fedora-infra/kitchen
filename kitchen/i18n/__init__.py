@@ -89,7 +89,7 @@ See the documentation of :func:`easy_gettext_setup` and
 
 from kitchen.versioning import version_tuple_to_string
 
-__version_info__ = ((2, 1, 0),)
+__version_info__ = ((2, 1, 1),)
 __version__ = version_tuple_to_string(__version_info__)
 
 import copy
