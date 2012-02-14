@@ -717,3 +717,33 @@ class TestFallback(unittest.TestCase):
         tools.eq_(self.gtranslations.ngettext('abc', 'cde', 1), 'abc')
         tools.eq_(self.gtranslations.ungettext('abc', 'cde', 1), 'abc')
         tools.eq_(self.gtranslations.lngettext('abc', 'cde', 1), 'abc')
+
+class TestDefaultLocaleDir(unittest.TestCase):
+    def setUp(self):
+        self.old_LC_ALL = os.environ.get('LC_ALL', None)
+        os.environ['LC_ALL'] = 'pt_BR.UTF8'
+        self.old_DEFAULT_LOCALEDIRS = i18n._DEFAULT_LOCALEDIR
+        i18n._DEFAULT_LOCALEDIR = '%s/data/locale/' % os.path.dirname(__file__)
+        self.translations = i18n.get_translation_object('test')
+
+    def tearDown(self):
+        if self.old_LC_ALL:
+            os.environ['LC_ALL'] = self.old_LC_ALL
+        else:
+            del(os.environ['LC_ALL'])
+        if self.old_DEFAULT_LOCALEDIRS:
+            i18n._DEFAULT_LOCALEDIR = self.old_DEFAULT_LOCALEDIRS
+
+    def test_gettext(self):
+        _ = self.translations.gettext
+        tools.eq_(_('kitchen sink'), 'pia da cozinha')
+        tools.eq_(_('Kuratomi'), 'くらとみ')
+        tools.eq_(_('くらとみ'), 'Kuratomi')
+        tools.eq_(_('Only café in fallback'), 'Only café in fallback')
+
+        tools.eq_(_(u'kitchen sink'), 'pia da cozinha')
+        tools.eq_(_(u'くらとみ'), 'Kuratomi')
+        tools.eq_(_(u'Kuratomi'), 'くらとみ')
+        tools.eq_(_(u'Only café in fallback'), 'Only café in fallback')
+
+

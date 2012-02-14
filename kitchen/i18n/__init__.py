@@ -735,7 +735,7 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         class_ = NewGNUTranslations
 
     mofiles = []
-    for localedir in itertools.chain(localedirs, _DEFAULT_LOCALEDIR):
+    for localedir in itertools.chain(localedirs, (_DEFAULT_LOCALEDIR,)):
         mofiles.extend(gettext.find(domain, localedir, languages, all=1))
     if not mofiles:
         if fallback:
