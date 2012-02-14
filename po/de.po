@@ -1,0 +1,184 @@
+# Translations template for PROJECT.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# 
+# Translators:
+# Christoph Scheid <c@shri.de>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: Kitchen: Miscellaneous, useful  python code\n"
+"Report-Msgid-Bugs-To: https://fedorahosted.org/kitchen/\n"
+"POT-Creation-Date: 2012-01-03 18:23-0800\n"
+"PO-Revision-Date: 2012-01-13 20:39+0000\n"
+"Last-Translator: Christoph Scheid <c@shri.de>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: kitchen/release.py:9
+msgid "Kitchen contains a cornucopia of useful code"
+msgstr "Kitchen ist ein Füllhorn voller nützlichem Code."
+
+#: kitchen/release.py:10
+msgid ""
+"\n"
+"We've all done it.  In the process of writing a brand new application we've\n"
+"discovered that we need a little bit of code that we've invented before.\n"
+"Perhaps it's something to handle unicode text.  Perhaps it's something to make\n"
+"a bit of python-2.5 code run on python-2.3.  Whatever it is, it ends up being\n"
+"a tiny bit of code that seems too small to worry about pushing into its own\n"
+"module so it sits there, a part of your current project, waiting to be cut and\n"
+"pasted into your next project.  And the next.  And the next.  And since that\n"
+"little bittybit of code proved so useful to you, it's highly likely that it\n"
+"proved useful to someone else as well.  Useful enough that they've written it\n"
+"and copy and pasted it over and over into each of their new projects.\n"
+"\n"
+"Well, no longer!  Kitchen aims to pull these small snippets of code into a few\n"
+"python modules which you can import and use within your project.  No more copy\n"
+"and paste!  Now you can let someone else maintain and release these small\n"
+"snippets so that you can get on with your life.\n"
+msgstr ""
+
+#: kitchen/pycompat25/collections/_defaultdict.py:93
+msgid "First argument must be callable"
+msgstr "Das erste Argument muss ausführbar (callable) sein."
+
+#: kitchen/text/converters.py:140
+msgid ""
+"non_string is a deprecated parameter of to_unicode().  Use nonstring instead"
+msgstr "non_string ist ein veralteter Parameter von to_unicode(). Stattdessen nonstring verwenden."
+
+#: kitchen/text/converters.py:174
+#, python-format
+msgid ""
+"to_unicode was given \"%(obj)s\" which is neither a byte string (str) or a "
+"unicode string"
+msgstr ""
+
+#: kitchen/text/converters.py:178 kitchen/text/converters.py:297
+#, python-format
+msgid "nonstring value, %(param)s, is not set to a valid action"
+msgstr ""
+
+#: kitchen/text/converters.py:255
+msgid ""
+"non_string is a deprecated parameter of to_bytes().  Use nonstring instead"
+msgstr ""
+
+#: kitchen/text/converters.py:294
+#, python-format
+msgid ""
+"to_bytes was given \"%(obj)s\" which is neither a unicode string or a byte "
+"string (str)"
+msgstr ""
+
+#: kitchen/text/converters.py:378
+msgid ""
+"kitchen.text.converters.to_utf8 is deprecated.  Use "
+"kitchen.text.converters.to_bytes(obj, encoding=\"utf-8\", "
+"nonstring=\"passthru\" instead."
+msgstr ""
+
+#: kitchen/text/converters.py:403
+msgid ""
+"to_str is deprecated.  Use to_unicode or to_bytes instead.  See the to_str "
+"docstring for porting information."
+msgstr ""
+
+#: kitchen/text/converters.py:685
+msgid ""
+"unicode_to_xml must have a unicode type as the first argument.  Use "
+"bytes_string_to_xml for byte strings."
+msgstr ""
+
+#: kitchen/text/converters.py:689
+msgid ""
+"The control_chars argument to unicode_to_xml must be one of ignore, replace,"
+" or strict"
+msgstr ""
+
+#: kitchen/text/converters.py:786
+msgid ""
+"byte_string_to_xml can only take a byte string as its first argument.  Use "
+"unicode_to_xml for unicode strings"
+msgstr ""
+
+#: kitchen/text/converters.py:910
+msgid ""
+"kitchen.text.converters.to_xml is deprecated.  Use "
+"kitchen.text.converters.guess_encoding_to_xml instead."
+msgstr ""
+
+#: kitchen/text/display.py:344
+msgid ""
+"_ucp_width does not understand how to assign a width value to control "
+"characters."
+msgstr ""
+
+#: kitchen/text/misc.py:83
+msgid "byte_string must be a byte string (str)"
+msgstr ""
+
+#: kitchen/text/misc.py:171
+msgid "process_control_char must have a unicode type as the first argument."
+msgstr ""
+
+#: kitchen/text/misc.py:182
+msgid "ASCII control code present in string input"
+msgstr ""
+
+#: kitchen/text/misc.py:185
+msgid ""
+"The strategy argument to process_control_chars must be one of ignore, "
+"replace, or strict"
+msgstr ""
+
+#: kitchen/text/misc.py:241
+msgid "html_entities_unescape must have a unicode type for its first argument"
+msgstr ""
+
+#: kitchen/text/utf8.py:69
+msgid ""
+"kitchen.text.utf8.utf8_valid is deprecated.  Use "
+"kitchen.text.misc.byte_string_valid_encoding(msg) instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:79
+msgid ""
+"kitchen.text.utf8.utf8_width is deprecated.  Use "
+"kitchen.text.display.textual_width(msg) instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:101
+msgid ""
+"kitchen.text.utf8.utf8_width_chop is deprecated.  Use "
+"kitchen.text.display.textual_width_chop instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:120
+msgid ""
+"kitchen.text.utf8.utf8_width_fill is deprecated.  Use "
+"kitchen.text.display.byte_string_textual_width_fill instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:133
+msgid ""
+"kitchen.text.utf8.utf8_text_wrap is deprecated.  Use "
+"kitchen.text.display.wrap instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:153
+msgid ""
+"kitchen.text.utf8.utf8_text_fill is deprecated.  Use "
+"kitchen.text.display.fill instead"
+msgstr ""
+
+#: kitchen/text/utf8.py:163
+msgid ""
+"kitchen.text.utf8._utf8_width_le is deprecated.  Use "
+"kitchen.text.display._textual_width_le instead"
+msgstr ""
