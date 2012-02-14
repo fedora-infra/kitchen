@@ -19,7 +19,7 @@ def setup_message_compiler():
         import babel.messages.frontend
 
         return (babel.messages.frontend.CommandLineInterface(),
-            'pybbel compile -D %(domain)s -d locale -i %(pofile)s -l %(lang)s'
+            'pybabel compile -D %(domain)s -d locale -i %(pofile)s -l %(lang)s'
             )
     else:
         return (MsgFmt(), 'msgfmt -c -o locale/%(lang)s/LC_MESSAGES/%(domain)s.mo %(pofile)s')
