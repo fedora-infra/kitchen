@@ -89,10 +89,10 @@ def version_tuple_to_string(version_info):
         if isinstance(values[0], int):
             ver_components.append('.'.join(itertools.imap(str, values)))
         else:
+            modifier = values[0]
             if isinstance(values[0], unicode):
                 modifier = values[0].encode('ascii')
-            else:
-                modifier = values[0]
+
             if  modifier in ('a', 'b', 'c', 'rc'):
                 ver_components.append('%s%s' % (modifier,
                     '.'.join(itertools.imap(str, values[1:])) or '0'))
