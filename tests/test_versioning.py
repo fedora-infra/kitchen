@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #
-import unittest
 from nose import tools
 
 from kitchen.versioning import version_tuple_to_string
@@ -26,7 +25,7 @@ class TestVersionTuple(object):
             }
 
     def check_ver_tuple_to_str(self, v_tuple, v_str):
-        tools.ok_(version_tuple_to_string(v_tuple) == v_str)
+        tools.eq_(version_tuple_to_string(v_tuple), v_str)
 
     def test_version_tuple_to_string(self):
         '''Test that version_tuple_to_string outputs PEP-386 compliant strings

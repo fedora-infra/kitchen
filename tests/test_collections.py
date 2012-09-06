@@ -13,16 +13,16 @@ def test_strict_dict_get_set():
     d = collections.StrictDict()
     d[u'a'] = 1
     d['a'] = 2
-    tools.ok_(d[u'a'] != d['a'])
-    tools.ok_(len(d) == 2)
+    tools.assert_not_equal(d[u'a'], d['a'])
+    tools.eq_(len(d), 2)
 
     d[u'\xf1'] = 1
     d['\xf1'] = 2
-    d[u'\xf1'.encode('utf8')] = 3
-    tools.ok_(d[u'\xf1'] == 1)
-    tools.ok_(d['\xf1'] == 2)
-    tools.ok_(d[u'\xf1'.encode('utf8')] == 3)
-    tools.ok_(len(d) == 5)
+    d[u'\xf1'.encode('utf-8')] = 3
+    tools.eq_(d[u'\xf1'], 1)
+    tools.eq_(d['\xf1'], 2)
+    tools.eq_(d[u'\xf1'.encode('utf-8')], 3)
+    tools.eq_(len(d), 5)
 
 class TestStrictDict(unittest.TestCase):
     def setUp(self):
@@ -32,15 +32,14 @@ class TestStrictDict(unittest.TestCase):
         self.d[u'\xf1'] = 1
         self.d['\xf1'] = 2
         self.d[u'\xf1'.encode('utf8')] = 3
-        self.keys = [u'a', 'a', u'\xf1', '\xf1', u'\xf1'.encode('utf8')]
+        self.keys = [u'a', 'a', u'\xf1', '\xf1', u'\xf1'.encode('utf-8')]
 
     def tearDown(self):
         del(self.d)
 
     def _compare_lists(self, list1, list2, debug=False):
-        '''We have a mixture of bytes and unicode and need python2.3 compat
-
-        So we have to compare these lists manually and inefficiently
+        '''We have a mixture of bytes and unicode so we have to compare these
+            lists manually and inefficiently
         '''
         def _compare_lists_helper(compare_to, dupes, idx, length):
             if i not in compare_to:
@@ -109,34 +108,38 @@ class TestStrictDict(unittest.TestCase):
 
     def test_strict_dict_len(self):
         '''StrictDict len'''
-        tools.ok_(len(self.d) == 5)
+        tools.eq_(len(self.d), 5)
 
     def test_strict_dict_del(self):
         '''StrictDict del'''
-        tools.ok_(len(self.d) == 5)
+        tools.eq_(len(self.d), 5)
         del(self.d[u'\xf1'])
         tools.assert_raises(KeyError, self.d.__getitem__, u'\xf1')
-        tools.ok_(len(self.d) == 4)
+        tools.eq_(len(self.d), 4)
 
     def test_strict_dict_iter(self):
         '''StrictDict iteration'''
         keys = []
         for k in self.d:
             keys.append(k)
-        tools.ok_(self._compare_lists(keys, self.keys))
+        tools.ok_(self._compare_lists(keys, self.keys),
+                msg='keys != self.key: %s != %s' % (keys, self.keys))
 
         keys = []
         for k in self.d.iterkeys():
             keys.append(k)
-        tools.ok_(self._compare_lists(keys, self.keys))
+        tools.ok_(self._compare_lists(keys, self.keys),
+                msg='keys != self.key: %s != %s' % (keys, self.keys))
 
         keys = [k for k in self.d]
-        tools.ok_(self._compare_lists(keys, self.keys))
+        tools.ok_(self._compare_lists(keys, self.keys),
+                msg='keys != self.key: %s != %s' % (keys, self.keys))
 
         keys = []
         for k in self.d.keys():
             keys.append(k)
-        tools.ok_(self._compare_lists(keys, self.keys))
+        tools.ok_(self._compare_lists(keys, self.keys),
+                msg='keys != self.key: %s != %s' % (keys, self.keys))
 
     def test_strict_dict_contains(self):
         '''StrictDict contains function'''
