@@ -691,13 +691,14 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     except ControlCharError, exc:
         raise XmlEncodeError(exc.args[0])
 
-    string = string.encode(encoding, 'xmlcharrefreplace')
-
     # Escape characters that have special meaning in xml
     if attrib:
         string = xml.sax.saxutils.escape(string, entities={'"':"&quot;"})
     else:
         string = xml.sax.saxutils.escape(string)
+
+    string = string.encode(encoding, 'xmlcharrefreplace')
+
     return string
 
 def xml_to_unicode(byte_string, encoding='utf-8', errors='replace'):

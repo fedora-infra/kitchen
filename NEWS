@@ -4,7 +4,17 @@ NEWS
 
 :Authors: Toshio Kuratomi
 :Date: 14 Feb 2012
-:Version: 1.1.1
+:Version: 1.1.2
+
+
+
+------------------------
+1.1.2 (not yet released)
+------------------------
+
+* Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
+  string is turned into a byte string with an encoding that doesn't have 
+  all of the needed characters had their ampersands ("&") escaped.
 
 -----
 1.1.1
