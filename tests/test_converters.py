@@ -147,27 +147,39 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.ok_(obj_repr == "<type 'object'>" and isinstance(obj_repr, str))
 
     def test_unicode_to_xml(self):
-        tools.ok_(converters.unicode_to_xml(None) == '')
+        tools.eq_(converters.unicode_to_xml(None), '')
         tools.assert_raises(XmlEncodeError, converters.unicode_to_xml, *['byte string'])
         tools.assert_raises(ValueError, converters.unicode_to_xml, *[u'string'], **{'control_chars': 'foo'})
         tools.assert_raises(XmlEncodeError, converters.unicode_to_xml,
                 *[u'string\u0002'], **{'control_chars': 'strict'})
-        tools.ok_(converters.unicode_to_xml(self.u_entity) == self.utf8_entity_escape)
-        tools.ok_(converters.unicode_to_xml(self.u_entity, attrib=True) == self.utf8_attrib_escape)
+        tools.eq_(converters.unicode_to_xml(self.u_entity), self.utf8_entity_escape)
+        tools.eq_(converters.unicode_to_xml(self.u_entity, attrib=True), self.utf8_attrib_escape)
+        tools.eq_(converters.unicode_to_xml(self.u_entity, encoding='ascii'), self.ascii_entity_escape)
+        tools.eq_(converters.unicode_to_xml(self.u_entity, encoding='ascii', attrib=True), self.ascii_attrib_escape)
 
     def test_xml_to_unicode(self):
-        tools.ok_(converters.xml_to_unicode(self.utf8_entity_escape, 'utf8', 'replace') == self.u_entity)
-        tools.ok_(converters.xml_to_unicode(self.utf8_attrib_escape, 'utf8', 'replace') == self.u_entity)
+        tools.eq_(converters.xml_to_unicode(self.utf8_entity_escape, 'utf8', 'replace'), self.u_entity)
+        tools.eq_(converters.xml_to_unicode(self.utf8_attrib_escape, 'utf8', 'replace'), self.u_entity)
+        tools.eq_(converters.xml_to_unicode(self.ascii_entity_escape, 'ascii', 'replace'), self.u_entity)
+        tools.eq_(converters.xml_to_unicode(self.ascii_attrib_escape, 'ascii', 'replace'), self.u_entity)
 
     def test_xml_to_byte_string(self):
-        tools.ok_(converters.xml_to_byte_string(self.utf8_entity_escape, 'utf8', 'replace') == self.u_entity.encode('utf8'))
-        tools.ok_(converters.xml_to_byte_string(self.utf8_attrib_escape, 'utf8', 'replace') == self.u_entity.encode('utf8'))
+        tools.eq_(converters.xml_to_byte_string(self.utf8_entity_escape, 'utf8', 'replace'), self.u_entity.encode('utf8'))
+        tools.eq_(converters.xml_to_byte_string(self.utf8_attrib_escape, 'utf8', 'replace'), self.u_entity.encode('utf8'))
+        tools.eq_(converters.xml_to_byte_string(self.ascii_entity_escape, 'ascii', 'replace'), self.u_entity.encode('utf8'))
+        tools.eq_(converters.xml_to_byte_string(self.ascii_attrib_escape, 'ascii', 'replace'), self.u_entity.encode('utf8'))
 
-        tools.ok_(converters.xml_to_byte_string(self.utf8_attrib_escape,
-            output_encoding='euc_jp', errors='replace') ==
+        tools.eq_(converters.xml_to_byte_string(self.utf8_attrib_escape,
+            output_encoding='euc_jp', errors='replace'),
             self.u_entity.encode('euc_jp', 'replace'))
-        tools.ok_(converters.xml_to_byte_string(self.utf8_attrib_escape,
-            output_encoding='latin1', errors='replace') ==
+        tools.eq_(converters.xml_to_byte_string(self.utf8_attrib_escape,
+            output_encoding='latin1', errors='replace'),
+            self.u_entity.encode('latin1', 'replace'))
+        tools.eq_(converters.xml_to_byte_string(self.ascii_attrib_escape,
+            output_encoding='euc_jp', errors='replace'),
+            self.u_entity.encode('euc_jp', 'replace'))
+        tools.eq_(converters.xml_to_byte_string(self.ascii_attrib_escape,
+            output_encoding='latin1', errors='replace'),
             self.u_entity.encode('latin1', 'replace'))
 
     def test_byte_string_to_xml(self):
