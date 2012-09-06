@@ -16,7 +16,7 @@ class UnicodeTestData(object):
     # First challenge -- what happens with latin-1 characters
     u_spanish = u'El veloz murciélago saltó sobre el perro perezoso.'
     # utf8 and latin1 both support these chars so no mangling
-    utf8_spanish = u_spanish.encode('utf8')
+    utf8_spanish = u_spanish.encode('utf-8')
     latin1_spanish = u_spanish.encode('latin1')
 
     # ASCII does not have the accented characters so it mangles
@@ -62,7 +62,8 @@ class UnicodeTestData(object):
     u_entity_escape = u'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + unicode(u_japanese.encode('ascii', 'xmlcharrefreplace'), 'ascii') + u'&#xe9;'
     utf8_entity_escape = 'Test: &lt;"&amp;"&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
     utf8_attrib_escape = 'Test: &lt;&quot;&amp;&quot;&gt; – 速い茶色のキツネが怠惰な犬に\'増é'
-    ascii_entity_escape = (u'Test: <"&"> – ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace').replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;')
+    ascii_entity_escape = ('Test: <"&"> '.replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;')) + (u'– ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace')
+    ascii_attrib_escape = ('Test: <"&"> '.replace('&', '&amp;',1).replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')) + (u'– ' + u_japanese + u'é').encode('ascii', 'xmlcharrefreplace')
 
     b_byte_chars = ' '.join(map(chr, range(0, 256)))
     b_byte_encoded = 'ACABIAIgAyAEIAUgBiAHIAggCSAKIAsgDCANIA4gDyAQIBEgEiATIBQgFSAWIBcgGCAZIBogGyAcIB0gHiAfICAgISAiICMgJCAlICYgJyAoICkgKiArICwgLSAuIC8gMCAxIDIgMyA0IDUgNiA3IDggOSA6IDsgPCA9ID4gPyBAIEEgQiBDIEQgRSBGIEcgSCBJIEogSyBMIE0gTiBPIFAgUSBSIFMgVCBVIFYgVyBYIFkgWiBbIFwgXSBeIF8gYCBhIGIgYyBkIGUgZiBnIGggaSBqIGsgbCBtIG4gbyBwIHEgciBzIHQgdSB2IHcgeCB5IHogeyB8IH0gfiB/IIAggSCCIIMghCCFIIYghyCIIIkgiiCLIIwgjSCOII8gkCCRIJIgkyCUIJUgliCXIJggmSCaIJsgnCCdIJ4gnyCgIKEgoiCjIKQgpSCmIKcgqCCpIKogqyCsIK0griCvILAgsSCyILMgtCC1ILYgtyC4ILkguiC7ILwgvSC+IL8gwCDBIMIgwyDEIMUgxiDHIMggySDKIMsgzCDNIM4gzyDQINEg0iDTINQg1SDWINcg2CDZINog2yDcIN0g3iDfIOAg4SDiIOMg5CDlIOYg5yDoIOkg6iDrIOwg7SDuIO8g8CDxIPIg8yD0IPUg9iD3IPgg+SD6IPsg/CD9IP4g/w=='
