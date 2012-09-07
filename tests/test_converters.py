@@ -48,54 +48,54 @@ class ReprUnicode(object):
 class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def test_to_unicode(self):
         '''Test to_unicode when the user gives good values'''
-        tools.ok_(converters.to_unicode(self.u_japanese, encoding='latin1') == self.u_japanese)
+        tools.eq_(converters.to_unicode(self.u_japanese, encoding='latin1'), self.u_japanese)
 
-        tools.ok_(converters.to_unicode(self.utf8_spanish) == self.u_spanish)
-        tools.ok_(converters.to_unicode(self.utf8_japanese) == self.u_japanese)
+        tools.eq_(converters.to_unicode(self.utf8_spanish), self.u_spanish)
+        tools.eq_(converters.to_unicode(self.utf8_japanese), self.u_japanese)
 
-        tools.ok_(converters.to_unicode(self.latin1_spanish, encoding='latin1') == self.u_spanish)
-        tools.ok_(converters.to_unicode(self.euc_jp_japanese, encoding='euc_jp') == self.u_japanese)
+        tools.eq_(converters.to_unicode(self.latin1_spanish, encoding='latin1'), self.u_spanish)
+        tools.eq_(converters.to_unicode(self.euc_jp_japanese, encoding='euc_jp'), self.u_japanese)
 
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'nonstring': 'foo'})
 
     def test_to_unicode_errors(self):
-        tools.ok_(converters.to_unicode(self.latin1_spanish) == self.u_mangled_spanish_latin1_as_utf8)
-        tools.ok_(converters.to_unicode(self.latin1_spanish, errors='ignore') == self.u_spanish_ignore)
+        tools.eq_(converters.to_unicode(self.latin1_spanish), self.u_mangled_spanish_latin1_as_utf8)
+        tools.eq_(converters.to_unicode(self.latin1_spanish, errors='ignore'), self.u_spanish_ignore)
         tools.assert_raises(UnicodeDecodeError, converters.to_unicode,
                 *[self.latin1_spanish], **{'errors': 'strict'})
 
     def test_to_unicode_nonstring(self):
-        tools.ok_(converters.to_unicode(5) == u'5')
-        tools.ok_(converters.to_unicode(5, nonstring='empty') == u'')
-        tools.ok_(converters.to_unicode(5, nonstring='passthru') == 5)
-        tools.ok_(converters.to_unicode(5, nonstring='simplerepr') == u'5')
-        tools.ok_(converters.to_unicode(5, nonstring='repr') == u'5')
+        tools.eq_(converters.to_unicode(5), u'5')
+        tools.eq_(converters.to_unicode(5, nonstring='empty'), u'')
+        tools.eq_(converters.to_unicode(5, nonstring='passthru'), 5)
+        tools.eq_(converters.to_unicode(5, nonstring='simplerepr'), u'5')
+        tools.eq_(converters.to_unicode(5, nonstring='repr'), u'5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'nonstring': 'strict'})
 
-        tools.ok_(converters.to_unicode(UnicodeNoStr(), nonstring='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(StrNoUnicode(), nonstring='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(StrReturnsUnicode(), nonstring='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(UnicodeReturnsStr(), nonstring='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(UnicodeStrCrossed(), nonstring='simplerepr') == self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeNoStr(), nonstring='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(StrNoUnicode(), nonstring='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(StrReturnsUnicode(), nonstring='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeReturnsStr(), nonstring='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeStrCrossed(), nonstring='simplerepr'), self.u_spanish)
 
         obj_repr = converters.to_unicode(object, nonstring='simplerepr')
         tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
 
     def test_to_bytes(self):
         '''Test to_bytes when the user gives good values'''
-        tools.ok_(converters.to_bytes(self.utf8_japanese, encoding='latin1') == self.utf8_japanese)
+        tools.eq_(converters.to_bytes(self.utf8_japanese, encoding='latin1'), self.utf8_japanese)
 
-        tools.ok_(converters.to_bytes(self.u_spanish) == self.utf8_spanish)
-        tools.ok_(converters.to_bytes(self.u_japanese) == self.utf8_japanese)
+        tools.eq_(converters.to_bytes(self.u_spanish), self.utf8_spanish)
+        tools.eq_(converters.to_bytes(self.u_japanese), self.utf8_japanese)
 
-        tools.ok_(converters.to_bytes(self.u_spanish, encoding='latin1') == self.latin1_spanish)
-        tools.ok_(converters.to_bytes(self.u_japanese, encoding='euc_jp') == self.euc_jp_japanese)
+        tools.eq_(converters.to_bytes(self.u_spanish, encoding='latin1'), self.latin1_spanish)
+        tools.eq_(converters.to_bytes(self.u_japanese, encoding='euc_jp'), self.euc_jp_japanese)
 
     def test_to_bytes_errors(self):
-        tools.ok_(converters.to_bytes(self.u_mixed, encoding='latin1') ==
+        tools.eq_(converters.to_bytes(self.u_mixed, encoding='latin1'),
                 self.latin1_mixed_replace)
-        tools.ok_(converters.to_bytes(self.u_mixed, encoding='latin',
-            errors='ignore') == self.latin1_mixed_ignore)
+        tools.eq_(converters.to_bytes(self.u_mixed, encoding='latin',
+            errors='ignore'), self.latin1_mixed_ignore)
         tools.assert_raises(UnicodeEncodeError, converters.to_bytes,
             *[self.u_mixed], **{'errors': 'strict', 'encoding': 'latin1'})
 
@@ -103,14 +103,14 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.ok_(isinstance(repr_string, str))
         match = self.repr_re.match(repr_string)
         tools.ok_(match != None)
-        tools.ok_(match.groups()[0] == obj_name)
+        tools.eq_(match.groups()[0], obj_name)
 
     def test_to_bytes_nonstring(self):
-        tools.ok_(converters.to_bytes(5) == '5')
-        tools.ok_(converters.to_bytes(5, nonstring='empty') == '')
-        tools.ok_(converters.to_bytes(5, nonstring='passthru') == 5)
-        tools.ok_(converters.to_bytes(5, nonstring='simplerepr') == '5')
-        tools.ok_(converters.to_bytes(5, nonstring='repr') == '5')
+        tools.eq_(converters.to_bytes(5), '5')
+        tools.eq_(converters.to_bytes(5, nonstring='empty'), '')
+        tools.eq_(converters.to_bytes(5, nonstring='passthru'), 5)
+        tools.eq_(converters.to_bytes(5, nonstring='simplerepr'), '5')
+        tools.eq_(converters.to_bytes(5, nonstring='repr'), '5')
 
         # Raise a TypeError if the msg is nonstring and we're set to strict
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'nonstring': 'strict'})
@@ -122,25 +122,25 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         self._check_repr_bytes(string, 'UnicodeNoStr')
 
         # This object's _str__ returns a utf8 encoded object
-        tools.ok_(converters.to_bytes(StrNoUnicode(), nonstring='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(StrNoUnicode(), nonstring='simplerepr'), self.utf8_spanish)
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(StrReturnsUnicode(), nonstring='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(StrReturnsUnicode(), nonstring='simplerepr'), self.utf8_spanish)
         # Unless we explicitly ask for something different
-        tools.ok_(converters.to_bytes(StrReturnsUnicode(),
-            nonstring='simplerepr', encoding='latin1') == self.latin1_spanish)
+        tools.eq_(converters.to_bytes(StrReturnsUnicode(),
+            nonstring='simplerepr', encoding='latin1'), self.latin1_spanish)
 
         # This object has no __str__ so it returns repr
         string = converters.to_bytes(UnicodeReturnsStr(), nonstring='simplerepr')
         self._check_repr_bytes(string, 'UnicodeReturnsStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(UnicodeStrCrossed(), nonstring='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(UnicodeStrCrossed(), nonstring='simplerepr'), self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(ReprUnicode(), nonstring='simplerepr')
-                == u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
-        tools.ok_(converters.to_bytes(ReprUnicode(), nonstring='repr') ==
+        tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='simplerepr')
+               , u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+        tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='repr'),
                 u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
         obj_repr = converters.to_bytes(object, nonstring='simplerepr')
@@ -184,25 +184,25 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
     def test_byte_string_to_xml(self):
         tools.assert_raises(XmlEncodeError, converters.byte_string_to_xml, *[u'test'])
-        tools.ok_(converters.byte_string_to_xml(self.utf8_entity) == self.utf8_entity_escape)
-        tools.ok_(converters.byte_string_to_xml(self.utf8_entity, attrib=True) == self.utf8_attrib_escape)
+        tools.eq_(converters.byte_string_to_xml(self.utf8_entity), self.utf8_entity_escape)
+        tools.eq_(converters.byte_string_to_xml(self.utf8_entity, attrib=True), self.utf8_attrib_escape)
 
     def test_bytes_to_xml(self):
-        tools.ok_(converters.bytes_to_xml(self.b_byte_chars) == self.b_byte_encoded)
+        tools.eq_(converters.bytes_to_xml(self.b_byte_chars), self.b_byte_encoded)
 
     def test_xml_to_bytes(self):
-        tools.ok_(converters.xml_to_bytes(self.b_byte_encoded) == self.b_byte_chars)
+        tools.eq_(converters.xml_to_bytes(self.b_byte_encoded), self.b_byte_chars)
 
     def test_guess_encoding_to_xml(self):
-        tools.ok_(converters.guess_encoding_to_xml(self.u_entity) == self.utf8_entity_escape)
-        tools.ok_(converters.guess_encoding_to_xml(self.utf8_spanish) == self.utf8_spanish)
-        tools.ok_(converters.guess_encoding_to_xml(self.latin1_spanish) == self.utf8_spanish)
-        tools.ok_(converters.guess_encoding_to_xml(self.utf8_japanese) == self.utf8_japanese)
+        tools.eq_(converters.guess_encoding_to_xml(self.u_entity), self.utf8_entity_escape)
+        tools.eq_(converters.guess_encoding_to_xml(self.utf8_spanish), self.utf8_spanish)
+        tools.eq_(converters.guess_encoding_to_xml(self.latin1_spanish), self.utf8_spanish)
+        tools.eq_(converters.guess_encoding_to_xml(self.utf8_japanese), self.utf8_japanese)
 
     def test_guess_encoding_to_xml_euc_japanese(self):
         if chardet:
-            tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
-                    == self.utf8_japanese)
+            tools.eq_(converters.guess_encoding_to_xml(self.euc_jp_japanese),
+                    self.utf8_japanese)
         else:
             raise SkipTest('chardet not installed, euc_japanese won\'t be detected')
 
@@ -210,8 +210,8 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         if chardet:
             raise SkipTest('chardet installed, euc_japanese won\'t be mangled')
         else:
-            tools.ok_(converters.guess_encoding_to_xml(self.euc_jp_japanese)
-                    == self.utf8_mangled_euc_jp_as_latin1)
+            tools.eq_(converters.guess_encoding_to_xml(self.euc_jp_japanese),
+                    self.utf8_mangled_euc_jp_as_latin1)
 
 class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
     def setUp(self):
@@ -223,21 +223,21 @@ class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
         io.write(u'%s\n' % self.u_japanese)
         io.seek(0)
         result = io.read().strip()
-        tools.ok_(result == self.utf8_japanese)
+        tools.eq_(result, self.utf8_japanese)
 
         io.seek(0)
         io.truncate(0)
         io.write('%s\n' % self.euc_jp_japanese)
         io.seek(0)
         result = io.read().strip()
-        tools.ok_(result == self.euc_jp_japanese)
+        tools.eq_(result, self.euc_jp_japanese)
 
         io.seek(0)
         io.truncate(0)
         io.write('%s\n' % self.utf8_japanese)
         io.seek(0)
         result = io.read().strip()
-        tools.ok_(result == self.utf8_japanese)
+        tools.eq_(result, self.utf8_japanese)
 
     def test_error_handlers(self):
         '''Test setting alternate error handlers'''
@@ -262,58 +262,58 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
                 pass
 
     def test_exception_to_unicode_with_unicode(self):
-        tools.ok_(converters.exception_to_unicode(self.exceptions['u_jpn']) == self.u_japanese)
-        tools.ok_(converters.exception_to_unicode(self.exceptions['u_spanish']) == self.u_spanish)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['u_jpn']), self.u_japanese)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['u_spanish']), self.u_spanish)
 
     def test_exception_to_unicode_with_bytes(self):
-        tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_jpn']) == self.u_japanese)
-        tools.ok_(converters.exception_to_unicode(self.exceptions['utf8_spanish']) == self.u_spanish)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['utf8_jpn']), self.u_japanese)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['utf8_spanish']), self.u_spanish)
         # Mangled latin1/utf8 conversion but no tracebacks
-        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish']) == self.u_mangled_spanish_latin1_as_utf8)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['latin1_spanish']), self.u_mangled_spanish_latin1_as_utf8)
         # Mangled euc_jp/utf8 conversion but no tracebacks
-        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn']) == self.u_mangled_euc_jp_as_utf8)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['euc_jpn']), self.u_mangled_euc_jp_as_utf8)
 
     def test_exception_to_unicode_custom(self):
         # If given custom functions, then we should not mangle
         c = [lambda e: converters.to_unicode(e, encoding='euc_jp')]
-        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
-            converters=c) == self.u_japanese)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
+            converters=c), self.u_japanese)
         c.extend(converters.EXCEPTION_CONVERTERS)
-        tools.ok_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
-            converters=c) == self.u_japanese)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
+            converters=c), self.u_japanese)
 
         c = [lambda e: converters.to_unicode(e, encoding='latin1')]
-        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
-            converters=c) ==  self.u_spanish)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
+            converters=c),  self.u_spanish)
         c.extend(converters.EXCEPTION_CONVERTERS)
-        tools.ok_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
-            converters=c) ==  self.u_spanish)
+        tools.eq_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
+            converters=c),  self.u_spanish)
 
     def test_exception_to_bytes_with_unicode(self):
-        tools.ok_(converters.exception_to_bytes(self.exceptions['u_jpn']) == self.utf8_japanese)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['u_spanish']) == self.utf8_spanish)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['u_jpn']), self.utf8_japanese)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['u_spanish']), self.utf8_spanish)
 
     def test_exception_to_bytes_with_bytes(self):
-        tools.ok_(converters.exception_to_bytes(self.exceptions['utf8_jpn']) == self.utf8_japanese)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['utf8_spanish']) == self.utf8_spanish)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish']) == self.latin1_spanish)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn']) == self.euc_jp_japanese)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['utf8_jpn']), self.utf8_japanese)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['utf8_spanish']), self.utf8_spanish)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['latin1_spanish']), self.latin1_spanish)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['euc_jpn']), self.euc_jp_japanese)
 
     def test_exception_to_bytes_custom(self):
         # If given custom functions, then we should not mangle
         c = [lambda e: converters.to_bytes(e, encoding='euc_jp')]
-        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
-            converters=c) == self.euc_jp_japanese)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
+            converters=c), self.euc_jp_japanese)
         c.extend(converters.EXCEPTION_CONVERTERS)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
-            converters=c) == self.euc_jp_japanese)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
+            converters=c), self.euc_jp_japanese)
 
         c = [lambda e: converters.to_bytes(e, encoding='latin1')]
-        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
-            converters=c) ==  self.latin1_spanish)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
+            converters=c),  self.latin1_spanish)
         c.extend(converters.EXCEPTION_CONVERTERS)
-        tools.ok_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
-            converters=c) ==  self.latin1_spanish)
+        tools.eq_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
+            converters=c),  self.latin1_spanish)
 
 
 class TestDeprecatedConverters(TestConverters):
@@ -324,45 +324,45 @@ class TestDeprecatedConverters(TestConverters):
         warnings.simplefilter('default', DeprecationWarning)
 
     def test_to_xml(self):
-        tools.ok_(converters.to_xml(self.u_entity) == self.utf8_entity_escape)
-        tools.ok_(converters.to_xml(self.utf8_spanish) == self.utf8_spanish)
-        tools.ok_(converters.to_xml(self.latin1_spanish) == self.utf8_spanish)
-        tools.ok_(converters.to_xml(self.utf8_japanese) == self.utf8_japanese)
+        tools.eq_(converters.to_xml(self.u_entity), self.utf8_entity_escape)
+        tools.eq_(converters.to_xml(self.utf8_spanish), self.utf8_spanish)
+        tools.eq_(converters.to_xml(self.latin1_spanish), self.utf8_spanish)
+        tools.eq_(converters.to_xml(self.utf8_japanese), self.utf8_japanese)
 
     def test_to_utf8(self):
-        tools.ok_(converters.to_utf8(self.u_japanese) == self.utf8_japanese)
-        tools.ok_(converters.to_utf8(self.utf8_spanish) == self.utf8_spanish)
+        tools.eq_(converters.to_utf8(self.u_japanese), self.utf8_japanese)
+        tools.eq_(converters.to_utf8(self.utf8_spanish), self.utf8_spanish)
 
     def test_to_str(self):
-        tools.ok_(converters.to_str(self.u_japanese) == self.utf8_japanese)
-        tools.ok_(converters.to_str(self.utf8_spanish) == self.utf8_spanish)
-        tools.ok_(converters.to_str(object) == "<type 'object'>")
+        tools.eq_(converters.to_str(self.u_japanese), self.utf8_japanese)
+        tools.eq_(converters.to_str(self.utf8_spanish), self.utf8_spanish)
+        tools.eq_(converters.to_str(object), "<type 'object'>")
 
     def test_non_string(self):
         '''Test deprecated non_string parameter'''
         # unicode
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'foo'})
-        tools.ok_(converters.to_unicode(5, non_string='empty') == u'')
-        tools.ok_(converters.to_unicode(5, non_string='passthru') == 5)
-        tools.ok_(converters.to_unicode(5, non_string='simplerepr') == u'5')
-        tools.ok_(converters.to_unicode(5, non_string='repr') == u'5')
+        tools.eq_(converters.to_unicode(5, non_string='empty'), u'')
+        tools.eq_(converters.to_unicode(5, non_string='passthru'), 5)
+        tools.eq_(converters.to_unicode(5, non_string='simplerepr'), u'5')
+        tools.eq_(converters.to_unicode(5, non_string='repr'), u'5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'strict'})
 
-        tools.ok_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr') == self.u_spanish)
-        tools.ok_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr') == self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr'), self.u_spanish)
+        tools.eq_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr'), self.u_spanish)
 
         obj_repr = converters.to_unicode(object, non_string='simplerepr')
         tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
 
         # Bytes
-        tools.ok_(converters.to_bytes(5) == '5')
-        tools.ok_(converters.to_bytes(5, non_string='empty') == '')
-        tools.ok_(converters.to_bytes(5, non_string='passthru') == 5)
-        tools.ok_(converters.to_bytes(5, non_string='simplerepr') == '5')
-        tools.ok_(converters.to_bytes(5, non_string='repr') == '5')
+        tools.eq_(converters.to_bytes(5), '5')
+        tools.eq_(converters.to_bytes(5, non_string='empty'), '')
+        tools.eq_(converters.to_bytes(5, non_string='passthru'), 5)
+        tools.eq_(converters.to_bytes(5, non_string='simplerepr'), '5')
+        tools.eq_(converters.to_bytes(5, non_string='repr'), '5')
 
         # Raise a TypeError if the msg is non_string and we're set to strict
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'non_string': 'strict'})
@@ -374,25 +374,25 @@ class TestDeprecatedConverters(TestConverters):
         self._check_repr_bytes(string, 'UnicodeNoStr')
 
         # This object's _str__ returns a utf8 encoded object
-        tools.ok_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr'), self.utf8_spanish)
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr'), self.utf8_spanish)
         # Unless we explicitly ask for something different
-        tools.ok_(converters.to_bytes(StrReturnsUnicode(),
-            non_string='simplerepr', encoding='latin1') == self.latin1_spanish)
+        tools.eq_(converters.to_bytes(StrReturnsUnicode(),
+            non_string='simplerepr', encoding='latin1'), self.latin1_spanish)
 
         # This object has no __str__ so it returns repr
         string = converters.to_bytes(UnicodeReturnsStr(), non_string='simplerepr')
         self._check_repr_bytes(string, 'UnicodeReturnsStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(UnicodeStrCrossed(), non_string='simplerepr') == self.utf8_spanish)
+        tools.eq_(converters.to_bytes(UnicodeStrCrossed(), non_string='simplerepr'), self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
-        tools.ok_(converters.to_bytes(ReprUnicode(), non_string='simplerepr')
-                == u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
-        tools.ok_(converters.to_bytes(ReprUnicode(), non_string='repr') ==
+        tools.eq_(converters.to_bytes(ReprUnicode(), non_string='simplerepr'),
+                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+        tools.eq_(converters.to_bytes(ReprUnicode(), non_string='repr'),
                 u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
         obj_repr = converters.to_bytes(object, non_string='simplerepr')
