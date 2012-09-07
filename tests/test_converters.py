@@ -138,8 +138,8 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.eq_(converters.to_bytes(UnicodeStrCrossed(), nonstring='simplerepr'), self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
-        tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='simplerepr')
-               , u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+        tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='simplerepr'),
+                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
         tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='repr'),
                 u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
