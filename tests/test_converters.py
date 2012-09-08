@@ -5,6 +5,7 @@ import unittest
 from nose import tools
 from nose.plugins.skip import SkipTest
 
+import sys
 import StringIO
 import warnings
 
@@ -72,14 +73,18 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.eq_(converters.to_unicode(5, nonstring='repr'), u'5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'nonstring': 'strict'})
 
+        obj_repr = converters.to_unicode(object, nonstring='simplerepr')
+        tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
+
+    def test_to_unicode_nonstring_with_objects_that_misuse__unicode__and__str__(self):
+        '''Test that to_unicode handles objects that return str from __unicode__ and unicode from __str__'''
+        if sys.version_info >= (3, 0):
+            raise SkipTest('Python3 does not use __unicode__ and enforces __str__ returning str')
         tools.eq_(converters.to_unicode(UnicodeNoStr(), nonstring='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(StrNoUnicode(), nonstring='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(StrReturnsUnicode(), nonstring='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(UnicodeReturnsStr(), nonstring='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(UnicodeStrCrossed(), nonstring='simplerepr'), self.u_spanish)
-
-        obj_repr = converters.to_unicode(object, nonstring='simplerepr')
-        tools.ok_(obj_repr == u"<type 'object'>" and isinstance(obj_repr, unicode))
 
     def test_to_bytes(self):
         '''Test to_bytes when the user gives good values'''
