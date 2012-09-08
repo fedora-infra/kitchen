@@ -77,14 +77,16 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.eq_(obj_repr, u"<type 'object'>")
         tools.assert_true(isinstance(obj_repr, unicode))
 
-    def test_to_unicode_nonstring_with_objects_that_misuse__unicode__and__str__(self):
-        '''Test that to_unicode handles objects that return str from __unicode__ and unicode from __str__'''
-        if sys.version_info >= (3, 0):
-            raise SkipTest('Python3 does not use __unicode__ and enforces __str__ returning str')
-        tools.eq_(converters.to_unicode(UnicodeNoStr(), nonstring='simplerepr'), self.u_spanish)
-        tools.eq_(converters.to_unicode(StrNoUnicode(), nonstring='simplerepr'), self.u_spanish)
+    def test_to_unicode_nonstring_with_objects_that_have__unicode__and__str__(self):
+        '''Test that to_unicode handles objects that have  __unicode__ and  __str__ methods'''
+        if sys.version_info < (3, 0):
+            # None of these apply on python3 because python3 does not use __unicode__
+            # and it enforces __str__ returning str
+            tools.eq_(converters.to_unicode(UnicodeNoStr(), nonstring='simplerepr'), self.u_spanish)
+            tools.eq_(converters.to_unicode(StrNoUnicode(), nonstring='simplerepr'), self.u_spanish)
+            tools.eq_(converters.to_unicode(UnicodeReturnsStr(), nonstring='simplerepr'), self.u_spanish)
+
         tools.eq_(converters.to_unicode(StrReturnsUnicode(), nonstring='simplerepr'), self.u_spanish)
-        tools.eq_(converters.to_unicode(UnicodeReturnsStr(), nonstring='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(UnicodeStrCrossed(), nonstring='simplerepr'), self.u_spanish)
 
     def test_to_bytes(self):
@@ -123,12 +125,17 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         # Raise a TypeError if given an invalid nonstring arg
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'nonstring': 'INVALID'})
 
+        obj_repr = converters.to_bytes(object, nonstring='simplerepr')
+        tools.eq_(obj_repr, "<type 'object'>")
+        tools.assert_true(isinstance(obj_repr, str))
+
+    def test_to_bytes_nonstring_with_objects_that_have__unicode__and__str__(self):
+        if sys.version_info < (3, 0):
+            # This object's _str__ returns a utf8 encoded object
+            tools.eq_(converters.to_bytes(StrNoUnicode(), nonstring='simplerepr'), self.utf8_spanish)
         # No __str__ method so this returns repr
         string = converters.to_bytes(UnicodeNoStr(), nonstring='simplerepr')
         self._check_repr_bytes(string, 'UnicodeNoStr')
-
-        # This object's _str__ returns a utf8 encoded object
-        tools.eq_(converters.to_bytes(StrNoUnicode(), nonstring='simplerepr'), self.utf8_spanish)
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(StrReturnsUnicode(), nonstring='simplerepr'), self.utf8_spanish)
@@ -148,10 +155,6 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
                 u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
         tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='repr'),
                 u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
-
-        obj_repr = converters.to_bytes(object, nonstring='simplerepr')
-        tools.eq_(obj_repr, "<type 'object'>")
-        tools.assert_true(isinstance(obj_repr, str))
 
     def test_unicode_to_xml(self):
         tools.eq_(converters.unicode_to_xml(None), '')
