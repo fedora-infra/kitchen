@@ -285,14 +285,16 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
     def test_exception_to_unicode_custom(self):
         # If given custom functions, then we should not mangle
-        c = [lambda e: converters.to_unicode(e, encoding='euc_jp')]
+        c = [lambda e: converters.to_unicode(e.args[0], encoding='euc_jp'),
+                lambda e: converters.to_unicode(e, encoding='euc_jp')]
         tools.eq_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
             converters=c), self.u_japanese)
         c.extend(converters.EXCEPTION_CONVERTERS)
         tools.eq_(converters.exception_to_unicode(self.exceptions['euc_jpn'],
             converters=c), self.u_japanese)
 
-        c = [lambda e: converters.to_unicode(e, encoding='latin1')]
+        c = [lambda e: converters.to_unicode(e.args[0], encoding='latin1'),
+                lambda e: converters.to_unicode(e, encoding='latin1')]
         tools.eq_(converters.exception_to_unicode(self.exceptions['latin1_spanish'],
             converters=c),  self.u_spanish)
         c.extend(converters.EXCEPTION_CONVERTERS)
@@ -311,14 +313,16 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
     def test_exception_to_bytes_custom(self):
         # If given custom functions, then we should not mangle
-        c = [lambda e: converters.to_bytes(e, encoding='euc_jp')]
+        c = [lambda e: converters.to_bytes(e.args[0], encoding='euc_jp'),
+                lambda e: converters.to_bytes(e, encoding='euc_jp')]
         tools.eq_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
             converters=c), self.euc_jp_japanese)
         c.extend(converters.EXCEPTION_CONVERTERS)
         tools.eq_(converters.exception_to_bytes(self.exceptions['euc_jpn'],
             converters=c), self.euc_jp_japanese)
 
-        c = [lambda e: converters.to_bytes(e, encoding='latin1')]
+        c = [lambda e: converters.to_bytes(e.args[0], encoding='latin1'),
+                lambda e: converters.to_bytes(e, encoding='latin1')]
         tools.eq_(converters.exception_to_bytes(self.exceptions['latin1_spanish'],
             converters=c),  self.latin1_spanish)
         c.extend(converters.EXCEPTION_CONVERTERS)
