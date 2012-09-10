@@ -29,7 +29,7 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.assert_false(display._interval_bisearch(11, table))
 
     def test_internal_generate_combining_table(self):
-        '''Test that the combining table we generate is equal to or a subseet of what's in the current table
+        '''Test that the combining table we generate is equal to or a subset of what's in the current table
 
         If we assert it can mean one of two things:
 
@@ -42,12 +42,12 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
             if interval[0] == interval[1]:
                 tools.assert_true(display._interval_bisearch(interval[0], old_table))
             else:
-                for codepoint in xrange(interval[0], interval[1] + 1):
+                for codepoint in range(interval[0], interval[1] + 1):
                     tools.assert_true(display._interval_bisearch(interval[0], old_table))
 
     def test_internal_ucp_width(self):
         '''Test that ucp_width returns proper width for characters'''
-        for codepoint in xrange(0, 0xFFFFF + 1):
+        for codepoint in range(0, 0xFFFFF + 1):
             if codepoint < 32 or (codepoint < 0xa0 and codepoint >= 0x7f):
                 # With strict on, we should raise an error
                 tools.assert_raises(ControlCharError, display._ucp_width, codepoint, 'strict')
@@ -90,7 +90,7 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.eq_(display.textual_width_chop(self.u_mixed, 23), self.u_mixed)
         tools.eq_(display.textual_width_chop(self.u_mixed, 22), self.u_mixed[:-1])
         tools.eq_(display.textual_width_chop(self.u_mixed, 19), self.u_mixed[:-4])
-        tools.eq_(display.textual_width_chop(self.u_mixed, 1), u'')
+        tools.eq_(display.textual_width_chop(self.u_mixed, 1), '')
         tools.eq_(display.textual_width_chop(self.u_mixed, 2), self.u_mixed[0])
         tools.eq_(display.textual_width_chop(self.u_mixed, 3), self.u_mixed[:2])
         tools.eq_(display.textual_width_chop(self.u_mixed, 4), self.u_mixed[:3])
@@ -115,12 +115,12 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
     def test_textual_width_fill(self):
         '''Pad a utf8 string'''
         tools.eq_(display.textual_width_fill(self.u_mixed, 1), self.u_mixed)
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25), self.u_mixed + u'  ')
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25, left=False), u'  ' + self.u_mixed)
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18), self.u_mixed[:-4] + u'       ')
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.u_spanish), self.u_spanish + self.u_mixed[:-4] + self.u_spanish + u'       ')
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18), self.u_mixed[:-4] + u'       ')
-        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.u_spanish), self.u_spanish + self.u_mixed[:-4] + self.u_spanish + u'       ')
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25), self.u_mixed + '  ')
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25, left=False), '  ' + self.u_mixed)
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18), self.u_mixed[:-4] + '       ')
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.u_spanish), self.u_spanish + self.u_mixed[:-4] + self.u_spanish + '       ')
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18), self.u_mixed[:-4] + '       ')
+        tools.eq_(display.textual_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.u_spanish), self.u_spanish + self.u_mixed[:-4] + self.u_spanish + '       ')
 
     def test_internal_textual_width_le(self):
         test_data = ''.join([self.u_mixed, self.u_spanish])
@@ -143,19 +143,19 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
             self.u_mixed_para_57_initial_subsequent_out)
 
     def test_fill(self):
-        tools.eq_(display.fill(self.u_paragraph), u'\n'.join(self.u_paragraph_out))
-        tools.eq_(display.fill(self.utf8_paragraph), u'\n'.join(self.u_paragraph_out))
-        tools.eq_(display.fill(self.u_mixed_para), u'\n'.join(self.u_mixed_para_out))
+        tools.eq_(display.fill(self.u_paragraph), '\n'.join(self.u_paragraph_out))
+        tools.eq_(display.fill(self.utf8_paragraph), '\n'.join(self.u_paragraph_out))
+        tools.eq_(display.fill(self.u_mixed_para), '\n'.join(self.u_mixed_para_out))
         tools.eq_(display.fill(self.u_mixed_para, width=57,
             initial_indent='    ', subsequent_indent='----'),
-            u'\n'.join(self.u_mixed_para_57_initial_subsequent_out))
+            '\n'.join(self.u_mixed_para_57_initial_subsequent_out))
 
     def test_byte_string_textual_width_fill(self):
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 1), self.utf8_mixed)
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25), self.utf8_mixed + '  ')
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, left=False), '  ' + self.utf8_mixed)
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + '       ')
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + '       ')
-        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25), self.utf8_mixed + b'  ')
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, left=False), b'  ' + self.utf8_mixed)
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + b'       ')
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + b'       ')
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + b'       ')
+        tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + b'       ')
 

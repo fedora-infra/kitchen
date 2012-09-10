@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2011 Red Hat, Inc.
+# Copyright (c) 2011-2012 Red Hat, Inc.
 #
 # kitchen is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -41,16 +41,13 @@ strings.
     :func:`~kitchen.text.converters.exception_to_bytes` to make it unnecessary
 
 '''
-try:
-    from base64 import b64encode, b64decode
-except ImportError:
-    from kitchen.pycompat24.base64 import b64encode, b64decode
+from base64 import b64encode, b64decode
 
 import codecs
 import warnings
 import xml.sax.saxutils
 
-# We need to access b_() for localizing our strings but we'll end up with
+# We need to access _() for localizing our strings but we'll end up with
 # a circular import if we import it directly.
 import kitchen as k
 from kitchen.pycompat24 import sets
@@ -127,17 +124,18 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter and changed
         default value to ``simplerepr``
     '''
-    if isinstance(obj, basestring):
-        if isinstance(obj, unicode):
-            return obj
+    if isinstance(obj, str):
+        return obj
+
+    if isinstance(obj, bytes) or isinstance(obj, bytearray):
         if encoding in _UTF8_ALIASES:
-            return unicode(obj, 'utf-8', errors)
+            return str(obj, 'utf-8', errors)
         if encoding in _LATIN1_ALIASES:
-            return unicode(obj, 'latin-1', errors)
+            return obj.decode('latin-1', errors)
         return obj.decode(encoding, errors)
 
     if non_string:
-        warnings.warn(k.b_('non_string is a deprecated parameter of'
+        warnings.warn(k._('non_string is a deprecated parameter of'
             ' to_unicode().  Use nonstring instead'), DeprecationWarning,
             stacklevel=2)
         if not nonstring:
@@ -146,36 +144,31 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     if not nonstring:
         nonstring = 'simplerepr'
     if nonstring == 'empty':
-        return u''
+        return ''
     elif nonstring == 'passthru':
         return obj
     elif nonstring == 'simplerepr':
         try:
-            simple = obj.__unicode__()
-        except (AttributeError, UnicodeError):
-            simple = None
-        if not simple:
+            simple = str(obj)
+        except UnicodeError:
             try:
-                simple = str(obj)
-            except UnicodeError:
-                try:
-                    simple = obj.__str__()
-                except (UnicodeError, AttributeError):
-                    simple = u''
-        if not isinstance(simple, unicode):
-            return unicode(simple, encoding, errors)
+                simple = obj.__str__()
+            except (UnicodeError, AttributeError):
+                simple = ''
+        if not isinstance(simple, str):
+            return str(simple, encoding, errors)
         return simple
     elif nonstring in ('repr', 'strict'):
         obj_repr = repr(obj)
-        if not isinstance(obj_repr, unicode):
-            obj_repr = unicode(obj_repr, encoding, errors)
+        if not isinstance(obj_repr, str):
+            obj_repr = str(obj_repr, encoding, errors)
         if nonstring == 'repr':
             return obj_repr
-        raise TypeError(k.b_('to_unicode was given "%(obj)s" which is neither'
-            ' a byte string (str) or a unicode string') %
-            {'obj': obj_repr.encode(encoding, 'replace')})
+        raise TypeError(k._('to_unicode was given "%(obj)s" which is neither'
+            ' a byte string (bytes, bytearray) or a unicode string (str)') %
+            {'obj': obj_repr})
 
-    raise TypeError(k.b_('nonstring value, %(param)s, is not set to a valid'
+    raise TypeError(k._('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
 
 def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
@@ -247,12 +240,13 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter
         and changed default value to ``simplerepr``
     '''
-    if isinstance(obj, basestring):
-        if isinstance(obj, str):
-            return obj
+    if isinstance(obj, bytes) or isinstance(obj, bytearray):
+        return obj
+    if isinstance(obj, str):
         return obj.encode(encoding, errors)
+
     if non_string:
-        warnings.warn(k.b_('non_string is a deprecated parameter of'
+        warnings.warn(k._('non_string is a deprecated parameter of'
             ' to_bytes().  Use nonstring instead'), DeprecationWarning,
             stacklevel=2)
         if not nonstring:
@@ -261,40 +255,25 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         nonstring = 'simplerepr'
 
     if nonstring == 'empty':
-        return ''
+        return b''
     elif nonstring == 'passthru':
         return obj
     elif nonstring == 'simplerepr':
-        try:
-            simple = str(obj)
-        except UnicodeError:
-            try:
-                simple = obj.__str__()
-            except (AttributeError, UnicodeError):
-                simple = None
-        if not simple:
-            try:
-                simple = obj.__unicode__()
-            except (AttributeError, UnicodeError):
-                simple = ''
-        if isinstance(simple, unicode):
-            simple = simple.encode(encoding, 'replace')
+        simple = str(obj)
+        simple = simple.encode(encoding, 'replace')
         return simple
     elif nonstring in ('repr', 'strict'):
         try:
-            obj_repr = obj.__repr__()
+            obj_repr = repr(obj)
         except (AttributeError, UnicodeError):
             obj_repr = ''
-        if isinstance(obj_repr, unicode):
-            obj_repr =  obj_repr.encode(encoding, errors)
-        else:
-            obj_repr = str(obj_repr)
         if nonstring == 'repr':
+            obj_repr = obj_repr.encode(encoding, errors)
             return obj_repr
-        raise TypeError(k.b_('to_bytes was given "%(obj)s" which is neither'
-            ' a unicode string or a byte string (str)') % {'obj': obj_repr})
+        raise TypeError(k._('to_bytes was given "%(obj)s" which is neither'
+            ' a unicode string (str) or a byte string (bytes, bytearray)') % {'obj': obj_repr})
 
-    raise TypeError(k.b_('nonstring value, %(param)s, is not set to a valid'
+    raise TypeError(k._('nonstring value, %(param)s, is not set to a valid'
         ' action') % {'param': nonstring})
 
 def getwriter(encoding):
@@ -361,6 +340,8 @@ def getwriter(encoding):
             codecs.StreamWriter.__init__(self, stream, errors)
 
         def encode(self, msg, errors='replace'):
+            print(type(msg))
+            print(repr(msg))
             return (to_bytes(msg, encoding=self.encoding, errors=errors),
                     len(msg))
 
@@ -375,7 +356,7 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
 
         to_bytes(obj, encoding='utf-8', non_string='passthru')
     '''
-    warnings.warn(k.b_('kitchen.text.converters.to_utf8 is deprecated.  Use'
+    warnings.warn(k._('kitchen.text.converters.to_utf8 is deprecated.  Use'
         ' kitchen.text.converters.to_bytes(obj, encoding="utf-8",'
         ' nonstring="passthru" instead.'), DeprecationWarning, stacklevel=2)
     return to_bytes(obj, encoding='utf-8', errors=errors,
@@ -400,7 +381,7 @@ def to_str(obj):
 
         to_bytes(obj, nonstring='simplerepr')
     '''
-    warnings.warn(k.b_('to_str is deprecated.  Use to_unicode or to_bytes'
+    warnings.warn(k._('to_str is deprecated.  Use to_unicode or to_bytes'
         ' instead.  See the to_str docstring for porting information.'),
         DeprecationWarning, stacklevel=2)
     return to_bytes(obj, nonstring='simplerepr')
@@ -497,7 +478,7 @@ def exception_to_unicode(exc, converters=EXCEPTION_CONVERTERS):
 
     .. versionadded:: 0.2.2
     '''
-    msg = u'<exception failed to convert to text>'
+    msg = '<exception failed to convert to text>'
     for func in converters:
         try:
             msg = func(exc)
@@ -529,7 +510,7 @@ def exception_to_bytes(exc, converters=EXCEPTION_CONVERTERS):
         :data:`EXCEPTION_CONVERTERS` as the default value of
         :attr:`converters`.
     '''
-    msg = '<exception failed to convert to text>'
+    msg = b'<exception failed to convert to text>'
     for func in converters:
         try:
             msg = func(exc)
@@ -677,17 +658,17 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     '''
     if not string:
         # Small optimization
-        return ''
+        return b''
     try:
         process_control_chars(string, strategy=control_chars)
     except TypeError:
-        raise XmlEncodeError(k.b_('unicode_to_xml must have a unicode type as'
+        raise XmlEncodeError(k._('unicode_to_xml must have a str type as'
                 ' the first argument.  Use bytes_string_to_xml for byte'
                 ' strings.'))
     except ValueError:
-        raise ValueError(k.b_('The control_chars argument to unicode_to_xml'
+        raise ValueError(k._('The control_chars argument to unicode_to_xml'
                 ' must be one of ignore, replace, or strict'))
-    except ControlCharError, exc:
+    except ControlCharError as exc:
         raise XmlEncodeError(exc.args[0])
 
     # Escape characters that have special meaning in xml
@@ -782,13 +763,13 @@ def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
         :func:`unicode_to_xml`
             for other ideas on using this function
     '''
-    if not isinstance(byte_string, str):
-        raise XmlEncodeError(k.b_('byte_string_to_xml can only take a byte'
+    if not (isinstance(byte_string, bytes) or isinstance(byte_string, bytearray)):
+        raise XmlEncodeError(k._('byte_string_to_xml can only take a byte'
                 ' string as its first argument.  Use unicode_to_xml for'
-                ' unicode strings'))
+                ' unicode (str) strings'))
 
     # Decode the string into unicode
-    u_string = unicode(byte_string, input_encoding, errors)
+    u_string = str(byte_string, input_encoding, errors)
     return unicode_to_xml(u_string, encoding=output_encoding,
             attrib=attrib, control_chars=control_chars)
 
@@ -892,7 +873,7 @@ def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
 
     '''
     # Unicode strings can just be run through unicode_to_xml()
-    if isinstance(string, unicode):
+    if isinstance(string, str):
         return unicode_to_xml(string, encoding=output_encoding,
                 attrib=attrib, control_chars=control_chars)
 
@@ -907,7 +888,7 @@ def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
 def to_xml(string, encoding='utf-8', attrib=False, control_chars='ignore'):
     '''*Deprecated*: Use :func:`guess_encoding_to_xml` instead
     '''
-    warnings.warn(k.b_('kitchen.text.converters.to_xml is deprecated.  Use'
+    warnings.warn(k._('kitchen.text.converters.to_xml is deprecated.  Use'
             ' kitchen.text.converters.guess_encoding_to_xml instead.'),
             DeprecationWarning, stacklevel=2)
     return guess_encoding_to_xml(string, output_encoding=encoding,

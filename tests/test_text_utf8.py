@@ -33,7 +33,7 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         # El veloz murci�lago salt� sobre el perro perezoso.
         # Python < 2.7:
         # El veloz murci�go salt�bre el perro perezoso.
-        if len(unicode(u'\xe9la'.encode('latin1'), 'utf8', 'replace')) == 1:
+        if len(str('\xe9la'.encode('latin1'), 'utf8', 'replace')) == 1:
             # Python < 2.7
             tools.ok_(utf8.utf8_width(self.latin1_spanish) == 45)
         else:
@@ -47,7 +47,7 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(utf8.utf8_width_chop(self.utf8_mixed, 22) == (22, self.utf8_mixed[:-1]))
         tools.ok_(utf8.utf8_width_chop(self.utf8_mixed, 19) == (18, self.u_mixed[:-4].encode('utf8')))
         tools.ok_(utf8.utf8_width_chop(self.utf8_mixed, 2) == (2, self.u_mixed[0].encode('utf8')))
-        tools.ok_(utf8.utf8_width_chop(self.utf8_mixed, 1) == (0, ''))
+        tools.ok_(utf8.utf8_width_chop(self.utf8_mixed, 1) == (0, b''))
 
     def test_utf8_width_chop_unicode(self):
         '''utf8_width_chop with unicode input'''
@@ -56,17 +56,17 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 22) == (22, self.u_mixed[:-1]))
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 19) == (18, self.u_mixed[:-4]))
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 2) == (2, self.u_mixed[0]))
-        tools.ok_(utf8.utf8_width_chop(self.u_mixed, 1) == (0, u''))
+        tools.ok_(utf8.utf8_width_chop(self.u_mixed, 1), (0, ''))
 
     def test_utf8_width_fill(self):
         '''Pad a utf8 string'''
         tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 1) == self.utf8_mixed)
-        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25) == self.utf8_mixed + '  ')
-        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, left=False) == '  ' + self.utf8_mixed)
-        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
-        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish) == self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
-        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + '       ')
-        tools.ok_(utf8.utf8_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.utf8_spanish) == self.u_spanish.encode('utf8') + self.u_mixed[:-4].encode('utf8') + self.u_spanish.encode('utf8') + '       ')
+        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25) == self.utf8_mixed + b'  ')
+        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, left=False) == b'  ' + self.utf8_mixed)
+        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + b'       ')
+        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish) == self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + b'       ')
+        tools.ok_(utf8.utf8_width_fill(self.utf8_mixed, 25, chop=18) == self.u_mixed[:-4].encode('utf8') + b'       ')
+        tools.ok_(utf8.utf8_width_fill(self.u_mixed, 25, chop=18, prefix=self.u_spanish, suffix=self.utf8_spanish) == self.u_spanish.encode('utf8') + self.u_mixed[:-4].encode('utf8') + self.u_spanish.encode('utf8') + b'       ')
         pass
 
     def test_utf8_valid(self):
@@ -79,7 +79,7 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
     def test_utf8_invalid(self):
         '''Test that we return False with non-utf8 chars'''
         warnings.simplefilter('ignore', DeprecationWarning)
-        tools.ok_(utf8.utf8_valid('\xff') == False)
+        tools.ok_(utf8.utf8_valid(b'\xff') == False)
         tools.ok_(utf8.utf8_valid(self.latin1_spanish) == False)
         warnings.simplefilter('default', DeprecationWarning)
 
@@ -88,5 +88,5 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(utf8.utf8_text_wrap(self.utf8_paragraph) == self.utf8_paragraph_out)
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed_para) == self.utf8_mixed_para_out)
         tools.ok_(utf8.utf8_text_wrap(self.utf8_mixed_para, width=57,
-            initial_indent='    ', subsequent_indent='----') ==
+            initial_indent=b'    ', subsequent_indent=b'----') ==
             self.utf8_mixed_para_57_initial_subsequent_out)

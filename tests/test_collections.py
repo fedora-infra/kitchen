@@ -11,28 +11,28 @@ from kitchen import collections
 def test_strict_dict_get_set():
     '''Test getting and setting items in StrictDict'''
     d = collections.StrictDict()
-    d[u'a'] = 1
-    d['a'] = 2
-    tools.assert_not_equal(d[u'a'], d['a'])
+    d['a'] = 1
+    d[b'a'] = 2
+    tools.assert_not_equal(d['a'], d[b'a'])
     tools.eq_(len(d), 2)
 
-    d[u'\xf1'] = 1
-    d['\xf1'] = 2
-    d[u'\xf1'.encode('utf-8')] = 3
-    tools.eq_(d[u'\xf1'], 1)
-    tools.eq_(d['\xf1'], 2)
-    tools.eq_(d[u'\xf1'.encode('utf-8')], 3)
+    d['\xf1'] = 1
+    d[b'\xf1'] = 2
+    d['\xf1'.encode('utf-8')] = 3
+    tools.eq_(d['\xf1'], 1)
+    tools.eq_(d[b'\xf1'], 2)
+    tools.eq_(d['\xf1'.encode('utf-8')], 3)
     tools.eq_(len(d), 5)
 
 class TestStrictDict(unittest.TestCase):
     def setUp(self):
         self.d = collections.StrictDict()
-        self.d[u'a'] = 1
-        self.d['a'] = 2
-        self.d[u'\xf1'] = 1
-        self.d['\xf1'] = 2
-        self.d[u'\xf1'.encode('utf8')] = 3
-        self.keys = [u'a', 'a', u'\xf1', '\xf1', u'\xf1'.encode('utf-8')]
+        self.d['a'] = 1
+        self.d[b'a'] = 2
+        self.d['\xf1'] = 1
+        self.d[b'\xf1'] = 2
+        self.d['\xf1'.encode('utf-8')] = 3
+        self.keys = ['a', b'a', '\xf1', b'\xf1', '\xf1'.encode('utf-8')]
 
     def tearDown(self):
         del(self.d)
@@ -54,19 +54,19 @@ class TestStrictDict(unittest.TestCase):
         list1_dupes = dict([(i, (set(), set(), set())) for i in range(1, len(list1)+1)])
         list2_dupes = dict([(i, (set(), set(), set())) for i in range(1, len(list1)+1)])
 
-        list1_u = [l for l in list1 if isinstance(l, unicode)]
-        list1_b = [l for l in list1 if isinstance(l, str)]
-        list1_o = [l for l in list1 if not (isinstance(l, unicode) or isinstance(l, str))]
+        list1_u = [l for l in list1 if isinstance(l, str)]
+        list1_b = [l for l in list1 if isinstance(l, bytes)]
+        list1_o = [l for l in list1 if not (isinstance(l, str) or isinstance(l, bytes))]
 
-        list2_u = [l for l in list2 if isinstance(l, unicode)]
-        list2_b = [l for l in list2 if isinstance(l, str)]
-        list2_o = [l for l in list2 if not (isinstance(l, unicode) or isinstance(l, str))]
+        list2_u = [l for l in list2 if isinstance(l, str)]
+        list2_b = [l for l in list2 if isinstance(l, bytes)]
+        list2_o = [l for l in list2 if not (isinstance(l, str) or isinstance(l, bytes))]
 
         for i in list1:
-            if isinstance(i, unicode):
+            if isinstance(i, str):
                 if not _compare_lists_helper(list2_u, list1_dupes, 0, len(list1)):
                     return False
-            elif isinstance(i, str):
+            elif isinstance(i, bytes):
                 if not _compare_lists_helper(list2_b, list1_dupes, 1, len(list1)):
                     return False
             else:
@@ -75,10 +75,10 @@ class TestStrictDict(unittest.TestCase):
 
         if list1_dupes[2][0] or list1_dupes[2][1] or list1_dupes[2][2]:
             for i in list2:
-                if isinstance(i, unicode):
+                if isinstance(i, str):
                     if not _compare_lists_helper(list1_u, list2_dupes, 0, len(list1)):
                         return False
-                elif isinstance(i, str):
+                elif isinstance(i, bytes):
                     if not _compare_lists_helper(list1_b, list2_dupes, 1, len(list1)):
                         return False
                 else:
@@ -96,15 +96,15 @@ class TestStrictDict(unittest.TestCase):
         '''*sigh* this test support function is so complex we need to test it'''
         tools.ok_(self._compare_lists(['a', 'b', 'c'], ['c', 'a', 'b']))
         tools.ok_(not self._compare_lists(['b', 'c'], ['c', 'a', 'b']))
-        tools.ok_(not self._compare_lists([u'a', 'b'], ['a', 'b']))
-        tools.ok_(not self._compare_lists(['a', u'b'], [u'a', 'b']))
+        tools.ok_(not self._compare_lists([b'a', 'b'], ['a', 'b']))
+        tools.ok_(not self._compare_lists(['a', b'b'], [b'a', 'b']))
         tools.ok_(self._compare_lists(['a', 'b', 1], ['a', 1, 'b']))
-        tools.ok_(self._compare_lists([u'a', u'b'], [u'a', u'b']))
-        tools.ok_(self._compare_lists([u'a', 'b'], [u'a', 'b']))
-        tools.ok_(not self._compare_lists([u'a', 'b'], [u'a', u'b']))
-        tools.ok_(self._compare_lists([u'a', 'b', 'b', 'c', u'a'], [u'a', u'a', 'b', 'c', 'b']))
-        tools.ok_(not self._compare_lists([u'a', 'b', 'b', 'c', 'a'], [u'a', u'a', 'b', 'c', 'b']))
-        tools.ok_(not self._compare_lists([u'a', 'b', 'b', 'c', u'a'], [u'a', 'b', 'b', 'c', 'b']))
+        tools.ok_(self._compare_lists([b'a', b'b'], [b'a', b'b']))
+        tools.ok_(self._compare_lists([b'a', 'b'], [b'a', 'b']))
+        tools.ok_(not self._compare_lists([b'a', 'b'], [b'a', b'b']))
+        tools.ok_(self._compare_lists([b'a', 'b', 'b', 'c', b'a'], [b'a', b'a', 'b', 'c', 'b']))
+        tools.ok_(not self._compare_lists([b'a', 'b', 'b', 'c', 'a'], [b'a', b'a', 'b', 'c', 'b']))
+        tools.ok_(not self._compare_lists([b'a', 'b', 'b', 'c', b'a'], [b'a', 'b', 'b', 'c', 'b']))
 
     def test_strict_dict_len(self):
         '''StrictDict len'''
@@ -113,8 +113,8 @@ class TestStrictDict(unittest.TestCase):
     def test_strict_dict_del(self):
         '''StrictDict del'''
         tools.eq_(len(self.d), 5)
-        del(self.d[u'\xf1'])
-        tools.assert_raises(KeyError, self.d.__getitem__, u'\xf1')
+        del(self.d['\xf1'])
+        tools.assert_raises(KeyError, self.d.__getitem__, '\xf1')
         tools.eq_(len(self.d), 4)
 
     def test_strict_dict_iter(self):
@@ -126,7 +126,7 @@ class TestStrictDict(unittest.TestCase):
                 msg='keys != self.key: %s != %s' % (keys, self.keys))
 
         keys = []
-        for k in self.d.iterkeys():
+        for k in self.d.keys():
             keys.append(k)
         tools.ok_(self._compare_lists(keys, self.keys),
                 msg='keys != self.key: %s != %s' % (keys, self.keys))
@@ -136,24 +136,24 @@ class TestStrictDict(unittest.TestCase):
                 msg='keys != self.key: %s != %s' % (keys, self.keys))
 
         keys = []
-        for k in self.d.keys():
+        for k in list(self.d.keys()):
             keys.append(k)
         tools.ok_(self._compare_lists(keys, self.keys),
                 msg='keys != self.key: %s != %s' % (keys, self.keys))
 
     def test_strict_dict_contains(self):
         '''StrictDict contains function'''
+        tools.ok_(b'b' not in self.d)
         tools.ok_('b' not in self.d)
-        tools.ok_(u'b' not in self.d)
+        tools.ok_(b'\xf1' in self.d)
         tools.ok_('\xf1' in self.d)
-        tools.ok_(u'\xf1' in self.d)
+        tools.ok_(b'a' in self.d)
         tools.ok_('a' in self.d)
-        tools.ok_(u'a' in self.d)
 
-        del(self.d[u'\xf1'])
-        tools.ok_(u'\xf1' not in self.d)
-        tools.ok_('\xf1' in self.d)
+        del(self.d['\xf1'])
+        tools.ok_('\xf1' not in self.d)
+        tools.ok_(b'\xf1' in self.d)
 
-        del(self.d['a'])
-        tools.ok_(u'a' in self.d)
-        tools.ok_('a' not in self.d)
+        del(self.d[b'a'])
+        tools.ok_('a' in self.d)
+        tools.ok_(b'a' not in self.d)

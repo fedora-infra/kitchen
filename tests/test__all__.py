@@ -93,9 +93,9 @@ class Test__all__(object):
         f = None
         try:
             try:
-                f = open(modpath, 'rb')
+                f = open(modpath, 'r')
                 tools.ok_('__all__' in f.read(), '%s does not contain __all__' % modpath)
-            except IOError, e:
+            except IOError as e:
                 tools.ok_(False, '%s' % e)
         finally:
             if f:
@@ -115,15 +115,15 @@ class Test__all__(object):
 
     def check_everything_in__all__exists(self, modname, modpath):
         names = {}
-        exec 'from %s import %s' % (modpath, modname) in names
+        exec('from %s import %s' % (modpath, modname), names)
         if not hasattr(names[modname], '__all__'):
             # This should have been reported by test_has__all__
             return
 
         interior_names = {}
         try:
-            exec 'from %s.%s import *' % (modpath, modname) in interior_names
-        except Exception, e:
+            exec('from %s.%s import *' % (modpath, modname), interior_names)
+        except Exception as e:
             # Include the module name in the exception string
             tools.ok_(False, '__all__ failure in %s: %s: %s' % (
                       modname, e.__class__.__name__, e))
@@ -148,15 +148,13 @@ class Test__all__(object):
                 # Remove __init__.py as well as the filename
                 from_name = os.path.dirname(from_name)
             from_name = os.path.dirname(from_name)
-            from_name = unicode(from_name, 'utf-8')
-            from_name = from_name.translate({ord(u'/'): u'.'})
-            from_name = from_name.encode('utf-8')
+            from_name = from_name.translate({ord('/'): '.'})
             yield self.check_everything_in__all__exists, modname.split('.')[-1], from_name
 
 
     def check__all__is_complete(self, modname, modpath):
         names = {}
-        exec 'from %s import %s' % (modpath, modname) in names
+        exec('from %s import %s' % (modpath, modname), names)
         if not hasattr(names[modname], '__all__'):
             # This should have been reported by test_has__all__
             return
@@ -187,7 +185,5 @@ class Test__all__(object):
                 # Remove __init__.py as well as the filename
                 from_name = os.path.dirname(from_name)
             from_name = os.path.dirname(from_name)
-            from_name = unicode(from_name, 'utf-8')
-            from_name = from_name.translate({ord(u'/'): u'.'})
-            from_name = from_name.encode('utf-8')
+            from_name = from_name.translate({ord('/'): '.'})
             yield self.check__all__is_complete, modname.split('.')[-1], from_name

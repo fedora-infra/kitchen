@@ -98,7 +98,7 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
 
 
     def test_process_control_chars(self):
-        tools.assert_raises(TypeError, misc.process_control_chars, 'byte string')
+        tools.assert_raises(TypeError, misc.process_control_chars, b'byte string')
         tools.assert_raises(ControlCharError, misc.process_control_chars,
                 *[self.u_ascii_chars], **{'strategy':'strict'})
         tools.ok_(misc.process_control_chars(self.u_ascii_chars,
@@ -107,16 +107,16 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
             strategy='replace') == self.u_ascii_ctrl_replace)
 
     def test_html_entities_unescape(self):
-        tools.assert_raises(TypeError, misc.html_entities_unescape, 'byte string')
+        tools.assert_raises(TypeError, misc.html_entities_unescape, b'byte string')
         tools.ok_(misc.html_entities_unescape(self.u_entity_escape) == self.u_entity)
-        tools.ok_(misc.html_entities_unescape(u'<tag>%s</tag>'
+        tools.ok_(misc.html_entities_unescape('<tag>%s</tag>'
             % self.u_entity_escape) == self.u_entity)
-        tools.ok_(misc.html_entities_unescape(u'a&#1234567890;b') == u'a&#1234567890;b')
-        tools.ok_(misc.html_entities_unescape(u'a&#xfffd;b') == u'a\ufffdb')
-        tools.ok_(misc.html_entities_unescape(u'a&#65533;b') == u'a\ufffdb')
+        tools.ok_(misc.html_entities_unescape('a&#1234567890;b') == 'a&#1234567890;b')
+        tools.ok_(misc.html_entities_unescape('a&#xfffd;b') == 'a\ufffdb')
+        tools.ok_(misc.html_entities_unescape('a&#65533;b') == 'a\ufffdb')
 
     def test_byte_string_valid_xml(self):
-        tools.ok_(misc.byte_string_valid_xml(u'unicode string') == False)
+        tools.ok_(misc.byte_string_valid_xml('unicode string') == False)
 
         tools.ok_(misc.byte_string_valid_xml(self.utf8_japanese))
         tools.ok_(misc.byte_string_valid_xml(self.euc_jp_japanese, 'euc_jp'))
@@ -133,5 +133,5 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
 
     def test_byte_string_invalid_encoding(self):
         '''Test that we return False with non-encoded chars'''
-        tools.ok_(misc.byte_string_valid_encoding('\xff') == False)
+        tools.ok_(misc.byte_string_valid_encoding(b'\xff') == False)
         tools.ok_(misc.byte_string_valid_encoding(self.euc_jp_japanese) == False)

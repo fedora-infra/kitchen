@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 Red Hat, Inc
+# Copyright (c) 2012 Red Hat, Inc
 #
 # This file is part of kitchen
 # 
@@ -30,17 +30,28 @@ of that module for use on python-2.3.
     :mod:`base64`
         for information about using the functions provided here.
 '''
-import sys
+# All versions of python3 include a base64 module.  This module just exists for
+# compatibility
+
 
 # :W0401,W0614: The purpose of this module is to create a backport of base64
 # so we ignore these pylint warnings
+
+import kitchen as k
+import warnings 
+
+warnings.warn(k._('In python3, kitchen.pycompat24.base64 is deprecated.'
+        '  If your code doesn\'t have to remain compatible with python2 use'
+        ' python3\'s native dict or defaultdict types instead'),
+        PendingDeprecationWarning, stacklevel=2)
+
 #pylint:disable-msg=W0401,W0614
-if sys.version_info >= (2, 4):
-    from base64 import *
-else:
-    from kitchen.pycompat24.base64._base64 import *
+from base64 import *
+
+decodestring = decode
+encodestring = encode
 
 __all__ = ( 'b16decode', 'b16encode', 'b32decode', 'b32encode', 'b64decode',
-        'b64encode', 'decode', 'decodestring', 'encode', 'encodestring',
-        'standard_b64decode', 'standard_b64encode', 'urlsafe_b64decode',
-        'urlsafe_b64encode',)
+        'b64encode', 'decode', 'decodebytes', 'decodestring', 'encode',
+        'encodebytes', 'encodestring', 'standard_b64decode',
+        'standard_b64encode', 'urlsafe_b64decode', 'urlsafe_b64encode',)

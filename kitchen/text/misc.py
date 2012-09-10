@@ -28,8 +28,7 @@ Miscellaneous functions for manipulating text
 
 Collection of text functions that don't fit in another category.
 '''
-import htmlentitydefs
-import itertools
+import html.entities
 import re
 
 try:
@@ -50,8 +49,8 @@ sets.add_builtin_set()
 _CHARDET_THRESHHOLD = 0.6
 
 # ASCII control codes that are illegal in xml 1.0
-_CONTROL_CODES = frozenset(range(0, 8) + [11, 12] + range(14, 32))
-_CONTROL_CHARS = frozenset(itertools.imap(unichr, _CONTROL_CODES))
+_CONTROL_CODES = frozenset(list(range(0, 8)) + [11, 12] + list(range(14, 32)))
+_CONTROL_CHARS = frozenset(map(chr, _CONTROL_CODES))
 
 # _ENTITY_RE
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
@@ -79,11 +78,12 @@ def guess_encoding(byte_string, disable_chardet=False):
     to every byte, decoding from ``latin-1`` to :class:`unicode` will not
     cause :exc:`UnicodeErrors` although the output might be mangled.
     '''
-    if not isinstance(byte_string, str):
-        raise TypeError(k.b_('byte_string must be a byte string (str)'))
+    if not (isinstance(byte_string, bytes) or
+            isinstance(byte_string, bytearray)):
+        raise TypeError(k._('byte_string must be a byte string (bytes, bytearray)'))
     input_encoding = 'utf-8'
     try:
-        unicode(byte_string, input_encoding, 'strict')
+        str(byte_string, input_encoding, 'strict')
     except UnicodeDecodeError:
         input_encoding = None
 
@@ -132,10 +132,10 @@ def str_eq(str1, str2, encoding='utf-8', errors='replace'):
     '''
     try:
         return (not str1 < str2) and (not str1 > str2)
-    except UnicodeError:
+    except TypeError:
         pass
 
-    if isinstance(str1, unicode):
+    if isinstance(str1, str):
         str1 = str1.encode(encoding, errors)
     else:
         str2 = str2.encode(encoding, errors)
@@ -167,22 +167,22 @@ def process_control_chars(string, strategy='replace'):
     :returns: :class:`unicode` string with no :term:`control characters` in
         it.
     '''
-    if not isinstance(string, unicode):
-        raise TypeError(k.b_('process_control_char must have a unicode type as'
-                ' the first argument.'))
+    if not isinstance(string, str):
+        raise TypeError(k._('process_control_char must have a unicode type'
+                ' (str) as the first argument.'))
     if strategy == 'ignore':
-        control_table = dict(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES)))
+        control_table = dict(list(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES))))
     elif strategy == 'replace':
-        control_table = dict(zip(_CONTROL_CODES, [u'?'] * len(_CONTROL_CODES)))
+        control_table = dict(list(zip(_CONTROL_CODES, ['?'] * len(_CONTROL_CODES))))
     elif strategy == 'strict':
         control_table = None
         # Test that there are no control codes present
         data = frozenset(string)
         if [c for c in _CONTROL_CHARS if c in data]:
-            raise ControlCharError(k.b_('ASCII control code present in string'
+            raise ControlCharError(k._('ASCII control code present in string'
                     ' input'))
     else:
-        raise ValueError(k.b_('The strategy argument to process_control_chars'
+        raise ValueError(k._('The strategy argument to process_control_chars'
                 ' must be one of ignore, replace, or strict'))
 
     if control_table:
@@ -211,34 +211,34 @@ def html_entities_unescape(string):
     '''
     def fixup(match):
         string = match.group(0)
-        if string[:1] == u"<":
+        if string[:1] == "<":
             return "" # ignore tags
-        if string[:2] == u"&#":
+        if string[:2] == "&#":
             try:
-                if string[:3] == u"&#x":
-                    return unichr(int(string[3:-1], 16))
+                if string[:3] == "&#x":
+                    return chr(int(string[3:-1], 16))
                 else:
-                    return unichr(int(string[2:-1]))
+                    return chr(int(string[2:-1]))
             except ValueError:
                 # If the value is outside the unicode codepoint range, leave
                 # it in the output as is
                 pass
-        elif string[:1] == u"&":
-            entity = htmlentitydefs.entitydefs.get(string[1:-1].encode('utf-8'))
+        elif string[:1] == "&":
+            entity = html.entities.entitydefs.get(string[1:-1])
             if entity:
                 if entity[:2] == "&#":
                     try:
-                        return unichr(int(entity[2:-1]))
+                        return chr(int(entity[2:-1]))
                     except ValueError:
                         # If the value is outside the unicode codepoint range,
                         # leave it in the output as is
                         pass
                 else:
-                    return unicode(entity, "iso-8859-1")
+                    return entity
         return string # leave as is
 
-    if not isinstance(string, unicode):
-        raise TypeError(k.b_('html_entities_unescape must have a unicode type'
+    if not isinstance(string, str):
+        raise TypeError(k.b_('html_entities_unescape must have a unicode type (str)'
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 
@@ -264,12 +264,12 @@ def byte_string_valid_xml(byte_string, encoding='utf-8'):
                 processed_array.append(guess_bytes_to_xml(string, encoding='utf-8'))
         output_xml(processed_array)
     '''
-    if not isinstance(byte_string, str):
+    if not (isinstance(byte_string, bytes) or isinstance(byte_string, bytearray)):
         # Not a byte string
         return False
 
     try:
-        u_string = unicode(byte_string, encoding)
+        u_string = str(byte_string, encoding)
     except UnicodeError:
         # Not encoded with the xml file's encoding
         return False
@@ -300,7 +300,7 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
         :func:`~kitchen.text.misc.guess_encoding` instead.
     '''
     try:
-        unicode(byte_string, encoding)
+        str(byte_string, encoding)
     except UnicodeError:
         # Not encoded with the xml file's encoding
         return False

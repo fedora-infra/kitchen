@@ -114,7 +114,7 @@ from kitchen.text.misc import byte_string_valid_encoding
 # same catalog is opened twice.
 _translations = {}
 
-class DummyTranslations(object, gettext.NullTranslations):
+class DummyTranslations(gettext.NullTranslations):
     '''Safer version of :class:`gettext.NullTranslations`
 
     This Translations class doesn't translate the strings and is intended to
@@ -352,8 +352,8 @@ class DummyTranslations(object, gettext.NullTranslations):
         return self._reencode_if_necessary(message, output_encoding)
 
     def ugettext(self, message):
-        if not isinstance(message, basestring):
-            return u''
+        if not isinstance(message, str):
+            return ''
         if self._fallback:
             msg = to_unicode(message, encoding=self.input_charset)
             try:
@@ -475,7 +475,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         gettext.GNUTranslations._parse(self, fp)
 
     def gettext(self, message):
-        if not isinstance(message, basestring):
+        if not isinstance(message, str):
             return ''
         tmsg = message
         u_message = to_unicode(message, encoding=self.input_charset)
@@ -501,7 +501,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
+        if not isinstance(msgid1, str):
             return ''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
@@ -522,7 +522,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return self._reencode_if_necessary(tmsg, output_encoding)
 
     def lgettext(self, message):
-        if not isinstance(message, basestring):
+        if not isinstance(message, str):
             return ''
         tmsg = message
         u_message = to_unicode(message, encoding=self.input_charset)
@@ -548,7 +548,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
+        if not isinstance(msgid1, str):
             return ''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
@@ -570,8 +570,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
 
     def ugettext(self, message):
-        if not isinstance(message, basestring):
-            return u''
+        if not isinstance(message, str):
+            return ''
         message = to_unicode(message, encoding=self.input_charset)
         try:
             message = self._catalog[message] #pylint:disable-msg=E1101
@@ -592,8 +592,8 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
-            return u''
+        if not isinstance(msgid1, str):
+            return ''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101

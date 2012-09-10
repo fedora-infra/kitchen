@@ -1,6 +1,6 @@
 #!/usr/bin/python -tt
 
-import ConfigParser
+import configparser
 import glob
 import os
 import shutil
@@ -27,13 +27,13 @@ def setup_message_compiler():
 def main():
     # Get the directory with message catalogs
     # Reuse transifex's config file first as it will know this
-    cfg = ConfigParser.SafeConfigParser()
+    cfg = configparser.SafeConfigParser()
     cfg.read('.tx/config')
     cmd, args = setup_message_compiler()
 
     try:
         shutil.rmtree('locale')
-    except OSError, e:
+    except OSError as e:
         # If the error is that locale does not exist, we're okay.  We're
         # deleting it here, afterall
         if e.errno != 2:
@@ -43,7 +43,7 @@ def main():
         try:
             file_filter = cfg.get(section, 'file_filter')
             source_file = cfg.get(section, 'source_file')
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             continue
         glob_pattern = file_filter.replace('<lang>', '*')
         pot = os.path.basename(source_file)

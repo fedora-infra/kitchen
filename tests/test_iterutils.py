@@ -18,7 +18,7 @@ class TestStrictDict(unittest.TestCase):
             [None],
             [False],
             [0],
-            xrange(0, 3),
+            range(0, 3),
             iter([1, 2, 3]),
             )
     non_iterable_data = (

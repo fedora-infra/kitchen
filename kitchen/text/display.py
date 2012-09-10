@@ -267,9 +267,9 @@ def _generate_combining_table():
     combining = []
     in_interval = False
     interval = []
-    for codepoint in xrange (0, 0xFFFFF + 1):
+    for codepoint in range (0, 0xFFFFF + 1):
         if _interval_bisearch(codepoint, markus_kuhn_combining_5_0) or \
-                unicodedata.combining(unichr(codepoint)):
+                unicodedata.combining(chr(codepoint)):
             if not in_interval:
                 # Found first part of an interval
                 interval = [codepoint]
@@ -288,7 +288,7 @@ def _generate_combining_table():
         interval.append(codepoint)
         combining.append(interval)
 
-    return tuple(itertools.imap(tuple, combining))
+    return tuple(map(tuple, combining))
 
 # New function from Toshio Kuratomi (LGPLv2+)
 def _print_combining_table():
@@ -301,17 +301,17 @@ def _print_combining_table():
     '''
     table = _generate_combining_table()
     entries = 0
-    print '_COMBINING = ('
+    print('_COMBINING = (')
     for pair in table:
         if entries >= 3:
             entries = 0
-            print
+            print()
         if entries == 0:
-            print '       ',
+            print('       ', end=' ')
         entries += 1
         entry = '(0x%x, 0x%x),' % pair
-        print entry,
-    print ')'
+        print(entry, end=' ')
+    print(')')
 
 # Handling of control chars rewritten.  Rest is JA's port of MK's C code.
 # -Toshio Kuratomi
@@ -458,9 +458,9 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
             # calculate width of each char
             itertools.starmap(_ucp_width,
                 # Setup the arguments to _ucp_width
-                itertools.izip(
+                zip(
                     # int value of each char
-                    itertools.imap(ord, msg),
+                    map(ord, msg),
                     # control_chars arg in a form that izip will deal with
                     itertools.repeat(control_chars))))
 
@@ -637,13 +637,13 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
     width = textual_width(msg)
     if width >= fill:
         if prefix or suffix:
-            msg = u''.join([prefix, msg, suffix])
+            msg = ''.join([prefix, msg, suffix])
     else:
-        extra = u' ' * (fill - width)
+        extra = ' ' * (fill - width)
         if left:
-            msg = u''.join([prefix, msg, suffix, extra])
+            msg = ''.join([prefix, msg, suffix, extra])
         else:
-            msg = u''.join([extra, prefix, msg, suffix])
+            msg = ''.join([extra, prefix, msg, suffix])
     return msg
 
 def _textual_width_le(width, *args):
@@ -689,7 +689,7 @@ def _textual_width_le(width, *args):
         true_width = textual_width(string)
     return true_width <= width
 
-def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
+def wrap(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf-8', errors='replace'):
     '''Works like we want :func:`textwrap.wrap` to work,
 
@@ -746,7 +746,7 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
             count = line.find(char)
 
         # if we have a bullet character, check for list
-        if char not in u'-*.o\u2022\u2023\u2218':
+        if char not in '-*.o\u2022\u2023\u2218':
             # No bullet; not a list
             return count, 0
 
@@ -763,8 +763,8 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
             errors=errors)
     subsequent_indent_width = textual_width(subsequent_indent)
 
-    text = to_unicode(text, encoding=encoding, errors=errors).rstrip(u'\n')
-    lines = text.expandtabs().split(u'\n')
+    text = to_unicode(text, encoding=encoding, errors=errors).rstrip('\n')
+    lines = text.expandtabs().split('\n')
 
     ret = []
     indent = initial_indent
@@ -772,7 +772,7 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
     cur_sab = 0
     cur_spc_indent = 0
     for line in lines:
-        line = line.rstrip(u' ')
+        line = line.rstrip(' ')
         (last_sab, last_spc_indent) = (cur_sab, cur_spc_indent)
         (cur_sab, cur_spc_indent) = _indent_at_beg(line)
         force_nl = False # We want to stop wrapping under "certain" conditions:
@@ -784,13 +784,13 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
             if cur_sab >= 4 and cur_sab != last_sab: # and is "block indented"
                 force_nl = True
         if force_nl:
-            ret.append(indent.rstrip(u' '))
+            ret.append(indent.rstrip(' '))
             indent = subsequent_indent
             wrap_last = False
         if cur_sab == len(line): # empty line, remove spaces to make it easier.
-            line = u''
+            line = ''
         if wrap_last:
-            line = line.lstrip(u' ')
+            line = line.lstrip(' ')
             cur_spc_indent = last_spc_indent
 
         if _textual_width_le(width, indent, line):
@@ -800,7 +800,7 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
             continue
 
         wrap_last = True
-        words = line.split(u' ')
+        words = line.split(' ')
         line = indent
         spcs = cur_spc_indent
         if not spcs and cur_sab >= 4:
@@ -808,13 +808,13 @@ def wrap(text, width=70, initial_indent=u'', subsequent_indent=u'',
         for word in words:
             if (not _textual_width_le(width, line, word) and
                 textual_width(line) > subsequent_indent_width):
-                ret.append(line.rstrip(u' '))
-                line = subsequent_indent + u' ' * spcs
+                ret.append(line.rstrip(' '))
+                line = subsequent_indent + ' ' * spcs
             line += word
-            line += u' '
-        indent = line.rstrip(u' ') + u' '
+            line += ' '
+        indent = line.rstrip(' ') + ' '
     if wrap_last:
-        ret.append(indent.rstrip(u' '))
+        ret.append(indent.rstrip(' '))
 
     return ret
 
@@ -833,7 +833,7 @@ def fill(text, *args, **kwargs):
     Where that function returns a :class:`list` of lines, this function
     returns one string with each line separated by a newline.
     '''
-    return u'\n'.join(wrap(text, *args, **kwargs))
+    return '\n'.join(wrap(text, *args, **kwargs))
 
 #
 # Byte strings
@@ -889,13 +889,13 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
 
     if width >= fill:
         if prefix or suffix:
-            msg = ''.join([prefix, msg, suffix])
+            msg = b''.join([prefix, msg, suffix])
     else:
-        extra = ' ' * (fill - width)
+        extra = b' ' * (fill - width)
         if left:
-            msg = ''.join([prefix, msg, suffix, extra])
+            msg = b''.join([prefix, msg, suffix, extra])
         else:
-            msg = ''.join([extra, prefix, msg, suffix])
+            msg = b''.join([extra, prefix, msg, suffix])
 
     return msg
 

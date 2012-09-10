@@ -1,4 +1,4 @@
-#!/usr/bin/python -tt
+#!/usr/bin/python3 -tt
 import os
 import sys
 import time
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         new_name = '%s-%s' % (retrieved_at, base_upstream_filename)
         os.rename(base_upstream_filename, new_name)
 
-        print 'New %s found: %s' % (base_upstream_filename, new_name)
+        print('New %s found: %s' % (base_upstream_filename, new_name))
         record = open('record', 'a')
         record.writelines(sp_sum_line)
         record.close()

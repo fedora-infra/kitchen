@@ -105,7 +105,7 @@ def utf8_width_chop(msg, chop=None):
     if chop == None:
         return textual_width(msg), msg
 
-    as_bytes = not isinstance(msg, unicode)
+    as_bytes = not isinstance(msg, str)
  
     chopped_msg = textual_width_chop(msg, chop)
     if as_bytes:
@@ -134,7 +134,7 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
         ' kitchen.text.display.wrap instead'),
         DeprecationWarning, stacklevel=2)
 
-    as_bytes = not isinstance(text, unicode)
+    as_bytes = not isinstance(text, str)
 
     text = to_unicode(text)
     lines = wrap(text, width=width, initial_indent=initial_indent,

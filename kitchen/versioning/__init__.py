@@ -27,8 +27,6 @@ contains a function for creating strings in that format.
 '''
 __version_info__ = ((1, 0, 0),)
 
-import itertools
-
 def version_tuple_to_string(version_info):
     '''Return a :pep:`386` version string from a :pep:`386` style version tuple
 
@@ -87,19 +85,20 @@ def version_tuple_to_string(version_info):
     ver_components = []
     for values in version_info:
         if isinstance(values[0], int):
-            ver_components.append('.'.join(itertools.imap(str, values)))
+            ver_components.append('.'.join(map(str, values)))
         else:
             modifier = values[0]
-            if isinstance(values[0], unicode):
-                modifier = values[0].encode('ascii')
+            if isinstance(modifier, bytes):
+                modifier = modifier.decode('ascii')
 
             if  modifier in ('a', 'b', 'c', 'rc'):
-                ver_components.append('%s%s' % (modifier,
-                    '.'.join(itertools.imap(str, values[1:])) or '0'))
+                ver_components.append('{}{}'.format(modifier,
+                    '.'.join(map(str, values[1:])) or '0'))
             else:
-                ver_components.append('.%s%s' % (modifier,
+                # Only 'devXXXX' here
+                ver_components.append('.{}{}'.format(modifier,
                     str(values[1])))
-    return unicode(''.join(ver_components), 'ascii')
+    return ''.join(ver_components)
 
 
 __version__ = version_tuple_to_string(__version_info__)

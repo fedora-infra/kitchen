@@ -5,8 +5,8 @@ import unittest
 from nose import tools
 from nose.plugins.skip import SkipTest
 
+import io
 import sys
-import StringIO
 import warnings
 
 try:
@@ -21,30 +21,30 @@ import base_classes
 
 class UnicodeNoStr(object):
     def __unicode__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'
+        return 'El veloz murciélago saltó sobre el perro perezoso.'
 
 class StrNoUnicode(object):
     def __str__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
+        return 'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
 class StrReturnsUnicode(object):
     def __str__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'
+        return 'El veloz murciélago saltó sobre el perro perezoso.'
 
 class UnicodeReturnsStr(object):
     def __unicode__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
+        return 'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
 class UnicodeStrCrossed(object):
     def __unicode__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
+        return 'El veloz murciélago saltó sobre el perro perezoso.'.encode('utf8')
 
     def __str__(self):
-        return u'El veloz murciélago saltó sobre el perro perezoso.'
+        return 'El veloz murciélago saltó sobre el perro perezoso.'
 
 class ReprUnicode(object):
     def __repr__(self):
-        return u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'
+        return 'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'
 
 class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
     def test_to_unicode(self):
@@ -66,16 +66,16 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
                 *[self.latin1_spanish], **{'errors': 'strict'})
 
     def test_to_unicode_nonstring(self):
-        tools.eq_(converters.to_unicode(5), u'5')
-        tools.eq_(converters.to_unicode(5, nonstring='empty'), u'')
+        tools.eq_(converters.to_unicode(5), '5')
+        tools.eq_(converters.to_unicode(5, nonstring='empty'), '')
         tools.eq_(converters.to_unicode(5, nonstring='passthru'), 5)
-        tools.eq_(converters.to_unicode(5, nonstring='simplerepr'), u'5')
-        tools.eq_(converters.to_unicode(5, nonstring='repr'), u'5')
+        tools.eq_(converters.to_unicode(5, nonstring='simplerepr'), '5')
+        tools.eq_(converters.to_unicode(5, nonstring='repr'), '5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'nonstring': 'strict'})
 
         obj_repr = converters.to_unicode(object, nonstring='simplerepr')
-        tools.eq_(obj_repr, u"<type 'object'>")
-        tools.assert_true(isinstance(obj_repr, unicode))
+        tools.eq_(obj_repr, "<class 'object'>")
+        tools.assert_true(isinstance(obj_repr, str))
 
     def test_to_unicode_nonstring_with_objects_that_have__unicode__and__str__(self):
         '''Test that to_unicode handles objects that have  __unicode__ and  __str__ methods'''
@@ -108,17 +108,17 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
             *[self.u_mixed], **{'errors': 'strict', 'encoding': 'latin1'})
 
     def _check_repr_bytes(self, repr_string, obj_name):
-        tools.assert_true(isinstance(repr_string, str))
+        tools.assert_true(isinstance(repr_string, bytes))
         match = self.repr_re.match(repr_string)
         tools.assert_not_equal(match, None)
         tools.eq_(match.groups()[0], obj_name)
 
     def test_to_bytes_nonstring(self):
-        tools.eq_(converters.to_bytes(5), '5')
-        tools.eq_(converters.to_bytes(5, nonstring='empty'), '')
+        tools.eq_(converters.to_bytes(5), b'5')
+        tools.eq_(converters.to_bytes(5, nonstring='empty'), b'')
         tools.eq_(converters.to_bytes(5, nonstring='passthru'), 5)
-        tools.eq_(converters.to_bytes(5, nonstring='simplerepr'), '5')
-        tools.eq_(converters.to_bytes(5, nonstring='repr'), '5')
+        tools.eq_(converters.to_bytes(5, nonstring='simplerepr'), b'5')
+        tools.eq_(converters.to_bytes(5, nonstring='repr'), b'5')
 
         # Raise a TypeError if the msg is nonstring and we're set to strict
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'nonstring': 'strict'})
@@ -126,8 +126,8 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'nonstring': 'INVALID'})
 
         obj_repr = converters.to_bytes(object, nonstring='simplerepr')
-        tools.eq_(obj_repr, "<type 'object'>")
-        tools.assert_true(isinstance(obj_repr, str))
+        tools.eq_(obj_repr, b"<class 'object'>")
+        tools.assert_true(isinstance(obj_repr, bytes))
 
     def test_to_bytes_nonstring_with_objects_that_have__unicode__and__str__(self):
         if sys.version_info < (3, 0):
@@ -135,7 +135,7 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
             tools.eq_(converters.to_bytes(StrNoUnicode(), nonstring='simplerepr'), self.utf8_spanish)
         # No __str__ method so this returns repr
         string = converters.to_bytes(UnicodeNoStr(), nonstring='simplerepr')
-        self._check_repr_bytes(string, 'UnicodeNoStr')
+        self._check_repr_bytes(string, b'UnicodeNoStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(StrReturnsUnicode(), nonstring='simplerepr'), self.utf8_spanish)
@@ -145,23 +145,23 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
         # This object has no __str__ so it returns repr
         string = converters.to_bytes(UnicodeReturnsStr(), nonstring='simplerepr')
-        self._check_repr_bytes(string, 'UnicodeReturnsStr')
+        self._check_repr_bytes(string, b'UnicodeReturnsStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(UnicodeStrCrossed(), nonstring='simplerepr'), self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='simplerepr'),
-                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+                'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
         tools.eq_(converters.to_bytes(ReprUnicode(), nonstring='repr'),
-                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+                'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
     def test_unicode_to_xml(self):
-        tools.eq_(converters.unicode_to_xml(None), '')
-        tools.assert_raises(XmlEncodeError, converters.unicode_to_xml, *['byte string'])
-        tools.assert_raises(ValueError, converters.unicode_to_xml, *[u'string'], **{'control_chars': 'foo'})
+        tools.eq_(converters.unicode_to_xml(None), b'')
+        tools.assert_raises(XmlEncodeError, converters.unicode_to_xml, *[b'byte string'])
+        tools.assert_raises(ValueError, converters.unicode_to_xml, *['string'], **{'control_chars': 'foo'})
         tools.assert_raises(XmlEncodeError, converters.unicode_to_xml,
-                *[u'string\u0002'], **{'control_chars': 'strict'})
+                *['string\u0002'], **{'control_chars': 'strict'})
         tools.eq_(converters.unicode_to_xml(self.u_entity), self.utf8_entity_escape)
         tools.eq_(converters.unicode_to_xml(self.u_entity, attrib=True), self.utf8_attrib_escape)
         tools.eq_(converters.unicode_to_xml(self.u_entity, encoding='ascii'), self.ascii_entity_escape)
@@ -193,7 +193,7 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
             self.u_entity.encode('latin1', 'replace'))
 
     def test_byte_string_to_xml(self):
-        tools.assert_raises(XmlEncodeError, converters.byte_string_to_xml, *[u'test'])
+        tools.assert_raises(XmlEncodeError, converters.byte_string_to_xml, *['test'])
         tools.eq_(converters.byte_string_to_xml(self.utf8_entity), self.utf8_entity_escape)
         tools.eq_(converters.byte_string_to_xml(self.utf8_entity, attrib=True), self.utf8_attrib_escape)
 
@@ -225,26 +225,26 @@ class TestConverters(unittest.TestCase, base_classes.UnicodeTestData):
 
 class TestGetWriter(unittest.TestCase, base_classes.UnicodeTestData):
     def setUp(self):
-        self.io = StringIO.StringIO()
+        self.io = io.BytesIO()
 
     def test_utf8_writer(self):
         writer = converters.getwriter('utf-8')
         io = writer(self.io)
-        io.write(self.u_japanese + u'\n')
+        io.write(self.u_japanese + '\n')
         io.seek(0)
         result = io.read().strip()
         tools.eq_(result, self.utf8_japanese)
 
         io.seek(0)
         io.truncate(0)
-        io.write(self.euc_jp_japanese + '\n')
+        io.write(self.euc_jp_japanese + b'\n')
         io.seek(0)
         result = io.read().strip()
         tools.eq_(result, self.euc_jp_japanese)
 
         io.seek(0)
         io.truncate(0)
-        io.write(self.utf8_japanese + '\n')
+        io.write(self.utf8_japanese + b'\n')
         io.seek(0)
         result = io.read().strip()
         tools.eq_(result, self.utf8_japanese)
@@ -265,10 +265,11 @@ class TestExceptionConverters(unittest.TestCase, base_classes.UnicodeTestData):
                 'utf8_spanish': self.utf8_spanish,
                 'euc_jpn': self.euc_jp_japanese,
                 'latin1_spanish': self.latin1_spanish}
-        for test in tests.iteritems():
+        for test in tests.items():
             try:
                 raise Exception(test[1])
-            except Exception, self.exceptions[test[0]]:
+            except Exception as xxx_todo_changeme:
+                self.exceptions[test[0]] = xxx_todo_changeme
                 pass
 
     def test_exception_to_unicode_with_unicode(self):
@@ -350,34 +351,36 @@ class TestDeprecatedConverters(TestConverters):
     def test_to_str(self):
         tools.eq_(converters.to_str(self.u_japanese), self.utf8_japanese)
         tools.eq_(converters.to_str(self.utf8_spanish), self.utf8_spanish)
-        tools.eq_(converters.to_str(object), "<type 'object'>")
+        tools.eq_(converters.to_str(object), b"<class 'object'>")
 
     def test_non_string(self):
         '''Test deprecated non_string parameter'''
         # unicode
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'foo'})
-        tools.eq_(converters.to_unicode(5, non_string='empty'), u'')
+        tools.eq_(converters.to_unicode(5, non_string='empty'), '')
         tools.eq_(converters.to_unicode(5, non_string='passthru'), 5)
-        tools.eq_(converters.to_unicode(5, non_string='simplerepr'), u'5')
-        tools.eq_(converters.to_unicode(5, non_string='repr'), u'5')
+        tools.eq_(converters.to_unicode(5, non_string='simplerepr'), '5')
+        tools.eq_(converters.to_unicode(5, non_string='repr'), '5')
         tools.assert_raises(TypeError, converters.to_unicode, *[5], **{'non_string': 'strict'})
 
-        tools.eq_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr'), self.u_spanish)
-        tools.eq_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(StrReturnsUnicode(), non_string='simplerepr'), self.u_spanish)
-        tools.eq_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr'), self.u_spanish)
         tools.eq_(converters.to_unicode(UnicodeStrCrossed(), non_string='simplerepr'), self.u_spanish)
+        if sys.version_info < (3, 0):
+            # Not applicable on python3
+            tools.eq_(converters.to_unicode(UnicodeNoStr(), non_string='simplerepr'), self.u_spanish)
+            tools.eq_(converters.to_unicode(StrNoUnicode(), non_string='simplerepr'), self.u_spanish)
+            tools.eq_(converters.to_unicode(UnicodeReturnsStr(), non_string='simplerepr'), self.u_spanish)
 
         obj_repr = converters.to_unicode(object, non_string='simplerepr')
-        tools.eq_(obj_repr, u"<type 'object'>")
-        tools.assert_true(isinstance(obj_repr, unicode))
+        tools.eq_(obj_repr, "<class 'object'>")
+        tools.assert_true(isinstance(obj_repr, str))
 
         # Bytes
-        tools.eq_(converters.to_bytes(5), '5')
-        tools.eq_(converters.to_bytes(5, non_string='empty'), '')
+        tools.eq_(converters.to_bytes(5), b'5')
+        tools.eq_(converters.to_bytes(5, non_string='empty'), b'')
         tools.eq_(converters.to_bytes(5, non_string='passthru'), 5)
-        tools.eq_(converters.to_bytes(5, non_string='simplerepr'), '5')
-        tools.eq_(converters.to_bytes(5, non_string='repr'), '5')
+        tools.eq_(converters.to_bytes(5, non_string='simplerepr'), b'5')
+        tools.eq_(converters.to_bytes(5, non_string='repr'), b'5')
 
         # Raise a TypeError if the msg is non_string and we're set to strict
         tools.assert_raises(TypeError, converters.to_bytes, *[5], **{'non_string': 'strict'})
@@ -386,10 +389,12 @@ class TestDeprecatedConverters(TestConverters):
 
         # No __str__ method so this returns repr
         string = converters.to_bytes(UnicodeNoStr(), non_string='simplerepr')
-        self._check_repr_bytes(string, 'UnicodeNoStr')
+        self._check_repr_bytes(string, b'UnicodeNoStr')
 
-        # This object's _str__ returns a utf8 encoded object
-        tools.eq_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr'), self.utf8_spanish)
+        if sys.version_info < (3, 0):
+            # Not applicable on python3
+            # This object's _str__ returns a utf8 encoded object
+            tools.eq_(converters.to_bytes(StrNoUnicode(), non_string='simplerepr'), self.utf8_spanish)
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(StrReturnsUnicode(), non_string='simplerepr'), self.utf8_spanish)
@@ -399,17 +404,17 @@ class TestDeprecatedConverters(TestConverters):
 
         # This object has no __str__ so it returns repr
         string = converters.to_bytes(UnicodeReturnsStr(), non_string='simplerepr')
-        self._check_repr_bytes(string, 'UnicodeReturnsStr')
+        self._check_repr_bytes(string, b'UnicodeReturnsStr')
 
         # This object's __str__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(UnicodeStrCrossed(), non_string='simplerepr'), self.utf8_spanish)
 
         # This object's __repr__ returns unicode which to_bytes converts to utf8
         tools.eq_(converters.to_bytes(ReprUnicode(), non_string='simplerepr'),
-                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+                'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
         tools.eq_(converters.to_bytes(ReprUnicode(), non_string='repr'),
-                u'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
+                'ReprUnicode(El veloz murciélago saltó sobre el perro perezoso.)'.encode('utf8'))
 
         obj_repr = converters.to_bytes(object, non_string='simplerepr')
-        tools.eq_(obj_repr, "<type 'object'>")
-        tools.assert_true(isinstance(obj_repr, str))
+        tools.eq_(obj_repr, b"<class 'object'>")
+        tools.assert_true(isinstance(obj_repr, bytes))

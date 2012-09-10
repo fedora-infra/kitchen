@@ -23,7 +23,7 @@ class TestDeprecated(unittest.TestCase):
 
     def test_deprecated_functions(self):
         '''Test that all deprecated functions raise DeprecationWarning'''
-        tools.assert_raises(DeprecationWarning, converters.to_utf8, u'café')
+        tools.assert_raises(DeprecationWarning, converters.to_utf8, 'café')
         tools.assert_raises(DeprecationWarning, converters.to_str, 5)
         tools.assert_raises(DeprecationWarning, converters.to_xml, 'test')
 

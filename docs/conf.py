@@ -179,8 +179,8 @@ htmlhelp_basename = 'kitchendoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'kitchen.tex', u'kitchen Documentation',
-   u'Toshio Kuratomi', 'manual'),
+  ('index', 'kitchen.tex', 'kitchen Documentation',
+   'Toshio Kuratomi', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

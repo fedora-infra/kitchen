@@ -46,7 +46,7 @@ def isiterable(obj, include_string=False):
     :returns: :data:`True` if :attr:`obj` is iterable, otherwise
         :data:`False`.
     '''
-    if include_string or not isinstance(obj, basestring):
+    if include_string or not isinstance(obj, str):
         try:
             iter(obj)
         except TypeError:

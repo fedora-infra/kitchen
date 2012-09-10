@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2011 Red Hat, Inc
+# Copyright (c) 2012 Red Hat, Inc
 #
 # This file is part of kitchen
 # 
@@ -30,17 +30,12 @@ a backport of that module for use on earlier python versions.
     :mod:`subprocess`
         for information about using the functions provided here.
 '''
-import sys
 
 # :W0401,W0611,W0614: We're importing compatibility to the python-2.7 version
 #   of subprocess.
 #pylint:disable-msg=W0401,W0611,W0614
-if sys.version_info >= (2, 7):
-    from subprocess import *
-    from subprocess import MAXFD, list2cmdline, mswindows
-    from subprocess import __all__
-else:
-    from kitchen.pycompat27.subprocess._subprocess import *
-    from kitchen.pycompat27.subprocess._subprocess import MAXFD, \
-            list2cmdline, mswindows
-    from kitchen.pycompat27.subprocess._subprocess import __all__
+# All versions of python3 have a modern enough subprocess.  This module only
+# exists for backwards compatibility
+from subprocess import *
+from subprocess import MAXFD, list2cmdline, mswindows
+from subprocess import __all__
