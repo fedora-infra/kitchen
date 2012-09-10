@@ -56,7 +56,7 @@ class TestUTF8(base_classes.UnicodeTestData, unittest.TestCase):
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 22) == (22, self.u_mixed[:-1]))
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 19) == (18, self.u_mixed[:-4]))
         tools.ok_(utf8.utf8_width_chop(self.u_mixed, 2) == (2, self.u_mixed[0]))
-        tools.ok_(utf8.utf8_width_chop(self.u_mixed, 1) == (0, ''))
+        tools.ok_(utf8.utf8_width_chop(self.u_mixed, 1) == (0, u''))
 
     def test_utf8_width_fill(self):
         '''Pad a utf8 string'''
