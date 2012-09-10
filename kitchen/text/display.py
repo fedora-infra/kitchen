@@ -101,7 +101,7 @@ def _interval_bisearch(value, table):
         return False
 
     while maximum >= minimum:
-        mid = (minimum + maximum) / 2
+        mid = divmod(minimum + maximum, 2)[0]
         if value > table[mid][1]:
             minimum = mid + 1
         elif value < table[mid][0]:
