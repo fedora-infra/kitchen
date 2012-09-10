@@ -401,8 +401,7 @@ def to_str(obj):
         to_bytes(obj, nonstring='simplerepr')
     '''
     warnings.warn(k.b_('to_str is deprecated.  Use to_unicode or to_bytes'
-        ' instead.  See the to_str docstring for'
-        ' porting information.'),
+        ' instead.  See the to_str docstring for porting information.'),
         DeprecationWarning, stacklevel=2)
     return to_bytes(obj, nonstring='simplerepr')
 
