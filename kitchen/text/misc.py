@@ -98,7 +98,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     return input_encoding
 
 def str_eq(str1, str2, encoding='utf-8', errors='replace'):
-    '''Compare two stringsi, converting to byte :class:`str` if one is
+    '''Compare two strings, converting to byte :class:`str` if one is
     :class:`unicode`
 
     :arg str1: First string to compare
