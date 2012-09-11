@@ -40,6 +40,9 @@ class TestStrictDict(unittest.TestCase):
         tools.ok_(iterutils.isiterable('a', include_string=True) == True)
         tools.ok_(iterutils.isiterable('a', include_string=False) == False)
         tools.ok_(iterutils.isiterable('a') == False)
+        tools.ok_(iterutils.isiterable(u'a', include_string=True) == True)
+        tools.ok_(iterutils.isiterable(u'a', include_string=False) == False)
+        tools.ok_(iterutils.isiterable(u'a') == False)
 
     def test_iterate(self):
         iterutils.iterate(None)
@@ -55,3 +58,5 @@ class TestStrictDict(unittest.TestCase):
         # strings
         tools.ok_(list(iterutils.iterate('abc')) == ['abc'])
         tools.ok_(list(iterutils.iterate('abc', include_string=True)) == ['a', 'b', 'c'])
+        tools.ok_(list(iterutils.iterate(u'abc')) == [u'abc'])
+        tools.ok_(list(iterutils.iterate(u'abc', include_string=True)) == [u'a', u'b', u'c'])
