@@ -328,7 +328,7 @@ def isbasestring(obj):
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
-    if isinstance(obj, basestring):
+    if isinstance(obj, str) or isinstance(obj, bytes) or isinstance(obj, bytearray):
         return True
     return False
 
@@ -343,7 +343,7 @@ def isbytestring(obj):
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
-    if isinstance(obj, str):
+    if isinstance(obj, bytes) or isinstance(obj, bytearray):
         return True
     return False
 
@@ -358,7 +358,7 @@ def isunicodestring(obj):
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
-    if isinstance(obj, unicode):
+    if isinstance(obj, str):
         return True
     return False
 
