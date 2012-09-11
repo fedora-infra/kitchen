@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010-2011 Red Hat, Inc
+# Copyright (c) 2010-2012 Red Hat, Inc
 # Copyright (c) 2009 Milos Komarcevic
 # Copyright (c) 2008 Tim Lauridsen
 #
@@ -107,7 +107,7 @@ except ImportError:
     _DEFAULT_LOCALEDIR = os.path.join(sys.prefix, 'share', 'locale')
 
 from kitchen.text.converters import to_bytes, to_unicode
-from kitchen.text.misc import byte_string_valid_encoding
+from kitchen.text.misc import byte_string_valid_encoding, isbasestring
 
 # We cache parts of the translation objects just like stdlib's gettext so that
 # we don't reparse the message files and keep them in memory separately if the
@@ -352,7 +352,7 @@ class DummyTranslations(object, gettext.NullTranslations):
         return self._reencode_if_necessary(message, output_encoding)
 
     def ugettext(self, message):
-        if not isinstance(message, basestring):
+        if not isbasestring(message):
             return u''
         if self._fallback:
             msg = to_unicode(message, encoding=self.input_charset)
@@ -475,7 +475,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         gettext.GNUTranslations._parse(self, fp)
 
     def gettext(self, message):
-        if not isinstance(message, basestring):
+        if not isbasestring(message):
             return ''
         tmsg = message
         u_message = to_unicode(message, encoding=self.input_charset)
@@ -501,7 +501,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
+        if not isbasestring(msgid1):
             return ''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
@@ -522,7 +522,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return self._reencode_if_necessary(tmsg, output_encoding)
 
     def lgettext(self, message):
-        if not isinstance(message, basestring):
+        if not isbasestring(message):
             return ''
         tmsg = message
         u_message = to_unicode(message, encoding=self.input_charset)
@@ -548,7 +548,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
+        if not isbasestring(msgid1):
             return ''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
@@ -570,7 +570,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
 
     def ugettext(self, message):
-        if not isinstance(message, basestring):
+        if not isbasestring(message):
             return u''
         message = to_unicode(message, encoding=self.input_charset)
         try:
@@ -592,7 +592,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         else:
             tmsg = msgid2
 
-        if not isinstance(msgid1, basestring):
+        if not isbasestring(msgid1):
             return u''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:

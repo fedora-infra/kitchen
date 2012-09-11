@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 Red Hat, Inc
+# Copyright (c) 2012 Red Hat, Inc
 #
 # kitchen is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,8 @@ from kitchen.versioning import version_tuple_to_string
 __version_info__ = ((0, 0, 1),)
 __version__ = version_tuple_to_string(__version_info__)
 
+from kitchen.text.misc import isbasestring
+
 def isiterable(obj, include_string=False):
     '''Check whether an object is an iterable
 
@@ -46,7 +48,7 @@ def isiterable(obj, include_string=False):
     :returns: :data:`True` if :attr:`obj` is iterable, otherwise
         :data:`False`.
     '''
-    if include_string or not isinstance(obj, basestring):
+    if include_string or not isbasestring(obj):
         try:
             iter(obj)
         except TypeError:

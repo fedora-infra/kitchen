@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2011 Red Hat, Inc.
+# Copyright (c) 2012 Red Hat, Inc.
 # Copyright (c) 2010 Ville Skyttä
 # Copyright (c) 2009 Tim Lauridsen
 # Copyright (c) 2007 Marcus Kuhn
@@ -52,7 +52,7 @@ import warnings
 
 from kitchen import b_
 from kitchen.text.converters import to_unicode, to_bytes
-from kitchen.text.misc import byte_string_valid_encoding
+from kitchen.text.misc import byte_string_valid_encoding, isunicodestring
 from kitchen.text.display import _textual_width_le, \
         byte_string_textual_width_fill, fill, textual_width, \
         textual_width_chop, wrap
@@ -105,7 +105,7 @@ def utf8_width_chop(msg, chop=None):
     if chop == None:
         return textual_width(msg), msg
 
-    as_bytes = not isinstance(msg, unicode)
+    as_bytes = not isunicodestring(msg)
  
     chopped_msg = textual_width_chop(msg, chop)
     if as_bytes:
@@ -134,7 +134,7 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
         ' kitchen.text.display.wrap instead'),
         DeprecationWarning, stacklevel=2)
 
-    as_bytes = not isinstance(text, unicode)
+    as_bytes = not isunicodestring(text)
 
     text = to_unicode(text)
     lines = wrap(text, width=width, initial_indent=initial_indent,
