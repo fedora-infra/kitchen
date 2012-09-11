@@ -26,7 +26,7 @@ snippets so that you can get on with your life.
 ''')
 AUTHOR = 'Toshio Kuratomi, Seth Vidal, others'
 EMAIL = 'toshio@fedoraproject.org'
-COPYRIGHT = '2011 Red Hat, Inc. and others'
+COPYRIGHT = '2012 Red Hat, Inc. and others'
 URL = 'https://fedorahosted.org/kitchen'
 DOWNLOAD_URL = 'https://fedorahosted.org/releases/k/i/kitchen'
 LICENSE = 'LGPLv2+'
