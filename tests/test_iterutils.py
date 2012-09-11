@@ -37,6 +37,9 @@ class TestStrictDict(unittest.TestCase):
             tools.ok_(iterutils.isiterable(item) == False)
 
         # strings
+        tools.ok_(iterutils.isiterable(b'a', include_string=True) == True)
+        tools.ok_(iterutils.isiterable(b'a', include_string=False) == False)
+        tools.ok_(iterutils.isiterable(b'a') == False)
         tools.ok_(iterutils.isiterable('a', include_string=True) == True)
         tools.ok_(iterutils.isiterable('a', include_string=False) == False)
         tools.ok_(iterutils.isiterable('a') == False)
@@ -53,5 +56,7 @@ class TestStrictDict(unittest.TestCase):
         tools.ok_(list(iterutils.iterate(iter([1, 2, 3]))) == [1, 2, 3])
 
         # strings
+        tools.ok_(list(iterutils.iterate(b'abc')) == [b'abc'])
+        tools.ok_(list(iterutils.iterate(b'abc', include_string=True)) == [b'a', b'b', b'c'])
         tools.ok_(list(iterutils.iterate('abc')) == ['abc'])
         tools.ok_(list(iterutils.iterate('abc', include_string=True)) == ['a', 'b', 'c'])
