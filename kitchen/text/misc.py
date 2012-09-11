@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2011 Red Hat, Inc
+# Copyright (c) 2012 Red Hat, Inc
 # Copyright (c) 2010 Seth Vidal
 #
 # kitchen is free software; you can redistribute it and/or
@@ -27,6 +27,12 @@ Miscellaneous functions for manipulating text
 ---------------------------------------------
 
 Collection of text functions that don't fit in another category.
+
+.. versionchanged:: kitchen 1.2.0, API: kitchen.text 2.2.0
+    Added :func:`~kitchen.text.misc.isbasestring`,
+    :func:`~kitchen.text.misc.isbytestring`, and
+    :func:`~kitchen.text.misc.isunicodestring` to help tell which string type
+    is which on python2 and python3
 '''
 import htmlentitydefs
 import itertools
@@ -308,6 +314,54 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
     # byte string is valid in this encoding
     return True
 
+def isbasestring(obj):
+    '''Determine if obj is a byte :class:`str` or :class:`unicode` string
+
+    In python2 this is eqiuvalent to isinstance(obj, basestring).  In python3
+    it checks whether the object is an instance of str, bytes, or bytearray.
+    This is an aid to porting code that needed to test whether an object was
+    derived from basestring in python2 (commonly used in unicode-bytes
+    conversion functions)
+
+    :arg obj: Object to test
+    :returns: True if the object is a :class:`basestring`.  Otherwise False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, basestring):
+        return True
+    return False
+
+def isbytestring(obj):
+    '''Determine if obj is a byte :class:`str`
+
+    In python2 this is equivalent to isinstance(obj, str).  In python3 it
+    checks whether the object is an instance of bytes or bytearray.
+
+    :arg obj: Object to test
+    :returns: True if the object is a byte :class:`str`.  Otherwise, False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, str):
+        return True
+    return False
+
+def isunicodestring(obj):
+    '''Determine if obj is a :class:`unicode` string
+
+    In python2 this is equivalent to isinstance(onj, unicode).  In python3 it
+    checks whether the object is an instance of :class:`str`.
+
+    :arg obj: Object to test
+    :returns: True if the object is a :class:`unicode` string.  Otherwise, False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, unicode):
+        return True
+    return False
+
 __all__ = ('byte_string_valid_encoding', 'byte_string_valid_xml',
-        'guess_encoding', 'html_entities_unescape', 'process_control_chars',
-        'str_eq')
+        'guess_encoding', 'html_entities_unescape', 'isbasestring',
+        'isbytestring', 'isunicodestring', 'process_control_chars', 'str_eq')
