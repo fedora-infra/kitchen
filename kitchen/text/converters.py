@@ -55,7 +55,7 @@ sets.add_builtin_set()
 
 from kitchen.text.exceptions import ControlCharError, XmlEncodeError
 from kitchen.text.misc import guess_encoding, html_entities_unescape, \
-        process_control_chars
+        isbytestring, isunicodestring, process_control_chars
 
 #: Aliases for the utf-8 codec
 _UTF8_ALIASES = frozenset(('utf-8', 'UTF-8', 'utf8', 'UTF8', 'utf_8', 'UTF_8',
@@ -124,6 +124,8 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter and changed
         default value to ``simplerepr``
     '''
+    # Could use isbasestring/isunicode here but we want this code to be as
+    # fast as possible
     if isinstance(obj, str):
         return obj
 
@@ -155,12 +157,12 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
                 simple = obj.__str__()
             except (UnicodeError, AttributeError):
                 simple = ''
-        if not isinstance(simple, str):
+        if not isunicodestring(simple):
             return str(simple, encoding, errors)
         return simple
     elif nonstring in ('repr', 'strict'):
         obj_repr = repr(obj)
-        if not isinstance(obj_repr, str):
+        if not isunicodestring(obj_repr):
             obj_repr = str(obj_repr, encoding, errors)
         if nonstring == 'repr':
             return obj_repr
@@ -240,6 +242,8 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         Deprecated :attr:`non_string` in favor of :attr:`nonstring` parameter
         and changed default value to ``simplerepr``
     '''
+    # Could use isbasestring, isbytestring here but we want this to be as fast
+    # as possible
     if isinstance(obj, bytes) or isinstance(obj, bytearray):
         return obj
     if isinstance(obj, str):
@@ -763,7 +767,7 @@ def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
         :func:`unicode_to_xml`
             for other ideas on using this function
     '''
-    if not (isinstance(byte_string, bytes) or isinstance(byte_string, bytearray)):
+    if not isbytestring(byte_string):
         raise XmlEncodeError(k._('byte_string_to_xml can only take a byte'
                 ' string as its first argument.  Use unicode_to_xml for'
                 ' unicode (str) strings'))
@@ -873,7 +877,7 @@ def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
 
     '''
     # Unicode strings can just be run through unicode_to_xml()
-    if isinstance(string, str):
+    if isunicodestring(string):
         return unicode_to_xml(string, encoding=output_encoding,
                 attrib=attrib, control_chars=control_chars)
 

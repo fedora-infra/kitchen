@@ -61,6 +61,54 @@ _CONTROL_CHARS = frozenset(map(chr, _CONTROL_CODES))
 # _ENTITY_RE
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
 
+def isbasestring(obj):
+    '''Determine if obj is a byte :class:`str` or :class:`unicode` string
+
+    In python2 this is eqiuvalent to isinstance(obj, basestring).  In python3
+    it checks whether the object is an instance of str, bytes, or bytearray.
+    This is an aid to porting code that needed to test whether an object was
+    derived from basestring in python2 (commonly used in unicode-bytes
+    conversion functions)
+
+    :arg obj: Object to test
+    :returns: True if the object is a :class:`basestring`.  Otherwise False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, str) or isinstance(obj, bytes) or isinstance(obj, bytearray):
+        return True
+    return False
+
+def isbytestring(obj):
+    '''Determine if obj is a byte :class:`str`
+
+    In python2 this is equivalent to isinstance(obj, str).  In python3 it
+    checks whether the object is an instance of bytes or bytearray.
+
+    :arg obj: Object to test
+    :returns: True if the object is a byte :class:`str`.  Otherwise, False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, bytes) or isinstance(obj, bytearray):
+        return True
+    return False
+
+def isunicodestring(obj):
+    '''Determine if obj is a :class:`unicode` string
+
+    In python2 this is equivalent to isinstance(onj, unicode).  In python3 it
+    checks whether the object is an instance of :class:`str`.
+
+    :arg obj: Object to test
+    :returns: True if the object is a :class:`unicode` string.  Otherwise, False.
+
+    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
+    '''
+    if isinstance(obj, str):
+        return True
+    return False
+
 def guess_encoding(byte_string, disable_chardet=False):
     '''Try to guess the encoding of a byte :class:`str`
 
@@ -84,8 +132,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     to every byte, decoding from ``latin-1`` to :class:`unicode` will not
     cause :exc:`UnicodeErrors` although the output might be mangled.
     '''
-    if not (isinstance(byte_string, bytes) or
-            isinstance(byte_string, bytearray)):
+    if not isbytestring(byte_string):
         raise TypeError(k._('byte_string must be a byte string (bytes, bytearray)'))
     input_encoding = 'utf-8'
     try:
@@ -141,7 +188,7 @@ def str_eq(str1, str2, encoding='utf-8', errors='replace'):
     except TypeError:
         pass
 
-    if isinstance(str1, str):
+    if isunicodestring(str1):
         str1 = str1.encode(encoding, errors)
     else:
         str2 = str2.encode(encoding, errors)
@@ -173,7 +220,7 @@ def process_control_chars(string, strategy='replace'):
     :returns: :class:`unicode` string with no :term:`control characters` in
         it.
     '''
-    if not isinstance(string, str):
+    if not isunicodestring(string):
         raise TypeError(k._('process_control_char must have a unicode type'
                 ' (str) as the first argument.'))
     if strategy == 'ignore':
@@ -243,8 +290,8 @@ def html_entities_unescape(string):
                     return entity
         return string # leave as is
 
-    if not isinstance(string, str):
-        raise TypeError(k.b_('html_entities_unescape must have a unicode type (str)'
+    if not isunicodestring(string):
+        raise TypeError(k._('html_entities_unescape must have a unicode type (str)'
                 ' for its first argument'))
     return re.sub(_ENTITY_RE, fixup, string)
 
@@ -270,7 +317,7 @@ def byte_string_valid_xml(byte_string, encoding='utf-8'):
                 processed_array.append(guess_bytes_to_xml(string, encoding='utf-8'))
         output_xml(processed_array)
     '''
-    if not (isinstance(byte_string, bytes) or isinstance(byte_string, bytearray)):
+    if not isbytestring(byte_string):
         # Not a byte string
         return False
 
@@ -313,54 +360,6 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
 
     # byte string is valid in this encoding
     return True
-
-def isbasestring(obj):
-    '''Determine if obj is a byte :class:`str` or :class:`unicode` string
-
-    In python2 this is eqiuvalent to isinstance(obj, basestring).  In python3
-    it checks whether the object is an instance of str, bytes, or bytearray.
-    This is an aid to porting code that needed to test whether an object was
-    derived from basestring in python2 (commonly used in unicode-bytes
-    conversion functions)
-
-    :arg obj: Object to test
-    :returns: True if the object is a :class:`basestring`.  Otherwise False.
-
-    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
-    '''
-    if isinstance(obj, str) or isinstance(obj, bytes) or isinstance(obj, bytearray):
-        return True
-    return False
-
-def isbytestring(obj):
-    '''Determine if obj is a byte :class:`str`
-
-    In python2 this is equivalent to isinstance(obj, str).  In python3 it
-    checks whether the object is an instance of bytes or bytearray.
-
-    :arg obj: Object to test
-    :returns: True if the object is a byte :class:`str`.  Otherwise, False.
-
-    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
-    '''
-    if isinstance(obj, bytes) or isinstance(obj, bytearray):
-        return True
-    return False
-
-def isunicodestring(obj):
-    '''Determine if obj is a :class:`unicode` string
-
-    In python2 this is equivalent to isinstance(onj, unicode).  In python3 it
-    checks whether the object is an instance of :class:`str`.
-
-    :arg obj: Object to test
-    :returns: True if the object is a :class:`unicode` string.  Otherwise, False.
-
-    .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
-    '''
-    if isinstance(obj, str):
-        return True
-    return False
 
 __all__ = ('byte_string_valid_encoding', 'byte_string_valid_xml',
         'guess_encoding', 'html_entities_unescape', 'isbasestring',
