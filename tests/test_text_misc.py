@@ -135,3 +135,19 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
         '''Test that we return False with non-encoded chars'''
         tools.ok_(misc.byte_string_valid_encoding('\xff') == False)
         tools.ok_(misc.byte_string_valid_encoding(self.euc_jp_japanese) == False)
+
+class TestIsStringTypes(unittest.TestCase):
+    def test_isbasestring(self):
+        tools.assert_true(misc.isbasestring('abc'))
+        tools.assert_true(misc.isbasestring(u'abc'))
+        tools.assert_false(misc.isbasestring(5))
+
+    def test_isbytestring(self):
+        tools.assert_true(misc.isbytestring('abc'))
+        tools.assert_false(misc.isbytestring(u'abc'))
+        tools.assert_false(misc.isbytestring(5))
+
+    def test_isunicodestring(self):
+        tools.assert_false(misc.isunicodestring('abc'))
+        tools.assert_true(misc.isunicodestring(u'abc'))
+        tools.assert_false(misc.isunicodestring(5))
