@@ -613,9 +613,9 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
         _ = self.translations.gettext
         tools.ok_(_(b'kitchen sink')=='pia da cozinha'.encode('utf-8'))
         tools.ok_(_(b'Kuratomi')=='くらとみ'.encode('utf-8'))
-        tools.ok_(_(b'くらとみ')==b'Kuratomi')
-        tools.ok_(_(b'Only café in fallback')==b'Yes, only café in fallback'.encode('utf-8'))
-        tools.eq_(_(b'café not matched in catalogs'), 'café not matched in catalogs'.encode('utf-8'))
+        tools.ok_(_('くらとみ'.encode('utf-8'))==b'Kuratomi')
+        tools.ok_(_('Only café in fallback'.encode('utf-8'))=='Yes, only café in fallback'.encode('utf-8'))
+        tools.eq_(_('café not matched in catalogs'.encode('utf-8')), 'café not matched in catalogs'.encode('utf-8'))
 
         tools.ok_(_('kitchen sink')=='pia da cozinha'.encode('utf-8'))
         tools.ok_(_('くらとみ')==b'Kuratomi')
@@ -663,7 +663,7 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
         # This unfortunately does not encode to proper latin-1 because:
         # any byte is valid in latin-1 so there's no way to know that what
         # we're given in the string is really utf-8
-        tools.eq_(_(b'café not matched in catalogs'.encode('utf-8'), b'throwaway', 1), 'café not matched in catalogs'.encode('utf-8'))
+        tools.eq_(_('café not matched in catalogs'.encode('utf-8'), b'throwaway', 1), 'café not matched in catalogs'.encode('utf-8'))
 
         tools.eq_(_(b'1 lemon', b'4 lemons', 2), '四 limões'.encode('latin1', 'replace'))
         tools.eq_(_('一 limão'.encode('utf-8'), '四 limões'.encode('utf-8'), 2), b'4 lemons')
@@ -697,8 +697,8 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
         tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
         tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
 
-        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), u'café not matched in catalogs')
-        tools.eq_(_(u'café not matched in catalogs', 'throwaway', 1), u'café not matched in catalogs')
+        tools.eq_(_('café not matched in catalogs'.encode('utf-8'), 'throwaway', 1), 'café not matched in catalogs')
+        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), 'café not matched in catalogs')
 
 
 class TestFallback(unittest.TestCase):
@@ -723,21 +723,22 @@ class TestFallback(unittest.TestCase):
 
     def test_invalid_fallback_no_raise(self):
         '''Test when we have an invalid fallback that it does not raise.'''
-        tools.eq_(self.gtranslations.gettext('café'), 'café')
-        tools.eq_(self.gtranslations.ugettext('café'), u'café')
-        tools.eq_(self.gtranslations.lgettext('café'), 'café')
+        utf8_cafe = 'café'.encode('utf-8')
+        tools.eq_(self.gtranslations.gettext('café'), utf8_cafe)
+        tools.eq_(self.gtranslations.ugettext('café'), 'café')
+        tools.eq_(self.gtranslations.lgettext('café'), utf8_cafe)
 
-        tools.eq_(self.gtranslations.ngettext('café', 'cde', 1), 'café')
-        tools.eq_(self.gtranslations.ungettext('café', 'cde', 1), u'café')
-        tools.eq_(self.gtranslations.lngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.gtranslations.ngettext('café', 'cde', 1), utf8_cafe)
+        tools.eq_(self.gtranslations.ungettext('café', 'cde', 1), 'café')
+        tools.eq_(self.gtranslations.lngettext('café', 'cde', 1), utf8_cafe)
 
-        tools.eq_(self.dtranslations.gettext('café'), 'café')
-        tools.eq_(self.dtranslations.ugettext('café'), u'café')
-        tools.eq_(self.dtranslations.lgettext('café'), 'café')
+        tools.eq_(self.dtranslations.gettext('café'), utf8_cafe)
+        tools.eq_(self.dtranslations.ugettext('café'), 'café')
+        tools.eq_(self.dtranslations.lgettext('café'), utf8_cafe)
 
-        tools.eq_(self.dtranslations.ngettext('café', 'cde', 1), 'café')
-        tools.eq_(self.dtranslations.ungettext('café', 'cde', 1), u'café')
-        tools.eq_(self.dtranslations.lngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.dtranslations.ngettext('café', 'cde', 1), utf8_cafe)
+        tools.eq_(self.dtranslations.ungettext('café', 'cde', 1), 'café')
+        tools.eq_(self.dtranslations.lngettext('café', 'cde', 1), utf8_cafe)
 
 
 class TestDefaultLocaleDir(unittest.TestCase):
