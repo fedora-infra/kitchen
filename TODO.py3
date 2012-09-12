@@ -56,3 +56,5 @@ Some design decisions:
   * PendingDeprecationWarning was used in python2 to flag something that
     wouldn't be deprecated in python2 but would be obsolete in python3.
 
+* Documentation: the behvaiour of iter(b'string') is different than
+  iter('string').  This causes iterutils.iterate() to do something different
