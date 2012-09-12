@@ -5,7 +5,7 @@ from nose import tools
 
 from kitchen import iterutils
 
-class TestStrictDict(unittest.TestCase):
+class TestIterutils(unittest.TestCase):
     iterable_data = (
             [0, 1, 2],
             [],
