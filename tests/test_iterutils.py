@@ -57,6 +57,6 @@ class TestIterutils(unittest.TestCase):
 
         # strings
         tools.ok_(list(iterutils.iterate(b'abc')) == [b'abc'])
-        tools.ok_(list(iterutils.iterate(b'abc', include_string=True)) == [b'a', b'b', b'c'])
+        tools.eq_(list(iterutils.iterate(b'abc', include_string=True)), [ord(b'a'), ord(b'b'), ord(b'c')])
         tools.ok_(list(iterutils.iterate('abc')) == ['abc'])
         tools.ok_(list(iterutils.iterate('abc', include_string=True)) == ['a', 'b', 'c'])
