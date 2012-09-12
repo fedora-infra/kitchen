@@ -12,15 +12,18 @@ NEWS
 1.2.0 (not yet released)
 ------------------------
 
-* Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
-  string is turned into a byte string with an encoding that doesn't have 
-  all of the needed characters had their ampersands ("&") escaped.
 * Added kitchen.text.misc.isbasestring(), kitchen.text.misc.isbytestring(),
   and kitchen.text.misc.isunicodestring().  These are mainly useful for code
   being ported to python3 as python3 lacks a basestring type and has two types
   for byte strings.  Code that has to run on both python2 and python3 or
   wants to provide similar byte vs unicode semantics may find these functions
   to be a good abstraction.
+
+* Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
+  string is turned into a byte string with an encoding that doesn't have 
+  all of the needed characters had their ampersands ("&") escaped.
+* Fix a bug in NewGNUTranslations.lngettext() if a fallback gettext object is
+  used and the message is not in any catalog.
 
 -----
 1.1.1

@@ -557,7 +557,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         except KeyError:
             if self._fallback:
                 try:
-                    tmsg = self._fallback.ngettext(msgid1, msgid2, n)
+                    tmsg = self._fallback.lngettext(msgid1, msgid2, n)
                 except (AttributeError, UnicodeError):
                     # Ignore UnicodeErrors: We'll do our own encoding next
                     pass

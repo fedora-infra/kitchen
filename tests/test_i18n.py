@@ -611,63 +611,79 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
 
     def test_gettext(self):
         _ = self.translations.gettext
-        tools.ok_(_('kitchen sink')=='pia da cozinha')
-        tools.ok_(_('Kuratomi')=='くらとみ')
-        tools.ok_(_('くらとみ')=='Kuratomi')
-        tools.ok_(_('Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+        tools.ok_(_(b'kitchen sink')=='pia da cozinha'.encode('utf-8'))
+        tools.ok_(_(b'Kuratomi')=='くらとみ'.encode('utf-8'))
+        tools.ok_(_(b'くらとみ')==b'Kuratomi')
+        tools.ok_(_(b'Only café in fallback')==b'Yes, only café in fallback'.encode('utf-8'))
+        tools.eq_(_(b'café not matched in catalogs'), 'café not matched in catalogs'.encode('utf-8'))
 
-        tools.ok_(_('kitchen sink')=='pia da cozinha')
-        tools.ok_(_('くらとみ')=='Kuratomi')
-        tools.ok_(_('Kuratomi')=='くらとみ')
-        tools.ok_(_('Only café in fallback')=='Yes, only caf\xc3\xa9 in fallback')
+        tools.ok_(_('kitchen sink')=='pia da cozinha'.encode('utf-8'))
+        tools.ok_(_('くらとみ')==b'Kuratomi')
+        tools.ok_(_('Kuratomi')=='くらとみ'.encode('utf-8'))
+        tools.ok_(_('Only café in fallback')=='Yes, only café in fallback'.encode('utf-'))
+        tools.eq_(_('café not matched in catalogs'), 'café not matched in catalogs'.encode('utf-8'))
 
     def test_ngettext(self):
         _ = self.translations.ngettext
-        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
-        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
-        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão')
-        tools.ok_(_('一 limão', '四 limões', 1)=='1 lemon')
+        tools.ok_(_(b'1 lemon', b'4 lemons', 1)=='一 limão'.encode('utf-8'))
+        tools.ok_(_('一 limão'.encode('utf-8'), '四 limões'.encode('utf-8'), 1)==b'1 lemon')
+        tools.ok_(_('1 lemon', '4 lemons', 1)=='一 limão'.encode('utf-8'))
+        tools.ok_(_('一 limão', '四 limões', 1)==b'1 lemon')
+        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), 'café not matched in catalogs'.encode('utf-8'))
 
-        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
-        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
-        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
-        tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+        tools.ok_(_(b'1 lemon', b'4 lemons', 2)=='四 limões'.encode('utf-8'))
+        tools.ok_(_('一 limão'.encode('utf-8'), '四 limões'.encode('utf-8'), 2)==b'4 lemons')
+        tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões'.encode('utf-8'))
+        tools.ok_(_('一 limão', '四 limões', 2)==b'4 lemons')
+        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), 'café not matched in catalogs'.encode('utf-8'))
 
     def test_lgettext(self):
         _ = self.translations.lgettext
-        tools.eq_(_('kitchen sink'), 'pia da cozinha')
-        tools.eq_(_('Kuratomi'), '????')
-        tools.eq_(_('くらとみ'), 'Kuratomi')
-        tools.eq_(_('Only café in fallback'), 'Yes, only caf\xe9 in fallback')
+        tools.eq_(_(b'kitchen sink'), 'pia da cozinha'.encode('latin-1'))
+        tools.eq_(_(b'Kuratomi'), b'????')
+        tools.eq_(_('くらとみ'.encode('utf-8')), b'Kuratomi')
+        tools.eq_(_('Only café in fallback'.encode('utf-8')), 'Yes, only café in fallback'.encode('latin-1'))
+        # This unfortunately does not encode to proper latin-1 because:
+        # any byte is valid in latin-1 so there's no way to know that what
+        # we're given in the string is really utf-8
+        tools.eq_(_('café not matched in catalogs'.encode('utf-8')), 'café not matched in catalogs'.encode('utf-8'))
 
-        tools.eq_(_('kitchen sink'), 'pia da cozinha')
-        tools.eq_(_('くらとみ'), 'Kuratomi')
-        tools.eq_(_('Kuratomi'), '????')
-        tools.eq_(_('Only café in fallback'), 'Yes, only caf\xe9 in fallback')
+        tools.eq_(_('kitchen sink'), 'pia da cozinha'.encode('latin-1'))
+        tools.eq_(_('くらとみ'), b'Kuratomi')
+        tools.eq_(_('Kuratomi'), b'????')
+        tools.eq_(_('Only café in fallback'), 'Yes, only café in fallback'.encode('latin-1'))
+        tools.eq_(_('café not matched in catalogs'), 'café not matched in catalogs'.encode('latin-1'))
 
     def test_lngettext(self):
         _ = self.translations.lngettext
+        tools.eq_(_(b'1 lemon', b'4 lemons', 1), '一 limão'.encode('latin1', 'replace'))
+        tools.eq_(_('一 limão'.encode('utf-8'), '四 limões'.encode('utf-8'), 1), b'1 lemon')
         tools.eq_(_('1 lemon', '4 lemons', 1), '一 limão'.encode('latin1', 'replace'))
-        tools.eq_(_('一 limão', '四 limões', 1), '1 lemon')
-        tools.eq_(_('1 lemon', '4 lemons', 1), '一 limão'.encode('latin1', 'replace'))
-        tools.eq_(_('一 limão', '四 limões', 1), '1 lemon')
+        tools.eq_(_('一 limão', '四 limões', 1), b'1 lemon')
+        # This unfortunately does not encode to proper latin-1 because:
+        # any byte is valid in latin-1 so there's no way to know that what
+        # we're given in the string is really utf-8
+        tools.eq_(_(b'café not matched in catalogs'.encode('utf-8'), b'throwaway', 1), 'café not matched in catalogs'.encode('utf-8'))
 
+        tools.eq_(_(b'1 lemon', b'4 lemons', 2), '四 limões'.encode('latin1', 'replace'))
+        tools.eq_(_('一 limão'.encode('utf-8'), '四 limões'.encode('utf-8'), 2), b'4 lemons')
         tools.eq_(_('1 lemon', '4 lemons', 2), '四 limões'.encode('latin1', 'replace'))
-        tools.eq_(_('一 limão', '四 limões', 2), '4 lemons')
-        tools.eq_(_('1 lemon', '4 lemons', 2), '四 limões'.encode('latin1', 'replace'))
-        tools.eq_(_('一 limão', '四 limões', 2), '4 lemons')
+        tools.eq_(_('一 limão', '四 limões', 2), b'4 lemons')
+        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), 'café not matched in catalogs'.encode('latin-1'))
 
     def test_ugettext(self):
         _ = self.translations.ugettext
-        tools.ok_(_('kitchen sink')=='pia da cozinha')
-        tools.ok_(_('Kuratomi')=='くらとみ')
-        tools.ok_(_('くらとみ')=='Kuratomi')
-        tools.ok_(_('Only café in fallback')=='Yes, only caf\xe9 in fallback')
+        tools.ok_(_(b'kitchen sink')=='pia da cozinha')
+        tools.ok_(_(b'Kuratomi')=='くらとみ')
+        tools.ok_(_('くらとみ'.encode('utf-8'))=='Kuratomi')
+        tools.ok_(_('Only café in fallback'.encode('utf-8'))=='Yes, only café in fallback')
+        tools.eq_(_('café not matched in catalogs'.encode('utf-8')), 'café not matched in catalogs')
 
         tools.ok_(_('kitchen sink')=='pia da cozinha')
         tools.ok_(_('くらとみ')=='Kuratomi')
         tools.ok_(_('Kuratomi')=='くらとみ')
-        tools.ok_(_('Only café in fallback')=='Yes, only caf\xe9 in fallback')
+        tools.ok_(_('Only café in fallback')=='Yes, only café in fallback')
+        tools.eq_(_('café not matched in catalogs'), 'café not matched in catalogs')
 
     def test_ungettext(self):
         _ = self.translations.ungettext
@@ -680,6 +696,9 @@ class TestFallbackNewGNURealTranslations_Latin1(unittest.TestCase):
         tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
         tools.ok_(_('1 lemon', '4 lemons', 2)=='四 limões')
         tools.ok_(_('一 limão', '四 limões', 2)=='4 lemons')
+
+        tools.eq_(_('café not matched in catalogs', 'throwaway', 1), u'café not matched in catalogs')
+        tools.eq_(_(u'café not matched in catalogs', 'throwaway', 1), u'café not matched in catalogs')
 
 
 class TestFallback(unittest.TestCase):
@@ -704,19 +723,22 @@ class TestFallback(unittest.TestCase):
 
     def test_invalid_fallback_no_raise(self):
         '''Test when we have an invalid fallback that it does not raise.'''
-        tools.eq_(self.gtranslations.gettext('abc'), 'abc')
-        tools.eq_(self.gtranslations.ugettext('abc'), 'abc')
-        tools.eq_(self.gtranslations.lgettext('abc'), 'abc')
-        tools.eq_(self.dtranslations.gettext('abc'), 'abc')
-        tools.eq_(self.dtranslations.ugettext('abc'), 'abc')
-        tools.eq_(self.dtranslations.lgettext('abc'), 'abc')
+        tools.eq_(self.gtranslations.gettext('café'), 'café')
+        tools.eq_(self.gtranslations.ugettext('café'), u'café')
+        tools.eq_(self.gtranslations.lgettext('café'), 'café')
 
-        tools.eq_(self.dtranslations.ngettext('abc', 'cde', 1), 'abc')
-        tools.eq_(self.dtranslations.ungettext('abc', 'cde', 1), 'abc')
-        tools.eq_(self.dtranslations.lngettext('abc', 'cde', 1), 'abc')
-        tools.eq_(self.gtranslations.ngettext('abc', 'cde', 1), 'abc')
-        tools.eq_(self.gtranslations.ungettext('abc', 'cde', 1), 'abc')
-        tools.eq_(self.gtranslations.lngettext('abc', 'cde', 1), 'abc')
+        tools.eq_(self.gtranslations.ngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.gtranslations.ungettext('café', 'cde', 1), u'café')
+        tools.eq_(self.gtranslations.lngettext('café', 'cde', 1), 'café')
+
+        tools.eq_(self.dtranslations.gettext('café'), 'café')
+        tools.eq_(self.dtranslations.ugettext('café'), u'café')
+        tools.eq_(self.dtranslations.lgettext('café'), 'café')
+
+        tools.eq_(self.dtranslations.ngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.dtranslations.ungettext('café', 'cde', 1), u'café')
+        tools.eq_(self.dtranslations.lngettext('café', 'cde', 1), 'café')
+
 
 class TestDefaultLocaleDir(unittest.TestCase):
     def setUp(self):
