@@ -271,7 +271,7 @@ class DummyTranslations(gettext.NullTranslations):
                     nonstring='strict')
         except TypeError:
             # Not a string; return an empty byte string
-            return ''
+            return b''
 
         # Make sure that we're returning a str of the desired encoding
         return to_bytes(msg, encoding=output_encoding)
@@ -289,7 +289,6 @@ class DummyTranslations(gettext.NullTranslations):
         # Next decide what encoding to use for the strings we return
         output_encoding = (self._output_charset or self._charset or
                 self.input_charset)
-
         return self._reencode_if_necessary(message, output_encoding)
 
     def ngettext(self, msgid1, msgid2, n):
@@ -502,7 +501,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
             tmsg = msgid2
 
         if not isbasestring(msgid1):
-            return ''
+            return b''
         u_msgid1 = to_unicode(msgid1, encoding=self.input_charset)
         try:
             #pylint:disable-msg=E1101
