@@ -9,6 +9,8 @@ from kitchen.text.converters import to_bytes
 from kitchen.text import misc
 
 class UnicodeTestData(object):
+    u_empty_string = u''
+    b_empty_string = ''
     # This should encode fine -- sanity check
     u_ascii = u'the quick brown fox jumped over the lazy dog'
     b_ascii = 'the quick brown fox jumped over the lazy dog'
@@ -128,3 +130,48 @@ u'    * A powerful unrepr mode for storing basic datatypes']
     u_ascii_no_ctrl = u''.join([c for c in u_ascii_chars if ord(c) not in misc._CONTROL_CODES])
     u_ascii_ctrl_replace = u_ascii_chars.translate(dict([(c, u'?') for c in misc._CONTROL_CODES]))
     utf8_ascii_chars = u_ascii_chars.encode('utf8')
+
+    # These are present in the test catalog as msgids or values
+    u_lemon = u'1 lemon'
+    utf8_lemon = u_lemon.encode('utf-8')
+    latin1_lemon = u_lemon.encode('latin-1')
+
+    u_lemons = u'4 lemons'
+    utf8_lemons = u_lemons.encode('utf-8')
+    latin1_lemons = u_lemons.encode('latin-1')
+
+    u_limao = u'一 limão'
+    utf8_limao = u_limao.encode('utf-8')
+    latin1_limao = u_limao.encode('latin-1', errors='replace')
+
+    u_limoes = u'四 limões'
+    utf8_limoes = u_limoes.encode('utf-8')
+    latin1_limoes = u_limoes.encode('latin-1', errors='replace')
+
+    u_not_in_catalog = u'café not matched in catalogs'
+    utf8_not_in_catalog = u_not_in_catalog.encode('utf-8')
+    latin1_not_in_catalog = u_not_in_catalog.encode('latin-1')
+
+    u_kitchen = u'kitchen sink'
+    utf8_kitchen = u_kitchen.encode('utf-8')
+    latin1_kitchen = u_kitchen.encode('latin-1')
+
+    u_pt_kitchen = u'pia da cozinha'
+    utf8_pt_kitchen = u_pt_kitchen.encode('utf-8')
+    latin1_pt_kitchen = u_pt_kitchen.encode('latin-1')
+
+    u_kuratomi = u'Kuratomi'
+    utf8_kuratomi = u_kuratomi.encode('utf-8')
+    latin1_kuratomi = u_kuratomi.encode('latin-1')
+
+    u_ja_kuratomi = u'くらとみ'
+    utf8_ja_kuratomi = u_ja_kuratomi.encode('utf-8')
+    latin1_ja_kuratomi = u_ja_kuratomi.encode('latin-1', errors='replace')
+
+    u_in_fallback = u'Only café in fallback'
+    utf8_in_fallback = u_in_fallback.encode('utf-8')
+    latin1_in_fallback = u_in_fallback.encode('latin-1')
+
+    u_yes_in_fallback = u'Yes, only café in fallback'
+    utf8_yes_in_fallback = u_yes_in_fallback.encode('utf-8')
+    latin1_yes_in_fallback = u_yes_in_fallback.encode('latin-1')
