@@ -759,14 +759,12 @@ class TestDefaultLocaleDir(unittest.TestCase):
 
     def test_gettext(self):
         _ = self.translations.gettext
-        tools.eq_(_('kitchen sink'), 'pia da cozinha')
-        tools.eq_(_('Kuratomi'), 'くらとみ')
-        tools.eq_(_('くらとみ'), 'Kuratomi')
-        tools.eq_(_('Only café in fallback'), 'Only café in fallback')
+        tools.eq_(_('kitchen sink'.encode('utf-8')), 'pia da cozinha'.encode('utf-8'))
+        tools.eq_(_('Kuratomi'.encode('utf-8')), 'くらとみ'.encode('utf-8'))
+        tools.eq_(_('くらとみ'.encode('utf-8')), 'Kuratomi'.encode('utf-8'))
+        tools.eq_(_('Only café in fallback'.encode('utf-8')), 'Only café in fallback'.encode('utf-8'))
 
-        tools.eq_(_('kitchen sink'), 'pia da cozinha')
-        tools.eq_(_('くらとみ'), 'Kuratomi')
-        tools.eq_(_('Kuratomi'), 'くらとみ')
-        tools.eq_(_('Only café in fallback'), 'Only café in fallback')
-
-
+        tools.eq_(_('kitchen sink'), 'pia da cozinha'.encode('utf-8'))
+        tools.eq_(_('くらとみ'), 'Kuratomi'.encode('utf-8'))
+        tools.eq_(_('Kuratomi'), 'くらとみ'.encode('utf-8'))
+        tools.eq_(_('Only café in fallback'), 'Only café in fallback'.encode('utf-8'))
