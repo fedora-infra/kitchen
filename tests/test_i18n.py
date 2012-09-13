@@ -723,21 +723,21 @@ class TestFallback(unittest.TestCase):
 
     def test_invalid_fallback_no_raise(self):
         '''Test when we have an invalid fallback that it does not raise.'''
-        tools.eq_(self.gtranslations.gettext('café'), 'café')
-        tools.eq_(self.gtranslations.ugettext('café'), u'café')
-        tools.eq_(self.gtranslations.lgettext('café'), 'café')
+        tools.eq_(self.gtranslations.gettext(u'café'), 'café')
+        tools.eq_(self.gtranslations.ugettext(u'café'), u'café')
+        tools.eq_(self.gtranslations.lgettext(u'café'), u'café'.encode('latin-1'))
 
-        tools.eq_(self.gtranslations.ngettext('café', 'cde', 1), 'café')
-        tools.eq_(self.gtranslations.ungettext('café', 'cde', 1), u'café')
-        tools.eq_(self.gtranslations.lngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.gtranslations.ngettext(u'café', 'cde', 1), 'café')
+        tools.eq_(self.gtranslations.ungettext(u'café', 'cde', 1), u'café')
+        tools.eq_(self.gtranslations.lngettext(u'café', 'cde', 1), u'café'.encode('latin-1'))
 
-        tools.eq_(self.dtranslations.gettext('café'), 'café')
-        tools.eq_(self.dtranslations.ugettext('café'), u'café')
-        tools.eq_(self.dtranslations.lgettext('café'), 'café')
+        tools.eq_(self.dtranslations.gettext(u'café'), 'café')
+        tools.eq_(self.dtranslations.ugettext(u'café'), u'café')
+        tools.eq_(self.dtranslations.lgettext(u'café'), u'café'.encode('latin-1'))
 
-        tools.eq_(self.dtranslations.ngettext('café', 'cde', 1), 'café')
-        tools.eq_(self.dtranslations.ungettext('café', 'cde', 1), u'café')
-        tools.eq_(self.dtranslations.lngettext('café', 'cde', 1), 'café')
+        tools.eq_(self.dtranslations.ngettext(u'café', 'cde', 1), 'café')
+        tools.eq_(self.dtranslations.ungettext(u'café', 'cde', 1), u'café')
+        tools.eq_(self.dtranslations.lngettext(u'café', 'cde', 1), u'café'.encode('latin-1'))
 
 
 class TestDefaultLocaleDir(unittest.TestCase):
