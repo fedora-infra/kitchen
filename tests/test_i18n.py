@@ -46,7 +46,6 @@ class TestI18N_UTF8(unittest.TestCase, base_classes.UnicodeTestData):
                 use_unicode=False)
         tools.assert_true(isinstance(b_, types.MethodType))
         tools.assert_true(isinstance(bN_, types.MethodType))
-        print (dir(b_))
         tools.eq_(b_.__name__, 'lgettext')
         tools.eq_(bN_.__name__, 'lngettext')
 
