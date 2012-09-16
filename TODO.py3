@@ -14,12 +14,12 @@ Audited files
 [X] text/display.py
 [X] versioning/__init__.py
 [X] iterutils/__init__.py
+[X] i18n/__init__.py
+[X] text/utf8.py
 
 [_] pycompat*  => just need deprecationwarnings
 [X] collections/strictdict.py just need deprecationwarnings
 
-[_] i18n/__init__.py
-[_] text/utf8.py
 (Other random __init__.py, release.py)
 
 Python2 and python3
