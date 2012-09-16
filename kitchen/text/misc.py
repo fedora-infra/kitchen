@@ -75,7 +75,7 @@ def isbasestring(obj):
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
-    if isinstance(obj, str) or isinstance(obj, bytes) or isinstance(obj, bytearray):
+    if isinstance(obj, (str, bytes, bytearray)):
         return True
     return False
 
@@ -90,7 +90,7 @@ def isbytestring(obj):
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
-    if isinstance(obj, bytes) or isinstance(obj, bytearray):
+    if isinstance(obj, (bytes, bytearray)):
         return True
     return False
 
