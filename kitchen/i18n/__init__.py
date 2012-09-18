@@ -89,7 +89,7 @@ See the documentation of :func:`easy_gettext_setup` and
 
 from kitchen.versioning import version_tuple_to_string
 
-__version_info__ = ((2, 1, 1),)
+__version_info__ = ((2, 2, 0),)
 __version__ = version_tuple_to_string(__version_info__)
 
 import copy
@@ -199,9 +199,12 @@ class DummyTranslations(gettext.NullTranslations):
           :func:`locale.getpreferredencoding`.
         * Make setting :attr:`input_charset` and :attr:`output_charset` also
           set those attributes on any fallback translation objects.
+
+    .. versionchanged:: kitchen-1.2.0 ; API kitchen.i18n 2.2.0
+        Add python2_api parameter to __init__()
     '''
     #pylint: disable-msg=C0103,C0111
-    def __init__(self, fp=None):
+    def __init__(self, fp=None, python2_api=True):
         gettext.NullTranslations.__init__(self, fp)
 
         # Python 2.3 compat
@@ -211,6 +214,41 @@ class DummyTranslations(gettext.NullTranslations):
         # Extension for making ugettext and ungettext more sane
         # 'utf-8' is only a default here.  Users can override.
         self._input_charset = 'utf-8'
+
+        # Decide whether to mimic the python2 or python3 api
+        self._python2_api = python2_api
+        if python2_api:
+            self.gettext = self._gettext
+            self.lgettext = self._lgettext
+            self.ugettext = self._ugettext
+            self.ngettext = self._ngettext
+            self.lngettext = self._lngettext
+            self.ungettext = self._ungettext
+        else:
+            self.gettext = self._ugettext
+            self.lgettext = self._lgettext
+            self.ngettext = self._ungettext
+            self.lngettext = self._lngettext
+
+    def __copy__(self):
+        # Need to override copy so that these get set correctly.  Without
+        # them, the attributes hold the original methods, not the methods that
+        # exist in the copied object instance.
+        new = type(self)()
+        new.__dict__.update(self.__dict__)
+        if new._python2_api:
+            new.gettext = new._gettext
+            new.lgettext = new._lgettext
+            new.ugettext = new._ugettext
+            new.ngettext = new._ngettext
+            new.lngettext = new._lngettext
+            new.ungettext = new._ungettext
+        else:
+            new.gettext = new._ugettext
+            new.lgettext = new._lgettext
+            new.ngettext = new._ungettext
+            new.lngettext = new._lngettext
+        return new
 
     def _set_input_charset(self, charset):
         if self._fallback:
@@ -276,7 +314,7 @@ class DummyTranslations(gettext.NullTranslations):
         # Make sure that we're returning a str of the desired encoding
         return to_bytes(msg, encoding=output_encoding)
 
-    def gettext(self, message):
+    def _gettext(self, message):
         # First use any fallback gettext objects.  Since DummyTranslations
         # doesn't do any translation on its own, this is a good first step.
         if self._fallback:
@@ -291,7 +329,7 @@ class DummyTranslations(gettext.NullTranslations):
                 self.input_charset)
         return self._reencode_if_necessary(message, output_encoding)
 
-    def ngettext(self, msgid1, msgid2, n):
+    def _ngettext(self, msgid1, msgid2, n):
         # Default
         if n == 1:
             message = msgid1
@@ -312,7 +350,7 @@ class DummyTranslations(gettext.NullTranslations):
 
         return self._reencode_if_necessary(message, output_encoding)
 
-    def lgettext(self, message):
+    def _lgettext(self, message):
         if self._fallback:
             try:
                 message = self._fallback.lgettext(message)
@@ -328,7 +366,7 @@ class DummyTranslations(gettext.NullTranslations):
 
         return self._reencode_if_necessary(message, output_encoding)
 
-    def lngettext(self, msgid1, msgid2, n):
+    def _lngettext(self, msgid1, msgid2, n):
         # Default
         if n == 1:
             message = msgid1
@@ -350,7 +388,7 @@ class DummyTranslations(gettext.NullTranslations):
 
         return self._reencode_if_necessary(message, output_encoding)
 
-    def ugettext(self, message):
+    def _ugettext(self, message):
         if not isbasestring(message):
             return ''
         if self._fallback:
@@ -364,7 +402,7 @@ class DummyTranslations(gettext.NullTranslations):
         # Make sure we're returning unicode
         return to_unicode(message, encoding=self.input_charset)
 
-    def ungettext(self, msgid1, msgid2, n):
+    def _ungettext(self, msgid1, msgid2, n):
         # Default
         if n == 1:
             message = msgid1
@@ -473,7 +511,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     def _parse(self, fp):
         gettext.GNUTranslations._parse(self, fp)
 
-    def gettext(self, message):
+    def _gettext(self, message):
         if not isbasestring(message):
             return b''
         tmsg = message
@@ -494,7 +532,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         return self._reencode_if_necessary(tmsg, output_encoding)
 
-    def ngettext(self, msgid1, msgid2, n):
+    def _ngettext(self, msgid1, msgid2, n):
         if n == 1:
             tmsg = msgid1
         else:
@@ -520,7 +558,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         return self._reencode_if_necessary(tmsg, output_encoding)
 
-    def lgettext(self, message):
+    def _lgettext(self, message):
         if not isbasestring(message):
             return b''
         tmsg = message
@@ -541,7 +579,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         return self._reencode_if_necessary(tmsg, output_encoding)
 
-    def lngettext(self, msgid1, msgid2, n):
+    def _lngettext(self, msgid1, msgid2, n):
         if n == 1:
             tmsg = msgid1
         else:
@@ -568,7 +606,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         return self._reencode_if_necessary(tmsg, output_encoding)
 
 
-    def ugettext(self, message):
+    def _ugettext(self, message):
         if not isbasestring(message):
             return ''
         message = to_unicode(message, encoding=self.input_charset)
@@ -585,7 +623,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
         # Make sure that we're returning unicode
         return to_unicode(message, encoding=self.input_charset)
 
-    def ungettext(self, msgid1, msgid2, n):
+    def _ungettext(self, msgid1, msgid2, n):
         if n == 1:
             tmsg = msgid1
         else:
@@ -611,7 +649,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
 
 def get_translation_object(domain, localedirs=tuple(), languages=None,
-        class_=None, fallback=True, codeset=None):
+        class_=None, fallback=True, codeset=None, python2_api=True):
     '''Get a translation object bound to the :term:`message catalogs`
 
     :arg domain: Name of the message domain.  This should be a unique name
@@ -649,6 +687,15 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         :class:`str` objects.  This is equivalent to calling
         :meth:`~gettext.GNUTranslations.output_charset` on the Translations
         object that is returned from this function.
+    :kwarg python2_api: When data:`True` (default), return Translation objects
+        that use the python2 gettext api
+        (:meth:`~gettext.GNUTranslations.gettext` and
+        :meth:`~gettext.GNUTranslations.lgettext` return byte
+        :class:`str`.  :meth:`~gettext.GNUTranslations.ugettext` exists and
+        returns :class:`unicode` strings).  When :data:`False`, return
+        Translation objects that use the python3 gettext api (gettext returns
+        :class:`unicode` strings and lgettext returns byte :cless:`str`.
+        ugettext does not exist.)
     :return: Translation object to get :mod:`gettext` methods from
 
     If you need more flexibility than :func:`easy_gettext_setup`, use this
@@ -729,6 +776,8 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         than simply cycling through until we find a directory that exists.
         The new code is based heavily on the |stdlib|_
         :func:`gettext.translation` function.
+    .. versionchanged:: kitchen-1.2.0 ; API kitchen.i18n 2.2.0
+        Add python2_api parameter
     '''
     if not class_:
         class_ = NewGNUTranslations
@@ -738,7 +787,7 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         mofiles.extend(gettext.find(domain, localedir, languages, all=1))
     if not mofiles:
         if fallback:
-            return DummyTranslations()
+            return DummyTranslations(python2_api=python2_api)
         raise IOError(ENOENT, 'No translation file found for domain', domain)
 
     # Accumulate a translation with fallbacks to all the other mofiles
@@ -749,8 +798,15 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         if not translation:
             mofile_fh = open(full_path, 'rb')
             try:
-                translation = _translations.setdefault(full_path,
-                        class_(mofile_fh))
+                try:
+                    translation = _translations.setdefault(full_path,
+                            class_(mofile_fh, python2_api=python2_api))
+                except TypeError:
+                    # Only our translation classes have the python2_api
+                    # parameter
+                    translation = _translations.setdefault(full_path,
+                            class_(mofile_fh))
+
             finally:
                 mofile_fh.close()
 
@@ -817,9 +873,9 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
         Changed :func:`~kitchen.i18n.easy_gettext_setup` to return the lgettext
         functions instead of gettext functions when use_unicode=False.
     '''
-    translations = get_translation_object(domain, localedirs=localedirs)
+    translations = get_translation_object(domain, localedirs=localedirs, python2_api=False)
     if use_unicode:
-        return(translations.ugettext, translations.ungettext)
+        return(translations.gettext, translations.ngettext)
     return(translations.lgettext, translations.lngettext)
 
 __all__ = ('DummyTranslations', 'NewGNUTranslations', 'easy_gettext_setup',

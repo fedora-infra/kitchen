@@ -18,6 +18,11 @@ NEWS
   for byte strings.  Code that has to run on both python2 and python3 or
   wants to provide similar byte vs unicode semantics may find these functions
   to be a good abstraction.
+* Add a python2_api parameter to various i18n functions: NullTranslations
+  constructor, NewGNUTranslations constructor, and get_translation_object.
+  When set to True (the default), the python2 api for gettext objects is used.
+  When set to False, the python3 api is used.  This option is intended to aid
+  in porting from python2 to python3.
 
 * Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
   string is turned into a byte string with an encoding that doesn't have 
