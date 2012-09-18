@@ -28,8 +28,8 @@ class TestI18N_UTF8(unittest.TestCase, base_classes.UnicodeTestData):
                 ['%s/data/locale/' % os.path.dirname(__file__)])
         tools.assert_true(isinstance(_, types.MethodType))
         tools.assert_true(isinstance(N_, types.MethodType))
-        tools.eq_(_.__name__, 'ugettext')
-        tools.eq_(N_.__name__, 'ungettext')
+        tools.eq_(_.__name__, '_ugettext')
+        tools.eq_(N_.__name__, '_ungettext')
 
         tools.eq_(_(self.utf8_spanish), self.u_spanish)
         tools.eq_(_(self.u_spanish), self.u_spanish)
@@ -46,8 +46,8 @@ class TestI18N_UTF8(unittest.TestCase, base_classes.UnicodeTestData):
                 use_unicode=False)
         tools.assert_true(isinstance(b_, types.MethodType))
         tools.assert_true(isinstance(bN_, types.MethodType))
-        tools.eq_(b_.__name__, 'lgettext')
-        tools.eq_(bN_.__name__, 'lngettext')
+        tools.eq_(b_.__name__, '_lgettext')
+        tools.eq_(bN_.__name__, '_lngettext')
 
         tools.eq_(b_(self.utf8_spanish), self.utf8_spanish)
         tools.eq_(b_(self.u_spanish), self.utf8_spanish)
