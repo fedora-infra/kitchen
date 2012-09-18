@@ -94,6 +94,7 @@ __version__ = version_tuple_to_string(__version_info__)
 
 import copy
 from errno import ENOENT
+from functools import partial
 import gettext
 import itertools
 import locale
@@ -216,8 +217,10 @@ class DummyTranslations(object, gettext.NullTranslations):
         self._input_charset = 'utf-8'
 
         # Decide whether to mimic the python2 or python3 api
-        self._python2_api = python2_api
-        if python2_api:
+        self.python2_api = python2_api
+
+    def _set_api(self):
+        if self._python2_api:
             self.gettext = self._gettext
             self.lgettext = self._lgettext
             self.ugettext = self._ugettext
@@ -229,26 +232,20 @@ class DummyTranslations(object, gettext.NullTranslations):
             self.lgettext = self._lgettext
             self.ngettext = self._ungettext
             self.lngettext = self._lngettext
+            self.ugettext = partial(self._removed_method, 'ugettext')
+            self.ungettext = partial(self._removed_method, 'ungettext')
 
-    def __copy__(self):
-        # Need to override copy so that these get set correctly.  Without
-        # them, the attributes hold the original methods, not the methods that
-        # exist in the copied object instance.
-        new = type(self)()
-        new.__dict__.update(self.__dict__)
-        if new._python2_api:
-            new.gettext = new._gettext
-            new.lgettext = new._lgettext
-            new.ugettext = new._ugettext
-            new.ngettext = new._ngettext
-            new.lngettext = new._lngettext
-            new.ungettext = new._ungettext
-        else:
-            new.gettext = new._ugettext
-            new.lgettext = new._lgettext
-            new.ngettext = new._ungettext
-            new.lngettext = new._lngettext
-        return new
+    def _removed_method(self, name, *args, **kwargs):
+        raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, name))
+
+    def _set_python2_api(self, value):
+        self._python2_api = value
+        self._set_api()
+
+    def _get_python2_api(self):
+        return self._python2_api
+
+    python2_api = property(_get_python2_api, _set_python2_api)
 
     def _set_input_charset(self, charset):
         if self._fallback:
@@ -814,6 +811,7 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         # Shallow copy the object so that the fallbacks and output charset can
         # differ but the data we read from the mofile is shared.
         translation = copy.copy(translation)
+        translation.python2_api = python2_api
         if codeset:
             translation.set_output_charset(codeset)
         if not stacked_translations:
