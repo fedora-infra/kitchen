@@ -24,20 +24,19 @@ Audited files
 
 Python2 and python3
 
+[X] Switch from isinstance(str, unicode, basestring) to kitchen.text.misc.is*string() functions to make porting easier
 * Remove translations of exceptions?
 * Switch unittests to not use ok_
-* Switch from isinstance(str, unicode, basestring) to kitchen.text.misc.is*string() functions to make porting easier
 
 Some design decisions:
 
 * i18n:
   * DummyTranslations, NewGNUTranslations
     * These retain the python2 API of (gettext, lgettext), (ugettext)
-    * Issue a PendingDeprecationWarning when used
-  * New Object, Py3GNUTranslations
-    * This has a python3 API of (gettext), (lgettext).
-    * It guarantees that bytes vs str will be returned and that no tracebacks
-      will be issued
+    [_] Issue a PendingDeprecationWarning when used
+  [X] Added a parameter to DummyTranslations and NewGNUTranslations: python2_api()
+    [_] Need to add documentation on python2_api parameter as that is not in the stdlib gettext api
+    * When True (default), uses python2 gettext api.  When false, uses python3 gettext api
   * Rationale: people that are doing a straight port might be depending on the
     various methods and behaviours (of gettext returning bytes).  So we want to
     retain that.  Howver, the python3 API is different and we should provide a
