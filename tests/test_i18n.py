@@ -99,6 +99,51 @@ class TestI18N_UTF8(unittest.TestCase, base_classes.UnicodeTestData):
         translations = i18n.get_translation_object('test')
         tools.assert_true(translations.__class__ in (i18n.NewGNUTranslations, i18n.DummyTranslations))
 
+    def test_get_translation_object_python2_api_default(self):
+        '''Smoketest that python2_api default value yields the python2 functions'''
+        # Default
+        translations = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)], codeset='utf-8')
+        translations.input_charset = 'utf-8'
+        tools.eq_(translations.gettext.__name__, '_gettext')
+        tools.eq_(translations.lgettext.__name__, '_lgettext')
+        tools.eq_(translations.ugettext.__name__, '_ugettext')
+        tools.eq_(translations.ngettext.__name__, '_ngettext')
+        tools.eq_(translations.lngettext.__name__, '_lngettext')
+        tools.eq_(translations.ungettext.__name__, '_ungettext')
+
+    def test_get_translation_object_python2_api_true(self):
+        '''Smoketest that setting python2_api true yields the python2 functions'''
+        # Default
+        translations = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)], codeset='utf-8',
+                python2_api=True)
+        translations.input_charset = 'utf-8'
+        tools.eq_(translations.gettext.__name__, '_gettext')
+        tools.eq_(translations.lgettext.__name__, '_lgettext')
+        tools.eq_(translations.ugettext.__name__, '_ugettext')
+        tools.eq_(translations.ngettext.__name__, '_ngettext')
+        tools.eq_(translations.lngettext.__name__, '_lngettext')
+        tools.eq_(translations.ungettext.__name__, '_ungettext')
+
+    def test_get_translation_object_python2_api_false(self):
+        '''Smoketest that setting python2_api false yields the python3 functions'''
+        # Default
+        translations = i18n.get_translation_object('test',
+                ['%s/data/locale' % os.path.dirname(__file__),
+                    '%s/data/locale-old' % os.path.dirname(__file__)], codeset='utf-8',
+                python2_api=False)
+        translations.input_charset = 'utf-8'
+        tools.eq_(translations.gettext.__name__, '_ugettext')
+        tools.eq_(translations.lgettext.__name__, '_lgettext')
+        tools.eq_(translations.ngettext.__name__, '_ungettext')
+        tools.eq_(translations.lngettext.__name__, '_lngettext')
+
+        tools.assert_raises(AttributeError, translations.ugettext, 'message')
+        tools.assert_raises(AttributeError, translations.ungettext, 'message1', 'message2')
+
     def test_dummy_translation(self):
         '''Test that we can create a DummyTranslation object
         '''
