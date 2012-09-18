@@ -30,6 +30,7 @@ class Test__all__(object):
         ('kitchen', 'i18n', 'ENOENT'),
         ('kitchen', 'i18n', 'byte_string_valid_encoding'),
         ('kitchen', 'i18n', 'isbasestring'),
+        ('kitchen', 'i18n', 'partial'),
         ('kitchen', 'iterutils', 'isbasestring'),
         ('kitchen', 'iterutils', 'version_tuple_to_string'),
         ('kitchen', 'pycompat24', 'version_tuple_to_string'),
