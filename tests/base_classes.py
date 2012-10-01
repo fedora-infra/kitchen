@@ -142,11 +142,11 @@ It has lots of other features though:
 
     u_limao = '一 limão'
     utf8_limao = u_limao.encode('utf-8')
-    latin1_limao = u_limao.encode('latin-1', errors='replace')
+    latin1_limao = u_limao.encode('latin-1', 'replace')
 
     u_limoes = '四 limões'
     utf8_limoes = u_limoes.encode('utf-8')
-    latin1_limoes = u_limoes.encode('latin-1', errors='replace')
+    latin1_limoes = u_limoes.encode('latin-1', 'replace')
 
     u_not_in_catalog = 'café not matched in catalogs'
     utf8_not_in_catalog = u_not_in_catalog.encode('utf-8')
@@ -166,7 +166,7 @@ It has lots of other features though:
 
     u_ja_kuratomi = 'くらとみ'
     utf8_ja_kuratomi = u_ja_kuratomi.encode('utf-8')
-    latin1_ja_kuratomi = u_ja_kuratomi.encode('latin-1', errors='replace')
+    latin1_ja_kuratomi = u_ja_kuratomi.encode('latin-1', 'replace')
 
     u_in_fallback = 'Only café in fallback'
     utf8_in_fallback = u_in_fallback.encode('utf-8')
