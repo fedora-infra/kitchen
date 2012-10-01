@@ -94,7 +94,6 @@ __version__ = version_tuple_to_string(__version_info__)
 
 import copy
 from errno import ENOENT
-from functools import partial
 import gettext
 import itertools
 import locale
@@ -239,11 +238,14 @@ class DummyTranslations(object, gettext.NullTranslations):
             self.lgettext = self._lgettext
             self.ngettext = self._ungettext
             self.lngettext = self._lngettext
-            self.ugettext = partial(self._removed_method, 'ugettext')
-            self.ungettext = partial(self._removed_method, 'ungettext')
+            self.ugettext = self._removed_method_factory('ugettext')
+            self.ungettext = self._removed_method_factory('ungettext')
 
-    def _removed_method(self, name, *args, **kwargs):
-        raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, name))
+    def _removed_method_factory(self, name):
+        def _removed_method(*args, **kwargs):
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                    (self.__class__.__name__, name))
+        return _removed_method
 
     def _set_python2_api(self, value):
         self._python2_api = value
