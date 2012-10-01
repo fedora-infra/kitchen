@@ -17,8 +17,16 @@ Audited files
 [X] i18n/__init__.py
 [X] text/utf8.py
 
-[_] pycompat*  => just need deprecationwarnings
-[X] collections/strictdict.py just need deprecationwarnings
+[_] PendingDeprecationWarnings
+    [_] pycompat*  => just need deprecationwarnings
+    [_] Write unittests for pycompat*
+    [X] collections/strictdict.py just need deprecationwarnings
+    [_] Write unittests for strictdict
+    [X] kitchen.i18n.get_translation_object
+    [_] Write unittests for get_translation_object
+    [X] kitchen.i18n.NullTranslations
+    [_] Write unittests for NullTranslations
+
 
 (Other random __init__.py, release.py)
 
