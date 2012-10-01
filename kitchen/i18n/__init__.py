@@ -100,6 +100,7 @@ import itertools
 import locale
 import os
 import sys
+import warnings
 
 # We use the _default_localedir definition in get_translation_object
 try:
@@ -221,6 +222,12 @@ class DummyTranslations(object, gettext.NullTranslations):
 
     def _set_api(self):
         if self._python2_api:
+            warnings.warn('Kitchen.i18n provides gettext objects that'
+                    ' implement either the python2 or python3 gettext api.'
+                    '  You are currently using the python2 api.  Consider'
+                    ' switching to the python3 api by setting'
+                    ' python2_api=False when creating the gettext object',
+                    PendingDeprecationWarning, stacklevel=2)
             self.gettext = self._gettext
             self.lgettext = self._lgettext
             self.ugettext = self._ugettext
@@ -777,6 +784,13 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
     .. versionchanged:: kitchen-1.2.0 ; API kitchen.i18n 2.2.0
         Add python2_api parameter
     '''
+    if python2_api:
+        warnings.warn('get_translation_object returns gettext objects'
+                ' that implement either the python2 or python3 gettext api.'
+                '  You are currently using the python2 api.  Consider'
+                ' switching to the python3 api by setting python2_api=False'
+                ' when you call the function.',
+                PendingDeprecationWarning, stacklevel=2)
     if not class_:
         class_ = NewGNUTranslations
 
