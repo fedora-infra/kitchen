@@ -43,9 +43,6 @@ try:
 except ImportError:
     chardet = None
 
-# We need to access b_() for localizing our strings but we'll end up with
-# a circular import if we import it directly.
-import kitchen as k
 from kitchen.pycompat24 import sets
 from kitchen.text.exceptions import ControlCharError
 
@@ -134,7 +131,7 @@ def guess_encoding(byte_string, disable_chardet=False):
     cause :exc:`UnicodeErrors` although the output might be mangled.
     '''
     if not isbytestring(byte_string):
-        raise TypeError(k.b_('first argument must be a byte string (str)'))
+        raise TypeError('first argument must be a byte string (str)')
     input_encoding = 'utf-8'
     try:
         unicode(byte_string, input_encoding, 'strict')
@@ -222,8 +219,8 @@ def process_control_chars(string, strategy='replace'):
         it.
     '''
     if not isunicodestring(string):
-        raise TypeError(k.b_('process_control_char must have a unicode type as'
-                ' the first argument.'))
+        raise TypeError('process_control_char must have a unicode type as'
+                ' the first argument.')
     if strategy == 'ignore':
         control_table = dict(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES)))
     elif strategy == 'replace':
@@ -233,11 +230,11 @@ def process_control_chars(string, strategy='replace'):
         # Test that there are no control codes present
         data = frozenset(string)
         if [c for c in _CONTROL_CHARS if c in data]:
-            raise ControlCharError(k.b_('ASCII control code present in string'
-                    ' input'))
+            raise ControlCharError('ASCII control code present in string'
+                    ' input')
     else:
-        raise ValueError(k.b_('The strategy argument to process_control_chars'
-                ' must be one of ignore, replace, or strict'))
+        raise ValueError('The strategy argument to process_control_chars'
+                ' must be one of ignore, replace, or strict')
 
     if control_table:
         string = string.translate(control_table)
@@ -292,8 +289,8 @@ def html_entities_unescape(string):
         return string # leave as is
 
     if not isunicodestring(string):
-        raise TypeError(k.b_('html_entities_unescape must have a unicode type'
-                ' for its first argument'))
+        raise TypeError('html_entities_unescape must have a unicode type'
+                ' for its first argument')
     return re.sub(_ENTITY_RE, fixup, string)
 
 def byte_string_valid_xml(byte_string, encoding='utf-8'):

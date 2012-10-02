@@ -50,7 +50,6 @@ Functions for operating on byte :class:`str` encoded as :term:`UTF-8`
 '''
 import warnings
 
-from kitchen import b_
 from kitchen.text.converters import to_unicode, to_bytes
 from kitchen.text.misc import byte_string_valid_encoding, isunicodestring
 from kitchen.text.display import _textual_width_le, \
@@ -66,8 +65,8 @@ def utf8_valid(msg):
 
     Use :func:`kitchen.text.misc.byte_string_valid_encoding` instead.
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_valid is deprecated.  Use'
-            ' kitchen.text.misc.byte_string_valid_encoding(msg) instead'),
+    warnings.warn('kitchen.text.utf8.utf8_valid is deprecated.  Use'
+            ' kitchen.text.misc.byte_string_valid_encoding(msg) instead',
             DeprecationWarning, stacklevel=2)
     return byte_string_valid_encoding(msg)
 
@@ -76,8 +75,8 @@ def utf8_width(msg):
 
     Use :func:`kitchen.text.display.textual_width` instead.
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_width is deprecated.  Use'
-        ' kitchen.text.display.textual_width(msg) instead'),
+    warnings.warn('kitchen.text.utf8.utf8_width is deprecated.  Use'
+        ' kitchen.text.display.textual_width(msg) instead',
         DeprecationWarning, stacklevel=2)
     return textual_width(msg)
 
@@ -98,8 +97,8 @@ def utf8_width_chop(msg, chop=None):
         >>> (textual_width(msg), to_bytes(textual_width_chop(msg, 5)))
         (5, 'く ku')
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_width_chop is deprecated.  Use'
-        ' kitchen.text.display.textual_width_chop instead'), DeprecationWarning,
+    warnings.warn('kitchen.text.utf8.utf8_width_chop is deprecated.  Use'
+        ' kitchen.text.display.textual_width_chop instead', DeprecationWarning,
         stacklevel=2)
 
     if chop == None:
@@ -117,8 +116,8 @@ def utf8_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
 
     Use :func:`~kitchen.text.display.byte_string_textual_width_fill` instead
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_width_fill is deprecated.  Use'
-        ' kitchen.text.display.byte_string_textual_width_fill instead'),
+    warnings.warn('kitchen.text.utf8.utf8_width_fill is deprecated.  Use'
+        ' kitchen.text.display.byte_string_textual_width_fill instead',
         DeprecationWarning, stacklevel=2)
 
     return byte_string_textual_width_fill(msg, fill, chop=chop, left=left,
@@ -130,8 +129,8 @@ def utf8_text_wrap(text, width=70, initial_indent='', subsequent_indent=''):
 
     Use :func:`kitchen.text.display.wrap` instead
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_text_wrap is deprecated.  Use'
-        ' kitchen.text.display.wrap instead'),
+    warnings.warn('kitchen.text.utf8.utf8_text_wrap is deprecated.  Use'
+        ' kitchen.text.display.wrap instead',
         DeprecationWarning, stacklevel=2)
 
     as_bytes = not isunicodestring(text)
@@ -150,8 +149,8 @@ def utf8_text_fill(text, *args, **kwargs):
 
     Use :func:`kitchen.text.display.fill` instead.
     '''
-    warnings.warn(b_('kitchen.text.utf8.utf8_text_fill is deprecated.  Use'
-        ' kitchen.text.display.fill instead'),
+    warnings.warn('kitchen.text.utf8.utf8_text_fill is deprecated.  Use'
+        ' kitchen.text.display.fill instead',
         DeprecationWarning, stacklevel=2)
     # This assumes that all args. are utf8.
     return fill(text, *args, **kwargs)
@@ -160,8 +159,8 @@ def _utf8_width_le(width, *args):
     '''**Deprecated** Convert the arguments to unicode and use
     :func:`kitchen.text.display._textual_width_le` instead.
     '''
-    warnings.warn(b_('kitchen.text.utf8._utf8_width_le is deprecated.  Use'
-        ' kitchen.text.display._textual_width_le instead'),
+    warnings.warn('kitchen.text.utf8._utf8_width_le is deprecated.  Use'
+        ' kitchen.text.display._textual_width_le instead',
         DeprecationWarning, stacklevel=2)
     # This assumes that all args. are utf8.
     return _textual_width_le(width, to_unicode(''.join(args)))

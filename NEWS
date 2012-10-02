@@ -23,6 +23,8 @@ NEWS
   When set to True (the default), the python2 api for gettext objects is used.
   When set to False, the python3 api is used.  This option is intended to aid
   in porting from python2 to python3.
+* Exception messages are no longer translated.  The idea is that exceptions
+  should be easily searched for via a web search.
 
 * Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
   string is turned into a byte string with an encoding that doesn't have 

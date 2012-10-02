@@ -50,9 +50,6 @@ import codecs
 import warnings
 import xml.sax.saxutils
 
-# We need to access b_() for localizing our strings but we'll end up with
-# a circular import if we import it directly.
-import kitchen as k
 from kitchen.pycompat24 import sets
 sets.add_builtin_set()
 
@@ -139,8 +136,8 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
         return obj.decode(encoding, errors)
 
     if non_string:
-        warnings.warn(k.b_('non_string is a deprecated parameter of'
-            ' to_unicode().  Use nonstring instead'), DeprecationWarning,
+        warnings.warn('non_string is a deprecated parameter of'
+            ' to_unicode().  Use nonstring instead', DeprecationWarning,
             stacklevel=2)
         if not nonstring:
             nonstring = non_string
@@ -173,12 +170,12 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
             obj_repr = unicode(obj_repr, encoding, errors)
         if nonstring == 'repr':
             return obj_repr
-        raise TypeError(k.b_('to_unicode was given "%(obj)s" which is neither'
-            ' a byte string (str) or a unicode string') %
+        raise TypeError('to_unicode was given "%(obj)s" which is neither'
+            ' a byte string (str) or a unicode string' %
             {'obj': obj_repr.encode(encoding, 'replace')})
 
-    raise TypeError(k.b_('nonstring value, %(param)s, is not set to a valid'
-        ' action') % {'param': nonstring})
+    raise TypeError('nonstring value, %(param)s, is not set to a valid'
+        ' action' % {'param': nonstring})
 
 def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
         non_string=None):
@@ -256,8 +253,8 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
             return obj
         return obj.encode(encoding, errors)
     if non_string:
-        warnings.warn(k.b_('non_string is a deprecated parameter of'
-            ' to_bytes().  Use nonstring instead'), DeprecationWarning,
+        warnings.warn('non_string is a deprecated parameter of'
+            ' to_bytes().  Use nonstring instead', DeprecationWarning,
             stacklevel=2)
         if not nonstring:
             nonstring = non_string
@@ -295,11 +292,11 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
             obj_repr = str(obj_repr)
         if nonstring == 'repr':
             return obj_repr
-        raise TypeError(k.b_('to_bytes was given "%(obj)s" which is neither'
-            ' a unicode string or a byte string (str)') % {'obj': obj_repr})
+        raise TypeError('to_bytes was given "%(obj)s" which is neither'
+            ' a unicode string or a byte string (str)' % {'obj': obj_repr})
 
-    raise TypeError(k.b_('nonstring value, %(param)s, is not set to a valid'
-        ' action') % {'param': nonstring})
+    raise TypeError('nonstring value, %(param)s, is not set to a valid'
+        ' action' % {'param': nonstring})
 
 def getwriter(encoding):
     '''Return a :class:`codecs.StreamWriter` that resists tracing back.
@@ -379,9 +376,9 @@ def to_utf8(obj, errors='replace', non_string='passthru'):
 
         to_bytes(obj, encoding='utf-8', non_string='passthru')
     '''
-    warnings.warn(k.b_('kitchen.text.converters.to_utf8 is deprecated.  Use'
+    warnings.warn('kitchen.text.converters.to_utf8 is deprecated.  Use'
         ' kitchen.text.converters.to_bytes(obj, encoding="utf-8",'
-        ' nonstring="passthru" instead.'), DeprecationWarning, stacklevel=2)
+        ' nonstring="passthru" instead.', DeprecationWarning, stacklevel=2)
     return to_bytes(obj, encoding='utf-8', errors=errors,
             nonstring=non_string)
 
@@ -404,8 +401,8 @@ def to_str(obj):
 
         to_bytes(obj, nonstring='simplerepr')
     '''
-    warnings.warn(k.b_('to_str is deprecated.  Use to_unicode or to_bytes'
-        ' instead.  See the to_str docstring for porting information.'),
+    warnings.warn('to_str is deprecated.  Use to_unicode or to_bytes'
+        ' instead.  See the to_str docstring for porting information.',
         DeprecationWarning, stacklevel=2)
     return to_bytes(obj, nonstring='simplerepr')
 
@@ -685,12 +682,12 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     try:
         process_control_chars(string, strategy=control_chars)
     except TypeError:
-        raise XmlEncodeError(k.b_('unicode_to_xml must have a unicode type as'
+        raise XmlEncodeError('unicode_to_xml must have a unicode type as'
                 ' the first argument.  Use bytes_string_to_xml for byte'
-                ' strings.'))
+                ' strings.')
     except ValueError:
-        raise ValueError(k.b_('The control_chars argument to unicode_to_xml'
-                ' must be one of ignore, replace, or strict'))
+        raise ValueError('The control_chars argument to unicode_to_xml'
+                ' must be one of ignore, replace, or strict')
     except ControlCharError, exc:
         raise XmlEncodeError(exc.args[0])
 
@@ -787,9 +784,9 @@ def byte_string_to_xml(byte_string, input_encoding='utf-8', errors='replace',
             for other ideas on using this function
     '''
     if not isbytestring(byte_string):
-        raise XmlEncodeError(k.b_('byte_string_to_xml can only take a byte'
+        raise XmlEncodeError('byte_string_to_xml can only take a byte'
                 ' string as its first argument.  Use unicode_to_xml for'
-                ' unicode strings'))
+                ' unicode strings')
 
     # Decode the string into unicode
     u_string = unicode(byte_string, input_encoding, errors)
@@ -911,8 +908,8 @@ def guess_encoding_to_xml(string, output_encoding='utf-8', attrib=False,
 def to_xml(string, encoding='utf-8', attrib=False, control_chars='ignore'):
     '''*Deprecated*: Use :func:`guess_encoding_to_xml` instead
     '''
-    warnings.warn(k.b_('kitchen.text.converters.to_xml is deprecated.  Use'
-            ' kitchen.text.converters.guess_encoding_to_xml instead.'),
+    warnings.warn('kitchen.text.converters.to_xml is deprecated.  Use'
+            ' kitchen.text.converters.guess_encoding_to_xml instead.',
             DeprecationWarning, stacklevel=2)
     return guess_encoding_to_xml(string, output_encoding=encoding,
             attrib=attrib, control_chars=control_chars)
