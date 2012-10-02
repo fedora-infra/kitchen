@@ -41,7 +41,7 @@ Some design decisions:
 * i18n:
   * DummyTranslations, NewGNUTranslations
     * These retain the python2 API of (gettext, lgettext), (ugettext)
-    [_] Issue a PendingDeprecationWarning when used
+    [X] Issue a PendingDeprecationWarning when used
   [X] Added a parameter to DummyTranslations and NewGNUTranslations: python2_api()
     [_] Need to add documentation on python2_api parameter as that is not in the stdlib gettext api
     * When True (default), uses python2 gettext api.  When false, uses python3 gettext api
