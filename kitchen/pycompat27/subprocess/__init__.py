@@ -30,6 +30,12 @@ a backport of that module for use on earlier python versions.
     :mod:`subprocess`
         for information about using the functions provided here.
 '''
+import warnings 
+
+warnings.warn('In python3, kitchen.pycompat27.subprocess is deprecated.'
+        '  If your code doesn\'t have to remain compatible with python less'
+        ' than 2.7 use subprocess from the python3 stdlib',
+        PendingDeprecationWarning, stacklevel=2)
 
 # :W0401,W0611,W0614: We're importing compatibility to the python-2.7 version
 #   of subprocess.
