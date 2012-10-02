@@ -6,9 +6,9 @@ import warnings
 
 warnings.warn('In python3, kitchen.pycompat24 is deprecated because the'
         ' python stdlib has this code in all python3 versions.  If your code'
-        ' doesn\'t have to remain compatible with python2.4 use python3\'s'
-        ' stdlib versions of base64, subprocess, and the builtin set types'
-        ' instead',
+        ' doesn\'t have to remain compatible with python less than 2.4 use'
+        ' python3\'s stdlib versions of base64, subprocess, and the builtin'
+        ' set types instead',
         PendingDeprecationWarning, stacklevel=2)
 
 from kitchen.versioning import version_tuple_to_string

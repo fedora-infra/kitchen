@@ -2,10 +2,9 @@
   * Information about exceptions can be changed -- exceptions now take unicode (str)  just fine
   * byte string needs to be updated to bytes/bytearray and unicode string to str
   * What about getwrier?
-* Switch exceptions to use str instead of bytes for translations
-* Make PendingDeprecationWarnings for pycompat* and StrictDict
-  * Message should say that these are available in all Python3 versions.
-    Use the stdlib version once the codebase no longer needs to run on py2
+
+[X] Switch from isinstance(str, unicode, basestring) to kitchen.text.misc.is*string() functions to make porting easier
+[X] Remove translations of exceptions?
 
 Audited files
 
@@ -16,9 +15,13 @@ Audited files
 [X] iterutils/__init__.py
 [X] i18n/__init__.py
 [X] text/utf8.py
+[X] (Other random __init__.py, release.py)
 
 [_] PendingDeprecationWarnings
-    [_] pycompat*  => just need deprecationwarnings
+* Make PendingDeprecationWarnings for pycompat* and StrictDict
+  * Message should say that these are available in all Python3 versions.
+    Use the stdlib version once the codebase no longer needs to run on py2
+    [X] pycompat*  => just need deprecationwarnings
     [_] Write unittests for pycompat*
     [X] collections/strictdict.py just need deprecationwarnings
     [_] Write unittests for strictdict
@@ -28,12 +31,9 @@ Audited files
     [_] Write unittests for NullTranslations
 
 
-(Other random __init__.py, release.py)
 
 Python2 and python3
 
-[X] Switch from isinstance(str, unicode, basestring) to kitchen.text.misc.is*string() functions to make porting easier
-* Remove translations of exceptions?
 * Switch unittests to not use ok_
 
 Some design decisions:
@@ -65,3 +65,4 @@ Some design decisions:
 
 * Documentation: the behvaiour of iter(b'string') is different than
   iter('string').  This causes iterutils.iterate() to do something different
+  (integers are returned, not one-char byte strings)

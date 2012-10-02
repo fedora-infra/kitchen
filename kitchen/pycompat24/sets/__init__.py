@@ -40,6 +40,12 @@ module.
 
 # All versions of python3 have set and frozenset.  This module just remains
 # for compatibility
+import warnings
+
+warnings.warn('In python3, kitchen.pycompat24.sets is deprecated.'
+        '  If your code doesn\'t need to maintain compatibility with'
+        ' python less than 2.4, there is no reason to use anything in this'
+        ' module.', PendingDeprecationWarning, stacklevel=2)
 
 set = set
 frozenset = frozenset
