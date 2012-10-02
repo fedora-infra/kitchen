@@ -30,12 +30,11 @@ StrictDict
 # :C0111: We're implementing the dict interface so just reference the dict
 #   documentation rather than having our own docstrings
 
-import kitchen as k
 import warnings
 
-warnings.warn(k._('In python3, kitchen.collections.strictdict is deprecated.'
+warnings.warn('In python3, kitchen.collections.strictdict is deprecated.'
         '  If your code doesn\'t have to remain compatible with python2 use'
-        ' python3\'s native dict or defaultdict types instead'),
+        ' python3\'s native dict or defaultdict types instead',
         PendingDeprecationWarning, stacklevel=2)
 
 try:

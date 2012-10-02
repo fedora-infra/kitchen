@@ -37,12 +37,11 @@ of that module for use on python-2.3.
 # :W0401,W0614: The purpose of this module is to create a backport of base64
 # so we ignore these pylint warnings
 
-import kitchen as k
 import warnings 
 
-warnings.warn(k._('In python3, kitchen.pycompat24.base64 is deprecated.'
+warnings.warn('In python3, kitchen.pycompat24.base64 is deprecated.'
         '  If your code doesn\'t have to remain compatible with python2 use'
-        ' python3\'s native dict or defaultdict types instead'),
+        ' python3\'s native dict or defaultdict types instead',
         PendingDeprecationWarning, stacklevel=2)
 
 #pylint:disable-msg=W0401,W0614
