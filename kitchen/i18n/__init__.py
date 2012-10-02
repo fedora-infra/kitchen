@@ -94,12 +94,12 @@ __version__ = version_tuple_to_string(__version_info__)
 
 import copy
 from errno import ENOENT
-from functools import partial
 import gettext
 import itertools
 import locale
 import os
 import sys
+import warnings
 
 # We use the _default_localedir definition in get_translation_object
 try:
@@ -221,6 +221,12 @@ class DummyTranslations(gettext.NullTranslations):
 
     def _set_api(self):
         if self._python2_api:
+            warnings.warn('Kitchen.i18n provides gettext objects that'
+                    ' implement either the python2 or python3 gettext api.'
+                    '  You are currently using the python2 api.  Consider'
+                    ' switching to the python3 api by setting'
+                    ' python2_api=False when creating the gettext object',
+                    PendingDeprecationWarning, stacklevel=2)
             self.gettext = self._gettext
             self.lgettext = self._lgettext
             self.ugettext = self._ugettext
@@ -232,11 +238,14 @@ class DummyTranslations(gettext.NullTranslations):
             self.lgettext = self._lgettext
             self.ngettext = self._ungettext
             self.lngettext = self._lngettext
-            self.ugettext = partial(self._removed_method, 'ugettext')
-            self.ungettext = partial(self._removed_method, 'ungettext')
+            self.ugettext = self._removed_method_factory('ugettext')
+            self.ungettext = self._removed_method_factory('ungettext')
 
-    def _removed_method(self, name, *args, **kwargs):
-        raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, name))
+    def _removed_method_factory(self, name):
+        def _removed_method(*args, **kwargs):
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                    (self.__class__.__name__, name))
+        return _removed_method
 
     def _set_python2_api(self, value):
         self._python2_api = value
@@ -691,7 +700,7 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         :class:`str`.  :meth:`~gettext.GNUTranslations.ugettext` exists and
         returns :class:`unicode` strings).  When :data:`False`, return
         Translation objects that use the python3 gettext api (gettext returns
-        :class:`unicode` strings and lgettext returns byte :cless:`str`.
+        :class:`unicode` strings and lgettext returns byte :class:`str`.
         ugettext does not exist.)
     :return: Translation object to get :mod:`gettext` methods from
 
@@ -776,6 +785,13 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
     .. versionchanged:: kitchen-1.2.0 ; API kitchen.i18n 2.2.0
         Add python2_api parameter
     '''
+    if python2_api:
+        warnings.warn('get_translation_object returns gettext objects'
+                ' that implement either the python2 or python3 gettext api.'
+                '  You are currently using the python2 api.  Consider'
+                ' switching to the python3 api by setting python2_api=False'
+                ' when you call the function.',
+                PendingDeprecationWarning, stacklevel=2)
     if not class_:
         class_ = NewGNUTranslations
 
