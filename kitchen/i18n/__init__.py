@@ -701,7 +701,7 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         :class:`str`.  :meth:`~gettext.GNUTranslations.ugettext` exists and
         returns :class:`unicode` strings).  When :data:`False`, return
         Translation objects that use the python3 gettext api (gettext returns
-        :class:`unicode` strings and lgettext returns byte :cless:`str`.
+        :class:`unicode` strings and lgettext returns byte :class:`str`.
         ugettext does not exist.)
     :return: Translation object to get :mod:`gettext` methods from
 
