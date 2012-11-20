@@ -35,6 +35,7 @@ Collection of text functions that don't fit in another category.
     is which on python2 and python3
 '''
 import html.entities
+import itertools
 import re
 
 try:
@@ -48,9 +49,12 @@ from kitchen.text.exceptions import ControlCharError
 # byte strings we're guessing about as latin1
 _CHARDET_THRESHHOLD = 0.6
 
-# ASCII control codes that are illegal in xml 1.0
-_CONTROL_CODES = frozenset(list(range(0, 8)) + [11, 12] + list(range(14, 32)))
+# ASCII control codes (the c0 codes) that are illegal in xml 1.0
+# Also unicode control codes (the C1 codes): also illegal in xml
+_CONTROL_CODES = frozenset(itertools.chain(range(0, 8), (11, 12), range(14, 32), range(128, 160)))
 _CONTROL_CHARS = frozenset(map(chr, _CONTROL_CODES))
+_IGNORE_TABLE = dict(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES)))
+_REPLACE_TABLE = dict(zip(_CONTROL_CODES, ['?'] * len(_CONTROL_CODES)))
 
 # _ENTITY_RE
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
@@ -213,26 +217,30 @@ def process_control_chars(string, strategy='replace'):
         :attr:`string`
     :returns: :class:`unicode` string with no :term:`control characters` in
         it.
+
+    .. versionchanged:: kitchen 1.2.0, API: kitchen.text 2.2.0
+        Strip out the C1 control characters in addition to the C0 control
+        characters.
     '''
     if not isunicodestring(string):
         raise TypeError('process_control_char must have a unicode type'
                 ' (str) as the first argument.')
-    if strategy == 'ignore':
-        control_table = dict(list(zip(_CONTROL_CODES, [None] * len(_CONTROL_CODES))))
-    elif strategy == 'replace':
-        control_table = dict(list(zip(_CONTROL_CODES, ['?'] * len(_CONTROL_CODES))))
-    elif strategy == 'strict':
-        control_table = None
-        # Test that there are no control codes present
-        data = frozenset(string)
-        if [c for c in _CONTROL_CHARS if c in data]:
-            raise ControlCharError('ASCII control code present in string'
-                    ' input')
-    else:
+    if strategy not in ('replace', 'ignore', 'strict'):
         raise ValueError('The strategy argument to process_control_chars'
                 ' must be one of ignore, replace, or strict')
 
-    if control_table:
+    # Most strings don't have control chars and translating carries
+    # a higher cost than testing whether the chars are in the string
+    # So only translate if necessary
+    if not _CONTROL_CHARS.isdisjoint(string):
+        if strategy == 'replace':
+            control_table = _REPLACE_TABLE
+        elif strategy == 'ignore':
+            control_table = _IGNORE_TABLE
+        else:
+            # strategy can only equal 'strict'
+            raise ControlCharError('ASCII control code present in string'
+                    ' input')
         string = string.translate(control_table)
 
     return string

@@ -31,6 +31,9 @@ NEWS
   all of the needed characters had their ampersands ("&") escaped.
 * Fix a bug in NewGNUTranslations.lngettext() if a fallback gettext object is
   used and the message is not in any catalog.
+* Speedups to process_control_chars() that are directly reflected in
+  unicode_to_xml() and byte_string_to_xml()
+* Remove C1 Control Codes in to_xml() as well as C0 Control Codes
 
 -----
 1.1.1
