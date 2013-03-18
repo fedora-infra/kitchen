@@ -1,5 +1,5 @@
 * Update documentation
-  * [ ] Information about exceptions can be changed -- exceptions now take unicode (str)  just fine
+  * [X] Information about exceptions can be changed -- exceptions now take unicode (str)  just fine
   * [ ] byte string needs to be updated to bytes/bytearray and unicode string to str
   * [ ] What about getwrier?
 
