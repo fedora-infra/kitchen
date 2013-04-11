@@ -98,7 +98,7 @@ def isbytestring(obj):
 def isunicodestring(obj):
     '''Determine if obj is a :class:`unicode` string
 
-    In python2 this is equivalent to isinstance(onj, unicode).  In python3 it
+    In python2 this is equivalent to isinstance(obj, unicode).  In python3 it
     checks whether the object is an instance of :class:`str`.
 
     :arg obj: Object to test

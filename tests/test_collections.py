@@ -56,11 +56,11 @@ class TestStrictDict(unittest.TestCase):
 
         list1_u = [l for l in list1 if isinstance(l, unicode)]
         list1_b = [l for l in list1 if isinstance(l, str)]
-        list1_o = [l for l in list1 if not (isinstance(l, unicode) or isinstance(l, str))]
+        list1_o = [l for l in list1 if not (isinstance(l, (unicode, bytes)))]
 
         list2_u = [l for l in list2 if isinstance(l, unicode)]
         list2_b = [l for l in list2 if isinstance(l, str)]
-        list2_o = [l for l in list2 if not (isinstance(l, unicode) or isinstance(l, str))]
+        list2_o = [l for l in list2 if not (isinstance(l, (unicode, bytes)))]
 
         for i in list1:
             if isinstance(i, unicode):
