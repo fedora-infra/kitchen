@@ -123,7 +123,7 @@ def to_unicode(obj, encoding='utf-8', errors='replace', nonstring=None,
     if isinstance(obj, str):
         return obj
 
-    if isinstance(obj, bytes) or isinstance(obj, bytearray):
+    if isinstance(obj, (bytes, bytearray)):
         if encoding in _UTF8_ALIASES:
             return str(obj, 'utf-8', errors)
         if encoding in _LATIN1_ALIASES:
@@ -238,7 +238,7 @@ def to_bytes(obj, encoding='utf-8', errors='replace', nonstring=None,
     '''
     # Could use isbasestring, isbytestring here but we want this to be as fast
     # as possible
-    if isinstance(obj, bytes) or isinstance(obj, bytearray):
+    if isinstance(obj, (bytes, bytearray)):
         return obj
     if isinstance(obj, str):
         return obj.encode(encoding, errors)
