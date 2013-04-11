@@ -520,7 +520,7 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
         # if current width is high,
         if width > chop:
             # calculate new midpoint
-            mid = minimum + (eos - minimum) / 2
+            mid = minimum + (eos - minimum) // 2
             if mid == eos:
                 break
             if (eos - chop) < (eos - mid):
@@ -538,7 +538,7 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
             # short-circuit above means that we never use this branch.
 
             # calculate new midpoint
-            mid = eos + (maximum - eos) / 2
+            mid = eos + (maximum - eos) // 2
             if mid == eos:
                 break
             if (chop - eos) < (mid - eos):
