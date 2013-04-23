@@ -3,6 +3,10 @@
   * byte string needs to be updated to bytes/bytearray and unicode string to str
   * What about getwrier?
 
+* Require python-3.3 or later and then make use of u'' strings.
+  * Goal is to reunite the python2 and python3 codebases.  May need some other
+    work in the design decisions section listed below
+
 [X] Switch from isinstance(str, unicode, basestring) to kitchen.text.misc.is*string() functions to make porting easier
 [X] Remove translations of exceptions?
 
