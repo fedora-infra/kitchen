@@ -43,7 +43,7 @@ kitchen.core requires
 Soft Requirements
 =================
 
-If found, these libraries will be used to make the implementation of soemthing
+If found, these libraries will be used to make the implementation of something
 better in some way.  If they are not present, the API that they enable will
 still exist but may function in a different manner.
 
