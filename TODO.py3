@@ -1,7 +1,7 @@
 * Update documentation
-  * Information about exceptions can be changed -- exceptions now take unicode (str)  just fine
-  * byte string needs to be updated to bytes/bytearray and unicode string to str
-  * What about getwrier?
+  * [X] Information about exceptions can be changed -- exceptions now take unicode (str)  just fine
+  * [ ] byte string needs to be updated to bytes/bytearray and unicode string to str
+  * [ ] What about getwrier?
 
 * Require python-3.3 or later and then make use of u'' strings.
   * Goal is to reunite the python2 and python3 codebases.  May need some other
