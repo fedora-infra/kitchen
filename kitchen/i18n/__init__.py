@@ -121,42 +121,42 @@ class DummyTranslations(gettext.NullTranslations):
     This Translations class doesn't translate the strings and is intended to
     be used as a fallback when there were errors setting up a real
     Translations object.  It's safer than :class:`gettext.NullTranslations` in
-    its handling of byte :class:`str` vs :class:`unicode` strings.
+    its handling of byte :class:`bytes` vs :class:`str` strings.
 
     Unlike :class:`~gettext.NullTranslations`, this Translation class will
     never throw a :exc:`~exceptions.UnicodeError`.  The code that you have
     around a call to :class:`DummyTranslations` might throw
     a :exc:`~exceptions.UnicodeError` but at least that will be in code you
     control and can fix.  Also, unlike :class:`~gettext.NullTranslations` all
-    of this Translation object's methods guarantee to return byte :class:`str`
+    of this Translation object's methods guarantee to return byte :class:`bytes`
     except for :meth:`ugettext` and :meth:`ungettext` which guarantee to
-    return :class:`unicode` strings.
+    return :class:`str` strings.
 
-    When byte :class:`str` are returned, the strings will be encoded according
+    When byte :class:`bytes` are returned, the strings will be encoded according
     to this algorithm:
 
     1) If a fallback has been added, the fallback will be called first.
        You'll need to consult the fallback to see whether it performs any
        encoding changes.
-    2) If a byte :class:`str` was given, the same byte :class:`str` will
+    2) If a byte :class:`bytes` was given, the same byte :class:`bytes` will
        be returned.
-    3) If a :class:`unicode` string was given and :meth:`set_output_charset`
+    3) If a :class:`str` string was given and :meth:`set_output_charset`
        has been called then we encode the string using the
        :attr:`output_charset`
-    4) If a :class:`unicode` string was given and this is :meth:`gettext` or
+    4) If a :class:`str` string was given and this is :meth:`gettext` or
        :meth:`ngettext` and :attr:`_charset` was set output in that charset.
-    5) If a :class:`unicode` string was given and this is :meth:`gettext`
+    5) If a :class:`str` string was given and this is :meth:`gettext`
        or :meth:`ngettext` we encode it using 'utf-8'.
-    6) If a :class:`unicode` string was given and this is :meth:`lgettext`
+    6) If a :class:`str` string was given and this is :meth:`lgettext`
        or :meth:`lngettext` we encode using the value of
        :func:`locale.getpreferredencoding`
 
     For :meth:`ugettext` and :meth:`ungettext`, we go through the same set of
     steps with the following differences:
 
-    * We transform byte :class:`str` into :class:`unicode` strings for
+    * We transform byte :class:`bytes` into :class:`str` strings for
       these methods.
-    * The encoding used to decode the byte :class:`str` is taken from
+    * The encoding used to decode the byte :class:`bytes` is taken from
       :attr:`input_charset` if it's set, otherwise we decode using
       :term:`UTF-8`.
 
@@ -164,22 +164,22 @@ class DummyTranslations(gettext.NullTranslations):
 
         is an extension to the |stdlib|_ :mod:`gettext` that specifies what
         charset a message is encoded in when decoding a message to
-        :class:`unicode`.  This is used for two purposes:
+        :class:`str`.  This is used for two purposes:
 
-    1) If the message string is a byte :class:`str`, this is used to decode
-       the string to a :class:`unicode` string before looking it up in the
+    1) If the message string is a byte :class:`bytes`, this is used to decode
+       the string to a :class:`str` string before looking it up in the
        :term:`message catalog`.
     2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
-       :class:`str` is given as the message and is untranslated this is used
-       as the encoding when decoding to :class:`unicode`.  This is different
+       :class:`bytes` is given as the message and is untranslated this is used
+       as the encoding when decoding to :class:`str`.  This is different
        from :attr:`_charset` which may be set when a :term:`message catalog`
        is loaded because :attr:`input_charset` is used to describe an encoding
        used in a python source file while :attr:`_charset` describes the
        encoding used in the :term:`message catalog` file.
 
-    Any characters that aren't able to be transformed from a byte :class:`str`
-    to :class:`unicode` string or vice versa will be replaced with
+    Any characters that aren't able to be transformed from a byte :class:`bytes`
+    to :class:`str` string or vice versa will be replaced with
     a replacement character (ie: ``u'�'`` in unicode based encodings, ``'?'`` in other
     :term:`ASCII` compatible encodings).
 
@@ -191,9 +191,9 @@ class DummyTranslations(gettext.NullTranslations):
     .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
         * Although we had adapted :meth:`gettext`, :meth:`ngettext`,
           :meth:`lgettext`, and :meth:`lngettext` to always return byte
-          :class:`str`, we hadn't forced those byte :class:`str` to always be
+          :class:`bytes`, we hadn't forced those byte :class:`bytes` to always be
           in a specified charset.  We now make sure that :meth:`gettext` and
-          :meth:`ngettext` return byte :class:`str` encoded using
+          :meth:`ngettext` return byte :class:`bytes` encoded using
           :attr:`output_charset` if set, otherwise :attr:`charset` and if
           neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
           :meth:`lngettext` :attr:`output_charset` if set, otherwise
@@ -440,37 +440,37 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
        :meth:`gettext.GNUTranslations.ugettext` if the message being
        translated has non-:term:`ASCII` characters and there is no translation
        for it.
-    2) :class:`gettext.GNUTranslations` can return byte :class:`str` from
-       :meth:`gettext.GNUTranslations.ugettext` and :class:`unicode`
+    2) :class:`gettext.GNUTranslations` can return byte :class:`bytes` from
+       :meth:`gettext.GNUTranslations.ugettext` and :class:`str`
        strings from the other :meth:`~gettext.GNUTranslations.gettext`
        methods if the message being translated is the wrong type 
 
-    When byte :class:`str` are returned, the strings will be encoded
+    When byte :class:`bytes` are returned, the strings will be encoded
     according to this algorithm:
 
     1) If a fallback has been added, the fallback will be called first.
        You'll need to consult the fallback to see whether it performs any
        encoding changes.
-    2) If a byte :class:`str` was given, the same byte :class:`str` will
+    2) If a byte :class:`bytes` was given, the same byte :class:`bytes` will
        be returned.
-    3) If a :class:`unicode` string was given and
+    3) If a :class:`str` string was given and
        :meth:`set_output_charset` has been called then we encode the
        string using the :attr:`output_charset`
-    4) If a :class:`unicode` string was given and this is :meth:`gettext`
+    4) If a :class:`str` string was given and this is :meth:`gettext`
        or :meth:`ngettext` and a charset was detected when parsing the
        :term:`message catalog`, output in that charset.
-    5) If a :class:`unicode` string was given and this is :meth:`gettext`
+    5) If a :class:`str` string was given and this is :meth:`gettext`
        or :meth:`ngettext` we encode it using :term:`UTF-8`.
-    6) If a :class:`unicode` string was given and this is :meth:`lgettext`
+    6) If a :class:`str` string was given and this is :meth:`lgettext`
        or :meth:`lngettext` we encode using the value of
        :func:`locale.getpreferredencoding`
 
     For :meth:`ugettext` and :meth:`ungettext`, we go through the same set of
     steps with the following differences:
 
-    * We transform byte :class:`str` into :class:`unicode` strings for these
+    * We transform byte :class:`bytes` into :class:`str` strings for these
       methods.
-    * The encoding used to decode the byte :class:`str` is taken from
+    * The encoding used to decode the byte :class:`bytes` is taken from
       :attr:`input_charset` if it's set, otherwise we decode using
       :term:`UTF-8`
 
@@ -478,22 +478,22 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
 
         an extension to the |stdlib|_ :mod:`gettext` that specifies what
         charset a message is encoded in when decoding a message to
-        :class:`unicode`.  This is used for two purposes:
+        :class:`str`.  This is used for two purposes:
 
-    1) If the message string is a byte :class:`str`, this is used to decode
-       the string to a :class:`unicode` string before looking it up in the
+    1) If the message string is a byte :class:`bytes`, this is used to decode
+       the string to a :class:`str` string before looking it up in the
        :term:`message catalog`.
     2) In :meth:`~kitchen.i18n.DummyTranslations.ugettext` and
        :meth:`~kitchen.i18n.DummyTranslations.ungettext` methods, if a byte
-       :class:`str` is given as the message and is untranslated his is used as
-       the encoding when decoding to :class:`unicode`.  This is different from
+       :class:`bytes` is given as the message and is untranslated his is used as
+       the encoding when decoding to :class:`str`.  This is different from
        the :attr:`_charset` parameter that may be set when a :term:`message
        catalog` is loaded because :attr:`input_charset` is used to describe an
        encoding used in a python source file while :attr:`_charset` describes
        the encoding used in the :term:`message catalog` file.
 
     Any characters that aren't able to be transformed from a byte
-    :class:`str` to :class:`unicode` string or vice versa will be replaced
+    :class:`bytes` to :class:`str` string or vice versa will be replaced
     with a replacement character (ie: ``u'�'`` in unicode based encodings,
     ``'?'`` in other :term:`ASCII` compatible encodings).
 
@@ -505,9 +505,9 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     .. versionchanged:: kitchen-1.1.0 ; API kitchen.i18n 2.1.0
         Although we had adapted :meth:`gettext`, :meth:`ngettext`,
         :meth:`lgettext`, and :meth:`lngettext` to always return
-        byte :class:`str`, we hadn't forced those byte :class:`str` to always
+        byte :class:`bytes`, we hadn't forced those byte :class:`bytes` to always
         be in a specified charset.  We now make sure that :meth:`gettext` and
-        :meth:`ngettext` return byte :class:`str` encoded using
+        :meth:`ngettext` return byte :class:`bytes` encoded using
         :attr:`output_charset` if set, otherwise :attr:`charset` and if
         neither of those, :term:`UTF-8`.  With :meth:`lgettext` and
         :meth:`lngettext` :attr:`output_charset` if set, otherwise
@@ -690,17 +690,17 @@ def get_translation_object(domain, localedirs=tuple(), languages=None,
         :term:`message catalogs` are found.  If :data:`True`, the default,
         return a :class:`DummyTranslations` object.
     :kwarg codeset: Set the character encoding to use when returning byte
-        :class:`str` objects.  This is equivalent to calling
+        :class:`bytes` objects.  This is equivalent to calling
         :meth:`~gettext.GNUTranslations.output_charset` on the Translations
         object that is returned from this function.
     :kwarg python2_api: When data:`True` (default), return Translation objects
         that use the python2 gettext api
         (:meth:`~gettext.GNUTranslations.gettext` and
         :meth:`~gettext.GNUTranslations.lgettext` return byte
-        :class:`str`.  :meth:`~gettext.GNUTranslations.ugettext` exists and
-        returns :class:`unicode` strings).  When :data:`False`, return
+        :class:`bytes`.  :meth:`~gettext.GNUTranslations.ugettext` exists and
+        returns :class:`str` strings).  When :data:`False`, return
         Translation objects that use the python3 gettext api (gettext returns
-        :class:`unicode` strings and lgettext returns byte :class:`str`.
+        :class:`str` strings and lgettext returns byte :class:`bytes`.
         ugettext does not exist.)
     :return: Translation object to get :mod:`gettext` methods from
 
@@ -847,8 +847,8 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
         directories exist, fallback on ``sys.prefix`` + :file:`/share/locale`
         Default: No directories to search so we just use the fallback.
     :kwarg use_unicode: If :data:`True` return the :mod:`gettext` functions
-        for :class:`unicode` strings else return the functions for byte
-        :class:`str` for the translations.  Default is :data:`True`.
+        for :class:`str` strings else return the functions for byte
+        :class:`bytes` for the translations.  Default is :data:`True`.
     :return: tuple of the :mod:`gettext` function and :mod:`gettext` function
         for plurals
 

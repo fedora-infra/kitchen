@@ -23,7 +23,7 @@ StrictDict
 ----------
 
 :class:`kitchen.collections.StrictDict` provides a dictionary that treats
-:class:`str` and :class:`unicode` as distinct key values.
+:class:`bytes` and :class:`str` as distinct key values.
 '''
 
 # Pylint disabled messages:

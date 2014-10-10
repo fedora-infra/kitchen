@@ -385,7 +385,7 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
         errors='replace'):
     '''Get the :term:`textual width` of a string
 
-    :arg msg: :class:`unicode` string or byte :class:`str` to get the width of
+    :arg msg: :class:`str` string or byte :class:`bytes` to get the width of
     :kwarg control_chars: specify how to deal with :term:`control characters`.
         Possible values are:
 
@@ -397,12 +397,12 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
         :strict: will raise :exc:`kitchen.text.exceptions.ControlCharError`
             if a :term:`control character` is encountered
 
-    :kwarg encoding: If we are given a byte :class:`str` this is used to
-        decode it into :class:`unicode` string.  Any characters that are not
+    :kwarg encoding: If we are given a byte :class:`bytes` this is used to
+        decode it into :class:`str` string.  Any characters that are not
         decodable in this encoding will get a value dependent on the
         :attr:`errors` parameter.
-    :kwarg errors: How to treat errors encoding the byte :class:`str` to
-        :class:`unicode` string.  Legal values are the same as for
+    :kwarg errors: How to treat errors encoding the byte :class:`bytes` to
+        :class:`str` string.  Legal values are the same as for
         :func:`kitchen.text.converters.to_unicode`.  The default value of
         ``replace`` will cause undecodable byte sequences to have a width of
         one. ``ignore`` will have a width of zero.
@@ -468,16 +468,16 @@ def textual_width(msg, control_chars='guess', encoding='utf-8',
 def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
     '''Given a string, return it chopped to a given :term:`textual width`
 
-    :arg msg: :class:`unicode` string or byte :class:`str` to chop
+    :arg msg: :class:`str` string or byte :class:`bytes` to chop
     :arg chop: Chop :attr:`msg` if it exceeds this :term:`textual width`
-    :kwarg encoding: If we are given a byte :class:`str`, this is used to
-        decode it into a :class:`unicode` string.  Any characters that are not
+    :kwarg encoding: If we are given a byte :class:`bytes`, this is used to
+        decode it into a :class:`str` string.  Any characters that are not
         decodable in this encoding will be assigned a width of one.
-    :kwarg errors: How to treat errors encoding the byte :class:`str` to
-        :class:`unicode`.  Legal values are the same as for
+    :kwarg errors: How to treat errors encoding the byte :class:`bytes` to
+        :class:`str`.  Legal values are the same as for
         :func:`kitchen.text.converters.to_unicode`
-    :rtype: :class:`unicode` string
-    :returns: :class:`unicode` string of the :attr:`msg` chopped at the given
+    :rtype: :class:`str` string
+    :returns: :class:`str` string of the :attr:`msg` chopped at the given
         :term:`textual width`
 
     This is what you want to use instead of ``%.*s``, as it does the "right"
@@ -564,10 +564,10 @@ def textual_width_chop(msg, chop, encoding='utf-8', errors='replace'):
 # I made some adjustments for using unicode but largely unchanged from JA's
 # port of MK's code -Toshio
 def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
-    '''Expand a :class:`unicode` string to a specified :term:`textual width`
+    '''Expand a :class:`str` string to a specified :term:`textual width`
     or chop to same
 
-    :arg msg: :class:`unicode` string to format
+    :arg msg: :class:`str` string to format
     :arg fill: pad string until the :term:`textual width` of the string is
         this length
     :kwarg chop: before doing anything else, chop the string to this length.
@@ -576,7 +576,7 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         padding on the right.  If :data:`False`, pad on the left side.
     :kwarg prefix: Attach this string before the field we're filling
     :kwarg suffix: Append this string to the end of the field we're filling
-    :rtype: :class:`unicode` string
+    :rtype: :class:`str` string
     :returns: :attr:`msg` formatted to fill the specified width.  If no
         :attr:`chop` is specified, the string could exceed the fill length
         when completed.  If :attr:`prefix` or :attr:`suffix` are printable
@@ -595,7 +595,7 @@ def textual_width_fill(msg, fill, chop=None, left=True, prefix='', suffix=''):
         :attr:`msg`, :attr:`prefix`, and :attr:`suffix` should all be
         representable as unicode characters.  In particular, any escape
         sequences in :attr:`prefix` and :attr:`suffix` need to be convertible
-        to :class:`unicode`.  If you need to use byte sequences here rather
+        to :class:`str`.  If you need to use byte sequences here rather
         than unicode characters, use
         :func:`~kitchen.text.display.byte_string_textual_width_fill` instead.
 
@@ -651,14 +651,14 @@ def _textual_width_le(width, *args):
     larger
 
     :arg width: :term:`textual width` to compare against.
-    :arg \*args: :class:`unicode` strings to check the total :term:`textual
+    :arg \*args: :class:`str` strings to check the total :term:`textual
         width` of
     :returns: :data:`True` if the total length of :attr:`args` are less than
         or equal to :attr:`width`.  Otherwise :data:`False`.
 
     We often want to know "does X fit in Y".  It takes a while to use
     :func:`textual_width` to calculate this.  However, we know that the number
-    of canonically composed :class:`unicode` characters is always going to
+    of canonically composed :class:`str` characters is always going to
     have 1 or 2 for the :term:`textual width` per character.  With this we can
     take the following shortcuts:
 
@@ -667,10 +667,10 @@ def _textual_width_le(width, *args):
     2) If the number of canonically composed characters * 2 is less than the
        width then the :term:`textual width` must be ok.
 
-    :term:`textual width` of a canonically composed :class:`unicode` string
-    will always be greater than or equal to the the number of :class:`unicode`
+    :term:`textual width` of a canonically composed :class:`str` string
+    will always be greater than or equal to the the number of :class:`str`
     characters.  So we can first check if the number of composed
-    :class:`unicode` characters is less than the asked for width.  If it is we
+    :class:`str` characters is less than the asked for width.  If it is we
     can return :data:`True` immediately.  If not, then we must do a full
     :term:`textual width` lookup.
     '''
@@ -693,16 +693,16 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
         encoding='utf-8', errors='replace'):
     '''Works like we want :func:`textwrap.wrap` to work,
 
-    :arg text: :class:`unicode` string or byte :class:`str` to wrap
+    :arg text: :class:`str` string or byte :class:`bytes` to wrap
     :kwarg width: :term:`textual width` at which to wrap.  Default: 70
     :kwarg initial_indent: string to use to indent the first line.  Default:
         do not indent.
     :kwarg subsequent_indent: string to use to wrap subsequent lines.
         Default: do not indent
-    :kwarg encoding: Encoding to use if :attr:`text` is a byte :class:`str`
-    :kwarg errors: error handler to use if :attr:`text` is a byte :class:`str`
+    :kwarg encoding: Encoding to use if :attr:`text` is a byte :class:`bytes`
+    :kwarg errors: error handler to use if :attr:`text` is a byte :class:`bytes`
         and contains some undecodable characters.
-    :rtype: :class:`list` of :class:`unicode` strings
+    :rtype: :class:`list` of :class:`str` strings
     :returns: list of lines that have been text wrapped and indented.
 
     :func:`textwrap.wrap` from the |stdlib|_ has two drawbacks that this
@@ -730,7 +730,7 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
     def _indent_at_beg(line):
         '''Return the indent to use for this and (possibly) subsequent lines
 
-        :arg line: :class:`unicode` line of text to process
+        :arg line: :class:`str` line of text to process
         :rtype: tuple
         :returns: tuple of count of whitespace before getting to the start of
             this line followed by a count to the following indent if this
@@ -821,8 +821,8 @@ def wrap(text, width=70, initial_indent='', subsequent_indent='',
 def fill(text, *args, **kwargs):
     '''Works like we want :func:`textwrap.fill` to work
 
-    :arg text: :class:`unicode` string or byte :class:`str` to process
-    :returns: :class:`unicode` string with each line separated by a newline
+    :arg text: :class:`str` string or byte :class:`bytes` to process
+    :returns: :class:`str` string with each line separated by a newline
 
     .. seealso::
 
@@ -841,20 +841,20 @@ def fill(text, *args, **kwargs):
 
 def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         suffix='', encoding='utf-8', errors='replace'):
-    '''Expand a byte :class:`str` to a specified :term:`textual width` or chop
+    '''Expand a byte :class:`bytes` to a specified :term:`textual width` or chop
     to same
 
-    :arg msg: byte :class:`str` encoded in :term:`UTF-8` that we want formatted
+    :arg msg: byte :class:`bytes` encoded in :term:`UTF-8` that we want formatted
     :arg fill: pad :attr:`msg` until the :term:`textual width` is this long
     :kwarg chop: before doing anything else, chop the string to this length.
         Default: Don't chop the string at all
     :kwarg left: If :data:`True` (default) left justify the string and put the
         padding on the right.  If :data:`False`, pad on the left side.
-    :kwarg prefix: Attach this byte :class:`str` before the field we're
+    :kwarg prefix: Attach this byte :class:`bytes` before the field we're
         filling
-    :kwarg suffix: Append this byte :class:`str` to the end of the field we're
+    :kwarg suffix: Append this byte :class:`bytes` to the end of the field we're
         filling
-    :rtype: byte :class:`str`
+    :rtype: byte :class:`bytes`
     :returns: :attr:`msg` formatted to fill the specified :term:`textual
         width`.  If no :attr:`chop` is specified, the string could exceed the
         fill length when completed.  If :attr:`prefix` or :attr:`suffix` are
@@ -873,10 +873,10 @@ def byte_string_textual_width_fill(msg, fill, chop=None, left=True, prefix='',
         :func:`~kitchen.text.display.textual_width_fill`
             For example usage.  This function has only two differences.
 
-            1. it takes byte :class:`str` for :attr:`prefix` and
+            1. it takes byte :class:`bytes` for :attr:`prefix` and
                :attr:`suffix` so you can pass in arbitrary sequences of
                bytes, not just unicode characters.
-            2. it returns a byte :class:`str` instead of a :class:`unicode`
+            2. it returns a byte :class:`bytes` instead of a :class:`str`
                string.
     '''
     prefix = to_bytes(prefix, encoding=encoding, errors=errors)

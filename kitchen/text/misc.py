@@ -60,7 +60,7 @@ _REPLACE_TABLE = dict(zip(_CONTROL_CODES, ['?'] * len(_CONTROL_CODES)))
 _ENTITY_RE = re.compile(r'(?s)<[^>]*>|&#?\w+;')
 
 def isbasestring(obj):
-    '''Determine if obj is a byte :class:`str` or :class:`unicode` string
+    '''Determine if obj is a byte :class:`bytes` or :class:`str` string
 
     In python2 this is eqiuvalent to isinstance(obj, basestring).  In python3
     it checks whether the object is an instance of str, bytes, or bytearray.
@@ -78,13 +78,13 @@ def isbasestring(obj):
     return False
 
 def isbytestring(obj):
-    '''Determine if obj is a byte :class:`str`
+    '''Determine if obj is a byte :class:`bytes`
 
     In python2 this is equivalent to isinstance(obj, str).  In python3 it
     checks whether the object is an instance of bytes or bytearray.
 
     :arg obj: Object to test
-    :returns: True if the object is a byte :class:`str`.  Otherwise, False.
+    :returns: True if the object is a byte :class:`bytes`.  Otherwise, False.
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
@@ -93,13 +93,13 @@ def isbytestring(obj):
     return False
 
 def isunicodestring(obj):
-    '''Determine if obj is a :class:`unicode` string
+    '''Determine if obj is a :class:`str` string
 
     In python2 this is equivalent to isinstance(obj, unicode).  In python3 it
-    checks whether the object is an instance of :class:`str`.
+    checks whether the object is an instance of :class:`bytes`.
 
     :arg obj: Object to test
-    :returns: True if the object is a :class:`unicode` string.  Otherwise, False.
+    :returns: True if the object is a :class:`str` string.  Otherwise, False.
 
     .. versionadded:: Kitchen: 1.2.0, API kitchen.text 2.2.0
     '''
@@ -108,26 +108,26 @@ def isunicodestring(obj):
     return False
 
 def guess_encoding(byte_string, disable_chardet=False):
-    '''Try to guess the encoding of a byte :class:`str`
+    '''Try to guess the encoding of a byte :class:`bytes`
 
-    :arg byte_string: byte :class:`str` to guess the encoding of
+    :arg byte_string: byte :class:`bytes` to guess the encoding of
     :kwarg disable_chardet: If this is True, we never attempt to use
         :mod:`chardet` to guess the encoding.  This is useful if you need to
         have reproducibility whether :mod:`chardet` is installed or not.
         Default: :data:`False`.
-    :raises TypeError: if :attr:`byte_string` is not a byte :class:`str` type
+    :raises TypeError: if :attr:`byte_string` is not a byte :class:`bytes` type
     :returns: string containing a guess at the encoding of
         :attr:`byte_string`.  This is appropriate to pass as the encoding
         argument when encoding and decoding unicode strings.
 
-    We start by attempting to decode the byte :class:`str` as :term:`UTF-8`.
+    We start by attempting to decode the byte :class:`bytes` as :term:`UTF-8`.
     If this succeeds we tell the world it's :term:`UTF-8` text.  If it doesn't
     and :mod:`chardet` is installed on the system and :attr:`disable_chardet`
     is False this function will use it to try detecting the encoding of
     :attr:`byte_string`.  If it is not installed or :mod:`chardet` cannot
     determine the encoding with a high enough confidence then we rather
     arbitrarily claim that it is ``latin-1``.  Since ``latin-1`` will encode
-    to every byte, decoding from ``latin-1`` to :class:`unicode` will not
+    to every byte, decoding from ``latin-1`` to :class:`str` will not
     cause :exc:`UnicodeErrors` although the output might be mangled.
     '''
     if not isbytestring(byte_string):
@@ -149,12 +149,12 @@ def guess_encoding(byte_string, disable_chardet=False):
     return input_encoding
 
 def str_eq(str1, str2, encoding='utf-8', errors='replace'):
-    '''Compare two strings, converting to byte :class:`str` if one is
-    :class:`unicode`
+    '''Compare two strings, converting to byte :class:`bytes` if one is
+    :class:`str`
 
     :arg str1: First string to compare
     :arg str2: Second string to compare
-    :kwarg encoding: If we need to convert one string into a byte :class:`str`
+    :kwarg encoding: If we need to convert one string into a byte :class:`bytes`
         to compare, the encoding to use.  Default is :term:`utf-8`.
     :kwarg errors: What to do if we encounter errors when encoding the string.
         See the :func:`kitchen.text.converters.to_bytes` documentation for
@@ -162,15 +162,15 @@ def str_eq(str1, str2, encoding='utf-8', errors='replace'):
 
     This function prevents :exc:`UnicodeError` (python-2.4 or less) and
     :exc:`UnicodeWarning` (python 2.5 and higher) when we compare
-    a :class:`unicode` string to a byte :class:`str`.  The errors normally
+    a :class:`str` string to a byte :class:`bytes`.  The errors normally
     arise because the conversion is done to :term:`ASCII`.  This function
     lets you convert to :term:`utf-8` or another encoding instead.
 
     .. note::
 
-        When we need to convert one of the strings from :class:`unicode` in
-        order to compare them we convert the :class:`unicode` string into
-        a byte :class:`str`.  That means that strings can compare differently
+        When we need to convert one of the strings from :class:`str` in
+        order to compare them we convert the :class:`str` string into
+        a byte :class:`bytes`.  That means that strings can compare differently
         if you use different encodings for each.
 
     Note that ``str1 == str2`` is faster than this function if you can accept
@@ -179,7 +179,7 @@ def str_eq(str1, str2, encoding='utf-8', errors='replace'):
     * Limited to python-2.5+ (otherwise a :exc:`UnicodeDecodeError` may be
       thrown)
     * Will generate a :exc:`UnicodeWarning` if non-:term:`ASCII` byte
-      :class:`str` is compared to :class:`unicode` string.
+      :class:`bytes` is compared to :class:`str` string.
     '''
     try:
         return (not str1 < str2) and (not str1 > str2)
@@ -215,7 +215,7 @@ def process_control_chars(string, strategy='replace'):
     :raises kitchen.text.exceptions.ControlCharError: if the strategy is
         ``strict`` and a :term:`control character` is present in the
         :attr:`string`
-    :returns: :class:`unicode` string with no :term:`control characters` in
+    :returns: :class:`str` string with no :term:`control characters` in
         it.
 
     .. versionchanged:: kitchen 1.2.0, API: kitchen.text 2.2.0
@@ -258,10 +258,10 @@ def process_control_chars(string, strategy='replace'):
 def html_entities_unescape(string):
     '''Substitute unicode characters for HTML entities
 
-    :arg string: :class:`unicode` string to substitute out html entities
-    :raises TypeError: if something other than a :class:`unicode` string is
+    :arg string: :class:`str` string to substitute out html entities
+    :raises TypeError: if something other than a :class:`str` string is
         given
-    :rtype: :class:`unicode` string
+    :rtype: :class:`str` string
     :returns: The plain text without html entities
     '''
     def fixup(match):
@@ -298,15 +298,15 @@ def html_entities_unescape(string):
     return re.sub(_ENTITY_RE, fixup, string)
 
 def byte_string_valid_xml(byte_string, encoding='utf-8'):
-    '''Check that a byte :class:`str` would be valid in xml
+    '''Check that a byte :class:`bytes` would be valid in xml
 
-    :arg byte_string: Byte :class:`str` to check
+    :arg byte_string: Byte :class:`bytes` to check
     :arg encoding: Encoding of the xml file.  Default: :term:`UTF-8`
     :returns: :data:`True` if the string is valid.  :data:`False` if it would
         be invalid in the xml file
 
     In some cases you'll have a whole bunch of byte strings and rather than
-    transforming them to :class:`unicode` and back to byte :class:`str` for
+    transforming them to :class:`str` and back to byte :class:`bytes` for
     output to xml, you will just want to make sure they work with the xml file
     you're constructing.  This function will help you do that.  Example::
 
@@ -338,9 +338,9 @@ def byte_string_valid_xml(byte_string, encoding='utf-8'):
     return True
 
 def byte_string_valid_encoding(byte_string, encoding='utf-8'):
-    '''Detect if a byte :class:`str` is valid in a specific encoding
+    '''Detect if a byte :class:`bytes` is valid in a specific encoding
 
-    :arg byte_string: Byte :class:`str` to test for bytes not valid in this
+    :arg byte_string: Byte :class:`bytes` to test for bytes not valid in this
         encoding
     :kwarg encoding: encoding to test against.  Defaults to :term:`UTF-8`.
     :returns: :data:`True` if there are no invalid :term:`UTF-8` characters.
@@ -348,9 +348,9 @@ def byte_string_valid_encoding(byte_string, encoding='utf-8'):
 
     .. note::
 
-        This function checks whether the byte :class:`str` is valid in the
+        This function checks whether the byte :class:`bytes` is valid in the
         specified encoding.  It **does not** detect whether the byte
-        :class:`str` actually was encoded in that encoding.  If you want that
+        :class:`bytes` actually was encoded in that encoding.  If you want that
         sort of functionality, you probably want to use
         :func:`~kitchen.text.misc.guess_encoding` instead.
     '''

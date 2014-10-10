@@ -41,9 +41,9 @@ def isiterable(obj, include_string=False):
 
     :arg obj: Object to test whether it is an iterable
     :kwarg include_string: If :data:`True` and :attr:`obj` is a byte
-        :class:`str` or :class:`unicode` string this function will return
-        :data:`True`.  If set to :data:`False`, byte :class:`str` and
-        :class:`unicode` strings will cause this function to return
+        :class:`bytes` or :class:`str` string this function will return
+        :data:`True`.  If set to :data:`False`, byte :class:`bytes` and
+        :class:`str` strings will cause this function to return
         :data:`False`.  Default :data:`False`.
     :returns: :data:`True` if :attr:`obj` is iterable, otherwise
         :data:`False`.
