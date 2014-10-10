@@ -593,7 +593,7 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
     character fidelity (example: holding strings that will just be used for
     display in a GUI app later), the default value of ``replace`` works well::
 
-        unicode_to_xml(u'String with disallowed control chars: \u0000\u0007')
+        unicode_to_xml(u'String with disallowed control chars: \\u0000\\u0007')
         'String with disallowed control chars: ??'
 
     If you do need to be able to reproduce all of the characters at a later
