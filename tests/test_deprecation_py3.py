@@ -5,20 +5,20 @@ from nose import tools
 import sys
 import warnings
 
-import imp
+import importlib
 from kitchen.pycompat25.collections import defaultdict
 
 class TestPendingDeprecationModules(object):
     def __init__(self):
-        kitchen_path = imp.find_module('kitchen')[1]
-        collections_path = imp.find_module('collections', [kitchen_path])[1]
-        pycompat24_path = imp.find_module('pycompat24', [kitchen_path])[1]
-        pycompat25_path = imp.find_module('pycompat25', [kitchen_path])[1]
-        pycompat27_path = imp.find_module('pycompat27', [kitchen_path])[1]
+        kitchen_path = 'kitchen'
+        collections_path = 'kitchen/collections'
+        pycompat24_path = 'kitchen/pycompat24'
+        pycompat25_path = 'kitchen/pycompat25'
+        pycompat27_path = 'kitchen/pycompat27'
 
         self.module_data = (
             ('strictdict', 'kitchen.collections.strictdict', collections_path),
-            ('pycompat24', 'kitchen..pycompat24', kitchen_path),
+            ('pycompat24', 'kitchen.pycompat24', kitchen_path),
             ('base64', 'kitchen.pycompat24.base64', pycompat24_path),
             ('sets', 'kitchen.pycompat24.sets', pycompat24_path),
             ('subprocess', 'kitchen.pycompat24.subprocess', pycompat24_path),
@@ -39,7 +39,7 @@ class TestPendingDeprecationModules(object):
             # imp.load_module will load even if it has already been loaded.
             # We need to ensure that happens in order to trigger the
             # deprecation warnings
-            imp.load_module(module_fqn, *imp.find_module(module_name, [module_path]))
+            importlib.find_loader(module_fqn, module_path).load_module()
             warning_raised = False
             for warning in (e.message for e in w):
                 if isinstance(warning, PendingDeprecationWarning) and \
