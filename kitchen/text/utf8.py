@@ -31,15 +31,15 @@
 UTF-8
 -----
 
-Functions for operating on byte :class:`str` encoded as :term:`UTF-8`
+Functions for operating on byte :class:`bytes` encoded as :term:`UTF-8`
 
 .. note::
 
-    In many cases, it is better to convert to :class:`unicode`, operate on the
-    strings, then convert back to :term:`UTF-8`.  :class:`unicode` type can
+    In many cases, it is better to convert to :class:`str`, operate on the
+    strings, then convert back to :term:`UTF-8`.  :class:`str` type can
     handle many of these functions itself.  For those that it doesn't
     (removing control characters from length calculations, for instance) the
-    code to do so with a :class:`unicode` type is often simpler.
+    code to do so with a :class:`str` type is often simpler.
 
 .. warning::
 
