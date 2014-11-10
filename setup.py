@@ -4,11 +4,36 @@
 from distutils.command.sdist import sdist as _sdist
 import glob
 import os
+import sys
 
-from setuptools import find_packages, setup
+if sys.version_info[0] == 2:
+    sys.path.append(os.path.abspath('./kitchen2/'))
+    source_dir = 'kitchen2'
+    packages = [
+        'kitchen',
+        'kitchen.versioning',
+        'kitchen.i18n',
+        'kitchen.iterutils',
+        'kitchen.collections',
+        'kitchen.text',
+        'kitchen.pycompat24',
+        'kitchen.pycompat24.base64',
+        'kitchen.pycompat24.sets',
+        'kitchen.pycompat25',
+        'kitchen.pycompat25.collections',
+        'kitchen.pycompat27',
+        'kitchen.pycompat27.subprocess',
+    ]
+else:
+    raise NotImplementedError("py3 still to go")
+
+# Now that we have modified sys.path, these imports will pull in either the py3
+# version or the py2 version.
 import kitchen.release
 
 import releaseutils
+
+from setuptools import setup
 
 # Override sdist command to compile the message catalogs as well
 class Sdist(_sdist, object):
@@ -36,8 +61,7 @@ setup(name='kitchen',
       license=kitchen.release.LICENSE,
       url=kitchen.release.URL,
       download_url=kitchen.release.DOWNLOAD_URL,
-      cmdclass={'sdist': Sdist
-          },
+      cmdclass={'sdist': Sdist},
       keywords='Useful Small Code Snippets',
       classifiers=[
             'Development Status :: 4 - Beta',
@@ -52,6 +76,7 @@ setup(name='kitchen',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Text Processing :: General',
           ],
-      packages=find_packages(),
+      packages=packages,
+      package_dir={'' : source_dir},
       data_files=[],
 )
