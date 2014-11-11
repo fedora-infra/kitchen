@@ -5,7 +5,7 @@ python:
  - "3.3"
  - "3.4"
 install: python setup.py develop
-script: env
+script: ./runtests.sh
 #notifications:
 #    irc:
 #        - "irc.freenode.net#threebean"
