@@ -32,6 +32,13 @@ elif sys.version_info[0] == 3:
         'kitchen.iterutils',
         'kitchen.collections',
         'kitchen.text',
+        'kitchen.pycompat24',
+        'kitchen.pycompat24.base64',
+        'kitchen.pycompat24.sets',
+        'kitchen.pycompat25',
+        'kitchen.pycompat25.collections',
+        'kitchen.pycompat27',
+        'kitchen.pycompat27.subprocess',
     ]
 else:
     raise NotImplementedError("Python version unsupported %r" % sys.version)
