@@ -7,8 +7,7 @@ import os
 import sys
 
 if sys.version_info[0] == 2:
-    sys.path.append(os.path.abspath('./kitchen2/'))
-    source_dir = 'kitchen2'
+    source_dir = os.path.abspath('./kitchen2')
     packages = [
         'kitchen',
         'kitchen.versioning',
@@ -24,8 +23,20 @@ if sys.version_info[0] == 2:
         'kitchen.pycompat27',
         'kitchen.pycompat27.subprocess',
     ]
+elif:
+    source_dir = os.path.abspath('./kitchen3')
+    packages = [
+        'kitchen',
+        'kitchen.versioning',
+        'kitchen.i18n',
+        'kitchen.iterutils',
+        'kitchen.collections',
+        'kitchen.text',
+    ]
 else:
-    raise NotImplementedError("py3 still to go")
+    raise NotImplementedError("Python version unsupported %r" % sys.version)
+
+sys.path.append(source_dir)
 
 # Now that we have modified sys.path, these imports will pull in either the py3
 # version or the py2 version.
