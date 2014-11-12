@@ -4,7 +4,6 @@ import os
 import copy
 import tempfile
 import unittest
-from test import test_support
 
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 
@@ -173,6 +172,7 @@ class TestDefaultDict(unittest.TestCase):
             os.remove(tfn)
 
 
+#from test import test_support
 #def test_main():
 #    test_support.run_unittest(TestDefaultDict)
 #

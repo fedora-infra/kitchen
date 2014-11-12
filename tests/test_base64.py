@@ -1,5 +1,4 @@
 import unittest
-from test import test_support
 from kitchen.pycompat24.base64 import _base64 as base64
 
 
@@ -183,6 +182,7 @@ class BaseXYTestCase(unittest.TestCase):
 
 
 
+#from test import test_support
 #def test_main():
 #    test_support.run_unittest(__name__)
 #

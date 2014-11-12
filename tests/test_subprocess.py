@@ -1,6 +1,5 @@
 import unittest
 from nose.plugins.skip import SkipTest
-from test import test_support
 from kitchen.pycompat27.subprocess import _subprocess as subprocess
 import sys
 import StringIO
@@ -45,9 +44,14 @@ def reap_children():
             except:
                 break
 
-if not hasattr(test_support, 'reap_children'):
-    # No reap_children in python-2.3
-    test_support.reap_children = reap_children
+test_support = None
+try:
+    from test import test_support
+    if not hasattr(test_support, 'reap_children'):
+        # No reap_children in python-2.3
+        test_support.reap_children = reap_children
+except ImportError:
+    pass
 
 # In a debug build, stuff like "[6580 refs]" is printed to stderr at
 # shutdown time.  That frustrates tests trying to check stderr produced
@@ -79,7 +83,8 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         # Try to minimize the number of children we have so this test
         # doesn't crash on some buildbots (Alphas in particular).
-        test_support.reap_children()
+        if test_support:
+            test_support.reap_children()
 
     def tearDown(self):
         for inst in subprocess._active:
@@ -596,6 +601,9 @@ class ProcessTestCase(BaseTestCase):
                              "line1\nline2\rline3\r\nline4\r\nline5\nline6")
 
     def test_no_leaking(self):
+        if not test_support:
+            raise SkipTest("No test_support module available.")
+
         # Make sure we leak no resources
         if not mswindows:
             max_handles = 1026 # too much for most UNIX systems
@@ -1032,7 +1040,7 @@ class POSIXProcessTestCase(BaseTestCase):
                        stdin=stdin,
                        stdout=subprocess.PIPE,
                        stderr=subprocess.PIPE).communicate()
-            err = re.sub(r"\[\d+ refs\]\r?\n?$", "", err).strip() 
+            err = re.sub(r"\[\d+ refs\]\r?\n?$", "", err).strip()
             self.assertEqual((out, err), ('apple', 'orange'))
         finally:
             for b, a in zip(newfds, fds):
@@ -1123,6 +1131,8 @@ class POSIXProcessTestCase(BaseTestCase):
 
     def test_wait_when_sigchild_ignored(self):
         # NOTE: sigchild_ignore.py may not be an effective test on all OSes.
+        if not test_support:
+            raise SkipTest("No test_support module available.")
         sigchild_ignore = test_support.findfile(os.path.join("subprocessdata",
             "sigchild_ignore.py"))
         p = subprocess.Popen([sys.executable, sigchild_ignore],
