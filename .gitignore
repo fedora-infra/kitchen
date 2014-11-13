@@ -3,3 +3,4 @@ MANIFEST
 locale
 dist
 *.egg*
+*.pdf
