@@ -1,15 +1,26 @@
 #!/usr/bin/python -tt
 
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import glob
 import os
 import shutil
-from kitchen.pycompat27 import subprocess
+
+try:
+    # Only availabe on py2
+    from kitchen.pycompat27 import subprocess
+except:
+    import subprocess
+
 
 class MsgFmt(object):
     def run(self, args):
         cmd = subprocess.Popen(args, shell=False)
         cmd.wait()
+
 
 def setup_message_compiler():
     # Look for msgfmt
@@ -24,16 +35,17 @@ def setup_message_compiler():
     else:
         return (MsgFmt(), 'msgfmt -c -o locale/%(lang)s/LC_MESSAGES/%(domain)s.mo %(pofile)s')
 
+
 def main():
     # Get the directory with message catalogs
     # Reuse transifex's config file first as it will know this
-    cfg = ConfigParser.SafeConfigParser()
+    cfg = configparser.SafeConfigParser()
     cfg.read('.tx/config')
     cmd, args = setup_message_compiler()
 
     try:
         shutil.rmtree('locale')
-    except OSError, e:
+    except OSError as e:
         # If the error is that locale does not exist, we're okay.  We're
         # deleting it here, afterall
         if e.errno != 2:
@@ -43,7 +55,7 @@ def main():
         try:
             file_filter = cfg.get(section, 'file_filter')
             source_file = cfg.get(section, 'source_file')
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             continue
         glob_pattern = file_filter.replace('<lang>', '*')
         pot = os.path.basename(source_file)
