@@ -43,7 +43,7 @@ be found in the `transifex user's guide`_.
 To generate the POT file (located in the po/ subdirectory), use pybabel to
 extract the messages.  Run the following from the top level directory::
 
-  pybabel extract -o po/kitchen.pot kitchen -kb_ -kbN_
+  pybabel extract -o po/kitchen.pot kitchen2 kitchen3
 
 Then commit this pot file and upload to transifex::
 
@@ -169,7 +169,7 @@ Then commit this pot file and upload to transifex:
 
 3. Extract strings for translation and push them to transifex::
 
-    pybabel extract -o po/kitchen.pot kitchen -kb_ -kbN_
+    pybabel extract -o po/kitchen.pot kitchen2 kitchen3
     tx push -s
     git commit -m 'Extract new strings from the source files' po/kitchen.pot
     git push
