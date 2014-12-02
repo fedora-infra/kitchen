@@ -204,7 +204,7 @@ Then commit this pot file and upload to transifex:
 
 11. Upload the tarball to fedorahosted::
 
-     scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
+     scp dist/kitchen*tar.gz* fedorahosted.org:/srv/web/releases/k/i/kitchen/
 
 12. Tag and bag it::
 
