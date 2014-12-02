@@ -194,6 +194,8 @@ Then commit this pot file and upload to transifex:
 
 9. Upload the docs to pypi::
 
+    mkdir -p build/sphinx/html
+    sphinx-build kitchen2/docs/ build/sphinx/html
     python setup.py upload_docs
 
 10. Upload the tarball to pypi::
