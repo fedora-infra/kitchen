@@ -4,8 +4,18 @@ NEWS
 
 :Author: Toshio Kuratomi
 :Maintainer: Ralph Bean
-:Date: 13 Nov 2014
+:Date: 2 Dec 2014
 :Version: 1.2.x
+
+-----
+1.2.1
+-----
+
+* Fix release-related problems with the 1.2.0 tarball.
+  - Include locale data for the test suite.
+  - Include NEWS.rst and README.rst.
+  - Include runtests.sh.
+  - Adjust trove classifiers to indicate python3 support.
 
 -----
 1.2.0
