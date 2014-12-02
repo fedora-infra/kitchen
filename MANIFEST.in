@@ -7,3 +7,4 @@ include po/*.po
 include locale/*/*/*.mo
 recursive-include kitchen2 *.py
 recursive-include kitchen3 *.py
+include runtests.sh
