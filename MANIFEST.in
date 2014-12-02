@@ -5,6 +5,6 @@ recursive-include docs *
 include po/*.pot
 include po/*.po
 include locale/*/*/*.mo
-recursive-include kitchen2 *.py
-recursive-include kitchen3 *.py
+recursive-include kitchen2 *.py *.po *.mo *.pot
+recursive-include kitchen3 *.py *.po *.mo *.pot
 include runtests.sh
