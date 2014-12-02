@@ -4,7 +4,7 @@ Some notes on hacking on kitchen
 
 :Author: Toshio Kuratomi
 :Maintainer: Ralph Bean
-:Date: 13 Nov 2014
+:Date: 2 Dec 2014
 :Version: 1.2.x
 
 For coding and kitchen, see the style guide in the documentation.
@@ -204,7 +204,7 @@ Then commit this pot file and upload to transifex:
 
 11. Upload the tarball to fedorahosted::
 
-     scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
+     scp dist/kitchen*tar.gz* fedorahosted.org:/srv/web/releases/k/i/kitchen/
 
 12. Tag and bag it::
 

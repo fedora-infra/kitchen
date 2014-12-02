@@ -35,7 +35,7 @@ from kitchen import versioning
 (b_, bN_) = i18n.easy_gettext_setup('kitchen.core', use_unicode=False)
 #pylint: enable-msg=C0103
 
-__version_info__ = ((1, 2, 0),)
+__version_info__ = ((1, 2, 1),)
 __version__ = versioning.version_tuple_to_string(__version_info__)
 
 __all__ = ('exceptions', 'release',)
