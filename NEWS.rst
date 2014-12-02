@@ -2,16 +2,22 @@
 NEWS
 ====
 
-:Authors: Toshio Kuratomi
-:Date: 10 Sep 2012
-:Version: 1.2.0
+:Author: Toshio Kuratomi
+:Maintainer: Ralph Bean
+:Date: 13 Nov 2014
+:Version: 1.2.x
 
+-----
+1.2.0
+-----
 
-
-------------------------
-1.2.0 (not yet released)
-------------------------
-
+* kitchen gained support for python3.  The tarball release now includes a
+  ``kitchen2/`` and a ``kitchen3/`` directory containing copies of the source
+  code modified to work against each of the two major python versions.  When
+  installing with ``pip`` or ``setup.py``, the appropriate version should be
+  selected and installed.
+* The canonical upstream repository location moved to git and github.  See
+  https://github.com/fedora-infra/kitchen
 * Added kitchen.text.misc.isbasestring(), kitchen.text.misc.isbytestring(),
   and kitchen.text.misc.isunicodestring().  These are mainly useful for code
   being ported to python3 as python3 lacks a basestring type and has two types
@@ -25,7 +31,6 @@ NEWS
   in porting from python2 to python3.
 * Exception messages are no longer translated.  The idea is that exceptions
   should be easily searched for via a web search.
-
 * Fix a bug in unicode_to_xml() where xmlcharrefs created when a unicode
   string is turned into a byte string with an encoding that doesn't have 
   all of the needed characters had their ampersands ("&") escaped.

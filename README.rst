@@ -3,8 +3,9 @@ Kitchen.core Module
 ===================
 
 :Author: Toshio Kuratomi
-:Date: 2 Jan 2012
-:Version: 1.1.x
+:Maintainer: Ralph Bean
+:Date: 13 Nov 2014
+:Version: 1.2.x
 
 The Kitchen module provides a python API for all sorts of little useful
 snippets of code that everybody ends up writing for their projects but never
@@ -39,6 +40,9 @@ Requirements
 kitchen.core requires
 
 :python: 2.3.1 or later
+
+Since version 1.2.0, this package has distributed both python2 and python3
+compatible versions of the source.
 
 Soft Requirements
 =================
@@ -78,4 +82,5 @@ Testing
 =======
 
 You can run the unittests with this command::
-    nosetests --with-coverage --cover-package kitchen
+
+    ./runtests.sh
