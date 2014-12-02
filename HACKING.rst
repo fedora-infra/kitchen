@@ -3,8 +3,9 @@ Some notes on hacking on kitchen
 ================================
 
 :Author: Toshio Kuratomi
-:Date: 2 Jan 2012
-:Version: 1.1.x
+:Maintainer: Ralph Bean
+:Date: 13 Nov 2014
+:Version: 1.2.x
 
 For coding and kitchen, see the style guide in the documentation.
 
@@ -40,20 +41,20 @@ be found in the `transifex user's guide`_.
 .. `transifex user's guide`:: http://help.transifex.net/user-guide/translating.html
 
 To generate the POT file (located in the po/ subdirectory), use pybabel to
-extract the messages.  Tun the following from the top level directory::
+extract the messages.  Run the following from the top level directory::
 
-  pybabel extract -o po/kitchen.pot kitchen -kb_ -kbN_
+  pybabel extract -o po/kitchen.pot kitchen2 kitchen3
 
 Then commit this pot file and upload to transifex::
 
   tx push -s
-  bzr commit -m 'Extract new strings from the source files' po/kitchen.pot
-  bzr push
+  git commit -m 'Extract new strings from the source files' po/kitchen.pot
+  git push
 
 To pull messages from transifex prior to making a release, do::
 
   tx pull -a
-  bzr commit -m 'Merge new translations from transifex' po/*.po
+  git commit -m 'Merge new translations from transifex' po/*.po
 
 If you see a status message from transifex like this::
   Pulling new translations for resource kitchen.kitchenpot (source: po/kitchen.pot)
@@ -62,8 +63,8 @@ If you see a status message from transifex like this::
 it means that transifex has created a brand new po file for you.  You need to
 add the new file to source control and commit it like this::
 
-  bzr add po/fr.po
-  bzr commit -m 'New French translation' po/fr.po
+  git add po/fr.po
+  git commit -m 'New French translation' po/fr.po
 
 
 TODO: Add information about announcing string freeze.  Using transifex's add
@@ -130,7 +131,8 @@ Unittest
 
 Kitchen has a large set of unittests.  All of them should pass before release.
 You can run the unittests with the following command::
-    nosetests --with-coverage --cover-package kitchen
+
+    ./runtests.sh
 
 This will run all the unittests under the tests directory and also generate
 some statistics about which lines of code were not accessed when kitchen ran.
@@ -144,48 +146,70 @@ some statistics about which lines of code were not accessed when kitchen ran.
     a look at :file:`test_i18n.py` and :file:`test_converters.py` to see tests
     that attempt to cover enough input values to detect problems.
 
-Since kitchen is currently supported on python-2.3.1+, it is desirable to test
-kitchen on at least one python major version from python-2.3 through
-python-2.7.  We currently have access to a buildbot that has access to
-python-2.4, python-2.6, and python-2.7.  You can view it at
-http://ci.csh.rit.edu:8080/view/Kitchen/ .  The buildbot checks the devel
-repository hourly and if new checkins have occurred, it attempts to rebuild.
-If you need access to invoke builds on the buildbot more regularly than that,
-contact Toshio to get access.
+Since kitchen is currently supported on python2 and python3, it is desirable to
+run tests against as many python versions as possible.  We currently have a
+jenkins instance in the Fedora Infrastructure private cloud with a job set up
+for kitchen at http://jenkins.cloud.fedoraproject.org/job/kitchen/
 
-We were unable to get python-2.3 working in the buildbot so I manually run the
-unittests on a CentOS-4 virtual machine (with python-2.3).  I currently don't
-test on python-2.5 but I'd be happy to take bug reports or get a new committer
-that was interested in that platform.
+It is not currently running tests against python-2.{3,4,5,6}.  If you are
+interested in getting those builds running automatically, please speak up in
+the #fedora-apps channel on freenode.
 
 Creating the release
 ====================
 
+
+Then commit this pot file and upload to transifex:
+
 1. Make sure that any feature branches you want have been merged.
-2. Pull in new translations and verify they are valid::
+
+2. Make a fresh branch for your release::
+
+    git flow release start $VERSION
+
+3. Extract strings for translation and push them to transifex::
+
+    pybabel extract -o po/kitchen.pot kitchen2 kitchen3
+    tx push -s
+    git commit -m 'Extract new strings from the source files' po/kitchen.pot
+    git push
+
+4. Wait for translations.  In the meantime...
+5. Update the version in ``kitchen/__init__.py`` and ``NEWS.rst``.
+6. When they're all ready, pull in new translations and verify they are valid::
+
     tx pull -a
     # If msgfmt is installed, this will check that the catalogs are valid
     ./releaseutils.py
-    bzr commit -m 'Merge new translations from transifex.net'
-3. Update the version in kitchen/__init__.py and NEWS.
-4. Make a fresh clone of the repository::
-    cd $PATH_TO_MY_SHARED_REPO
-    bzr branch bzr://bzr.fedorahosted.org/bzr/kitchen/devel release
-5. Make the source tarball in that directory::
-    cd release
+    git commit -m 'Merge new translations from transifex.net'
+    git push
+
+7. Create a pull-request so someone else from #fedora-apps can review::
+
+    hub pull-request -b master
+
+8. Once someone has given it a +1, then make a source tarball::
+
     python setup.py sdist
-6. Make sure that the source tarball contains all of the files we want in the release::
-    cd ..
-    tar -xzvf release/dist/kitchen*tar.gz
-    diff -uNr devel kitchen-$RELEASE_VERSION
-7. Upload the docs to pypi::
-    cd release
+
+9. Upload the docs to pypi::
+
+    mkdir -p build/sphinx/html
+    sphinx-build kitchen2/docs/ build/sphinx/html
     python setup.py upload_docs
-8. Upload the tarball to pypi::
-    python setup.py sdist upload --sign
-9. Upload the tarball to fedorahosted::
-    scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
-10. Tag the release::
-        cd ../devel
-        bzr tag $RELEASE_VERSION
-        bzr push
+
+10. Upload the tarball to pypi::
+
+     python setup.py sdist upload --sign
+
+11. Upload the tarball to fedorahosted::
+
+     scp dist/kitchen*tar.gz fedorahosted.org:/srv/web/releases/k/i/kitchen/
+
+12. Tag and bag it::
+
+     git flow release finish -m $VERSION -u $YOUR_GPG_KEY_ID $VERSION
+     git push origin develop:develop
+     git push origin master:master
+     git push origin --tags
+     # Your pull-request should automatically close.  Double-check this, though.

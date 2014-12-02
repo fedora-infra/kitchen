@@ -1,5 +1,6 @@
 *.pyc
 MANIFEST
-locale
 dist
 *.egg*
+*.pdf
+build
