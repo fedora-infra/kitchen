@@ -5,8 +5,8 @@ python:
  - "3.4"
 install: python setup.py develop
 script: ./runtests.sh
-#notifications:
-#    irc:
-#        - "irc.freenode.net#threebean"
-#    on_success: never
-#    on_failure: always
+notifications:
+    irc:
+        - "irc.freenode.net#threebean"
+    on_success: never
+    on_failure: always
