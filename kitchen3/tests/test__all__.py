@@ -99,7 +99,7 @@ class Test__all__(object):
         f = None
         try:
             try:
-                f = open(modpath, 'r')
+                f = open(modpath, 'r', encoding='utf-8')
                 tools.ok_('__all__' in f.read(), '%s does not contain __all__' % modpath)
             except IOError as e:
                 tools.ok_(False, '%s' % e)
