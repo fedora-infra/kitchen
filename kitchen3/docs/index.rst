@@ -9,7 +9,7 @@ Kitchen, everything but the sink
 We've all done it.  In the process of writing a brand new application we've
 discovered that we need a little bit of code that we've invented before.
 Perhaps it's something to handle unicode text.  Perhaps it's something to make
-a bit of python-2.5 code run on python-2.3.  Whatever it is, it ends up being
+a bit of python-2.5 code run on python-2.4.  Whatever it is, it ends up being
 a tiny bit of code that seems too small to worry about pushing into its own
 module so it sits there, a part of your current project, waiting to be cut and
 pasted into your next project.  And the next.  And the next.  And since that
@@ -37,11 +37,9 @@ Requirements
 We've tried to keep the core kitchen module's requirements lightweight.  At the
 moment kitchen only requires
 
-:python: 2.3.1 or later
+:python: 2.4 or later
 
-.. warning:: Kitchen-1.1.0 is likely to be the last release that supports
-    python-2.3.x.  Future releases will target python-2.4 as the minimum
-    required version.
+.. warning:: Kitchen-1.1.0 was the last release to support python-2.3.x.
 
 Soft Requirements
 =================
@@ -73,9 +71,9 @@ now, I just mention them here:
     lists and dicts, transforming the dicts to Bunch's.
 `hashlib <http://code.krypto.org/python/hashlib/>`_
     Python 2.5 and forward have a :mod:`hashlib` library that provides secure
-    hash functions to python.  If you're developing for python2.3 or
-    python2.4, though, you can install the standalone hashlib library and have
-    access to the same functions.
+    hash functions to python.  If you're developing for python2.4 though, you
+    can install the standalone hashlib library and have access to the same
+    functions.
 `iterutils <http://pypi.python.org/pypi/iterutils/>`_
     The python documentation for :mod:`itertools` has some examples
     of other nice iterable functions that can be built from the
