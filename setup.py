@@ -78,7 +78,6 @@ setup(name='kitchen',
       maintainer_email='toshio@fedoraproject.org',
       license=kitchen.release.LICENSE,
       url=kitchen.release.URL,
-      download_url=kitchen.release.DOWNLOAD_URL,
       cmdclass={'sdist': Sdist},
       keywords='Useful Small Code Snippets',
       classifiers=[

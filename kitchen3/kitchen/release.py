@@ -28,7 +28,7 @@ AUTHOR = 'Toshio Kuratomi, Seth Vidal, others'
 EMAIL = 'toshio@fedoraproject.org'
 COPYRIGHT = '2012 Red Hat, Inc. and others'
 URL = 'https://fedorahosted.org/kitchen'
-DOWNLOAD_URL = 'https://fedorahosted.org/releases/k/i/kitchen'
+DOWNLOAD_URL = 'https://pypi.python.org/pypi/kitchen'
 LICENSE = 'LGPLv2+'
 
 __all__ = ('NAME', 'VERSION', 'DESCRIPTION', 'LONG_DESCRIPTION', 'AUTHOR',
