@@ -10,10 +10,10 @@ Style
 * Run `:command:`pylint` ` over the code and try to resolve most of its nitpicking
 
 ------------------------
-Python 2.3 compatibility
+Python 2.4 compatibility
 ------------------------
 
-At the moment, we're supporting python-2.3 and above.  Understand that there's
+At the moment, we're supporting python-2.4 and above.  Understand that there's
 a lot of python features that we cannot use because of this.
 
 Sometimes modules in the |stdlib|_ can be added to kitchen so that they're
@@ -23,7 +23,7 @@ available.  When we do that we need to be careful of several things:
    :file:`maintainers/sync-copied-files.py` for this.
 2. Sync the unittests as well as the module.
 3. Be aware that not all modules are written to remain compatible with
-   Python-2.3 and might use python language features that were not present
+   Python-2.4 and might use python language features that were not present
    then (generator expressions, relative imports, decorators, with, try: with
    both except: and finally:, etc)  These are not good candidates for
    importing into kitchen as they require more work to keep synced.
@@ -56,7 +56,7 @@ Unittests
 
 * We're using nose for unittesting.  Rather than depend on unittest2
   functionality, use the functions that nose provides.
-* Remember to maintain python-2.3 compatibility even in unittests.
+* Remember to maintain python-2.4 compatibility even in unittests.
 
 ----------------------------
 Docstrings and documentation

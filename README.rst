@@ -39,7 +39,7 @@ Requirements
 
 kitchen.core requires
 
-:python: 2.3.1 or later
+:python: 2.4 or later
 
 Since version 1.2.0, this package has distributed both python2 and python3
 compatible versions of the source.
