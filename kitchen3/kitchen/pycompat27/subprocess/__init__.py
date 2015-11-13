@@ -43,7 +43,7 @@ warnings.warn('In python3, kitchen.pycompat27.subprocess is deprecated.'
 # All versions of python3 have a modern enough subprocess.  This module only
 # exists for backwards compatibility
 from subprocess import *
-from subprocess import list2cmdline, mswindows
+from subprocess import list2cmdline
 from subprocess import __all__
 
 # subprocess.MAXFD was removed in python-3.5
@@ -56,3 +56,11 @@ except ImportError:
         MAXFD = os.sysconf("SC_OPEN_MAX")
     except ValueError:
         MAXFD = 256
+
+# subprocess.mswindows was renamed in python-3.5
+# https://github.com/fedora-infra/kitchen/issues/12
+try:
+    from subprocess import mswindows
+except ImportError:
+    # Python 3.5
+    from subprocess import _mswindows as mswindows
