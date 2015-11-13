@@ -8,6 +8,12 @@ NEWS
 :Version: 1.2.x
 
 -----
+1.2.4
+-----
+
+* Further compat fixes for python-3.5
+
+-----
 1.2.3
 -----
 
