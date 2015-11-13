@@ -4,8 +4,21 @@ NEWS
 
 :Author: Toshio Kuratomi
 :Maintainer: Ralph Bean
-:Date: 2 Dec 2014
+:Date: 13 Nov 2015
 :Version: 1.2.x
+
+-----
+1.2.3
+-----
+
+* Compatibility with python-3.5
+
+-----
+1.2.2
+-----
+
+* Compatibility with python-3.4
+* Compatibility with pep470
 
 -----
 1.2.1
