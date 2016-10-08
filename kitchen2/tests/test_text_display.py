@@ -158,4 +158,3 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + '       ')
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + '       ')
-

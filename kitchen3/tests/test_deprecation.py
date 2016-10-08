@@ -61,5 +61,3 @@ class TestPendingDeprecationParameters(unittest.TestCase):
                 i18n.get_translation_object, 'test', **{'python2_api': True})
         tools.assert_raises(PendingDeprecationWarning,
                 i18n.DummyTranslations, **{'python2_api': True})
-
-

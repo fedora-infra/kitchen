@@ -5,7 +5,7 @@ import kitchen.pycompat27.subprocess as __s
 from kitchen.pycompat27.subprocess import *
 from kitchen.pycompat27.subprocess import __all__
 
-import warnings 
+import warnings
 
 warnings.warn('In python3, kitchen.pycompat24.subprocess is deprecated.'
         '  If your code doesn\'t have to remain compatible with python less'
