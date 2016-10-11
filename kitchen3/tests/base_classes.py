@@ -64,8 +64,8 @@ class UnicodeTestData(object):
     u_entity_escape = 'Test: &lt;&quot;&amp;&quot;&gt; &ndash; ' + str(u_japanese.encode('ascii', 'xmlcharrefreplace'), 'ascii') + '&#xe9;'
     utf8_entity_escape = b'Test: &lt;"&amp;"&gt; ' + ('– ' + u_japanese + 'é').encode('utf8')
     utf8_attrib_escape = b'Test: &lt;&quot;&amp;&quot;&gt; ' + ('– ' + u_japanese + 'é').encode('utf8')
-    ascii_entity_escape = (b'Test: <"&"> '.replace(b'&', b'&amp;',1).replace(b'<', b'&lt;').replace(b'>', b'&gt;')) + ('– ' + u_japanese + 'é').encode('ascii', 'xmlcharrefreplace')
-    ascii_attrib_escape = (b'Test: <"&"> '.replace(b'&', b'&amp;',1).replace(b'<', b'&lt;').replace(b'>', b'&gt;').replace(b'"', b'&quot;')) + ('– ' + u_japanese + 'é').encode('ascii', 'xmlcharrefreplace')
+    ascii_entity_escape = (b'Test: <"&"> '.replace(b'&', b'&amp;', 1).replace(b'<', b'&lt;').replace(b'>', b'&gt;')) + ('– ' + u_japanese + 'é').encode('ascii', 'xmlcharrefreplace')
+    ascii_attrib_escape = (b'Test: <"&"> '.replace(b'&', b'&amp;', 1).replace(b'<', b'&lt;').replace(b'>', b'&gt;').replace(b'"', b'&quot;')) + ('– ' + u_japanese + 'é').encode('ascii', 'xmlcharrefreplace')
 
     b_byte_chars = b' '.join((bytes((b,)) for b in range(0, 256)))
     b_byte_encoded = b'ACABIAIgAyAEIAUgBiAHIAggCSAKIAsgDCANIA4gDyAQIBEgEiATIBQgFSAWIBcgGCAZIBogGyAcIB0gHiAfICAgISAiICMgJCAlICYgJyAoICkgKiArICwgLSAuIC8gMCAxIDIgMyA0IDUgNiA3IDggOSA6IDsgPCA9ID4gPyBAIEEgQiBDIEQgRSBGIEcgSCBJIEogSyBMIE0gTiBPIFAgUSBSIFMgVCBVIFYgVyBYIFkgWiBbIFwgXSBeIF8gYCBhIGIgYyBkIGUgZiBnIGggaSBqIGsgbCBtIG4gbyBwIHEgciBzIHQgdSB2IHcgeCB5IHogeyB8IH0gfiB/IIAggSCCIIMghCCFIIYghyCIIIkgiiCLIIwgjSCOII8gkCCRIJIgkyCUIJUgliCXIJggmSCaIJsgnCCdIJ4gnyCgIKEgoiCjIKQgpSCmIKcgqCCpIKogqyCsIK0griCvILAgsSCyILMgtCC1ILYgtyC4ILkguiC7ILwgvSC+IL8gwCDBIMIgwyDEIMUgxiDHIMggySDKIMsgzCDNIM4gzyDQINEg0iDTINQg1SDWINcg2CDZINog2yDcIN0g3iDfIOAg4SDiIOMg5CDlIOYg5yDoIOkg6iDrIOwg7SDuIO8g8CDxIPIg8yD0IPUg9iD3IPgg+SD6IPsg/CD9IP4g/w=='
