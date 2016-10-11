@@ -2,7 +2,7 @@
 The :mod:`kitchen.pycompat24` module contains implementations of functionality
 introduced in python-2.4 for use on earlier versions of python.
 '''
-import warnings 
+import warnings
 
 warnings.warn('In python3, kitchen.pycompat24 is deprecated because the'
         ' python stdlib has this code in all python3 versions.  If your code'

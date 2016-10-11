@@ -816,5 +816,3 @@ class TestDefaultLocaleDir(unittest.TestCase, base_classes.UnicodeTestData):
         # Returns msgid because the string is in a fallback catalog which we
         # haven't setup
         tools.eq_(_(self.u_in_fallback), self.utf8_in_fallback)
-
-
