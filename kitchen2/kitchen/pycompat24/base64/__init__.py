@@ -40,7 +40,7 @@ if sys.version_info >= (2, 4):
 else:
     from kitchen.pycompat24.base64._base64 import *
 
-__all__ = ( 'b16decode', 'b16encode', 'b32decode', 'b32encode', 'b64decode',
+__all__ = ('b16decode', 'b16encode', 'b32decode', 'b32encode', 'b64decode',
         'b64encode', 'decode', 'decodestring', 'encode', 'encodestring',
         'standard_b64decode', 'standard_b64encode', 'urlsafe_b64decode',
         'urlsafe_b64encode',)

@@ -97,6 +97,6 @@ setup(name='kitchen',
             'Topic :: Text Processing :: General',
           ],
       packages=packages,
-      package_dir={'' : source_dir},
+      package_dir={'': source_dir},
       data_files=[],
 )

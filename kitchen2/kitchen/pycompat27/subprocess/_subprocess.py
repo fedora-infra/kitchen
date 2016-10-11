@@ -1187,7 +1187,7 @@ class Popen(object):
 
                             # Close pipe fds.  Make sure we don't close the
                             # same fd more than once, or standard fds.
-                            closed = set( (None,) )
+                            closed = set((None,))
                             for fd in [p2cread, c2pwrite, errwrite]:
                                 if fd not in closed and fd > 2:
                                     os.close(fd)
@@ -1377,7 +1377,7 @@ class Popen(object):
 
                 for fd, mode in ready:
                     if mode & select.POLLOUT:
-                        chunk = input[input_offset : input_offset + _PIPE_BUF]
+                        chunk = input[input_offset: input_offset + _PIPE_BUF]
                         try:
                             input_offset += os.write(fd, chunk)
                         except OSError, e:
@@ -1425,7 +1425,7 @@ class Popen(object):
                     raise
 
                 if self.stdin in wlist:
-                    chunk = input[input_offset : input_offset + _PIPE_BUF]
+                    chunk = input[input_offset: input_offset + _PIPE_BUF]
                     try:
                         bytes_written = os.write(self.stdin.fileno(), chunk)
                     except OSError, e:
