@@ -730,7 +730,7 @@ class ProcessTestCase(BaseTestCase):
         ofhandle, ofname = mkstemp()
         efhandle, efname = mkstemp()
         try:
-            subprocess.Popen (["*"], stdin=ifhandle, stdout=ofhandle,
+            subprocess.Popen(["*"], stdin=ifhandle, stdout=ofhandle,
               stderr=efhandle)
         except OSError:
             os.close(ifhandle)
@@ -1412,7 +1412,7 @@ class CommandsWithSpaces (BaseTestCase):
 
         super(CommandsWithSpaces, self).setUp()
         f, fname = mkstemp(".py", "te st")
-        self.fname = fname.lower ()
+        self.fname = fname.lower()
         os.write(f, "import sys;"
                     "sys.stdout.write('%d %s' % (len(sys.argv), [a.lower () for a in sys.argv]))"
         )
@@ -1427,7 +1427,7 @@ class CommandsWithSpaces (BaseTestCase):
         p = subprocess.Popen(*args, **kwargs)
         self.addCleanup(p.stdout.close)
         self.assertEqual(
-          p.stdout.read ().decode("mbcs"),
+          p.stdout.read().decode("mbcs"),
           "2 [%r, 'ab cd']" % self.fname
         )
 

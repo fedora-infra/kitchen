@@ -112,7 +112,7 @@ class Test__all__(object):
         For each module, check that it has an __all__
         '''
         # Blacklisted modules and packages
-        blacklist = set([ ])
+        blacklist = set([])
 
         for path, modname in [m for m in self.walk_modules(self.lib_dir, '')
                 if m[1] not in blacklist]:
@@ -144,7 +144,7 @@ class Test__all__(object):
         For each name in module's __all__, check that it exists
         '''
         # Blacklisted modules and packages
-        blacklist = set([ ])
+        blacklist = set([])
 
         for path, modname in [m for m in self.walk_modules(self.lib_dir, '')
                 if m[1] not in blacklist]:
