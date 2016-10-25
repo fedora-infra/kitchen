@@ -215,7 +215,7 @@ class ProcessTestCase(BaseTestCase):
             else:
                 self.fail("Expected TypeError")
         finally:
-            setattr(sys,'stderr', orig_stderr)
+            setattr(sys, 'stderr', orig_stderr)
         self.assertEqual(s.getvalue(), '')
 
     def test_stdin_none(self):
@@ -856,7 +856,7 @@ class POSIXProcessTestCase(BaseTestCase):
         try:
             import resource
             old_limit = resource.getrlimit(resource.RLIMIT_CORE)
-            resource.setrlimit(resource.RLIMIT_CORE, (0,0))
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
             return old_limit
         except (ImportError, ValueError, resource.error):
             return None

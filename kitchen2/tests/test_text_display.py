@@ -13,7 +13,7 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
 
     def test_internal_interval_bisearch(self):
         '''Test that we can find things in an interval table'''
-        table = ((0, 3), (5,7), (9, 10))
+        table = ((0, 3), (5, 7), (9, 10))
         tools.assert_true(display._interval_bisearch(0, table))
         tools.assert_true(display._interval_bisearch(1, table))
         tools.assert_true(display._interval_bisearch(2, table))

@@ -100,7 +100,7 @@ class TestTextMisc(unittest.TestCase, base_classes.UnicodeTestData):
     def test_process_control_chars(self):
         tools.assert_raises(TypeError, misc.process_control_chars, b'byte string')
         tools.assert_raises(ControlCharError, misc.process_control_chars,
-                *[self.u_ascii_chars], **{'strategy':'strict'})
+                *[self.u_ascii_chars], **{'strategy': 'strict'})
         tools.ok_(misc.process_control_chars(self.u_ascii_chars,
             strategy='ignore') == self.u_ascii_no_ctrl)
         tools.ok_(misc.process_control_chars(self.u_ascii_chars,
