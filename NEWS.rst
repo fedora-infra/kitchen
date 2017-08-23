@@ -3,9 +3,16 @@ NEWS
 ====
 
 :Author: Toshio Kuratomi
-:Maintainer: Ralph Bean
-:Date: 13 Nov 2015
+:Maintainer: Patrick Uiterwijk
+:Date: 24 Aug 2017
 :Version: 1.2.x
+
+-----
+1.2.5
+-----
+
+* Updated codepoint tables
+* Code style fixes
 
 -----
 1.2.4
