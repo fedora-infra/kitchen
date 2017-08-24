@@ -693,7 +693,7 @@ def unicode_to_xml(string, encoding='utf-8', attrib=False,
 
     # Escape characters that have special meaning in xml
     if attrib:
-        string = xml.sax.saxutils.escape(string, entities={'"':"&quot;"})
+        string = xml.sax.saxutils.escape(string, entities={'"': "&quot;"})
     else:
         string = xml.sax.saxutils.escape(string)
 

@@ -3,17 +3,17 @@
 # Copyright (c) 2010 Red Hat, Inc
 #
 # This file is part of kitchen
-# 
+#
 # kitchen is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; either version 2.1 of the License, or (at your option)
 # any later version.
-# 
+#
 # kitchen is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with kitchen; if not, see <http://www.gnu.org/licenses/>
 #
@@ -40,7 +40,7 @@ if sys.version_info >= (2, 4):
 else:
     from kitchen.pycompat24.base64._base64 import *
 
-__all__ = ( 'b16decode', 'b16encode', 'b32decode', 'b32encode', 'b64decode',
+__all__ = ('b16decode', 'b16encode', 'b32decode', 'b32encode', 'b64decode',
         'b64encode', 'decode', 'decodestring', 'encode', 'encodestring',
         'standard_b64decode', 'standard_b64encode', 'urlsafe_b64decode',
         'urlsafe_b64encode',)

@@ -13,7 +13,7 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
 
     def test_internal_interval_bisearch(self):
         '''Test that we can find things in an interval table'''
-        table = ((0, 3), (5,7), (9, 10))
+        table = ((0, 3), (5, 7), (9, 10))
         tools.assert_true(display._interval_bisearch(0, table))
         tools.assert_true(display._interval_bisearch(1, table))
         tools.assert_true(display._interval_bisearch(2, table))
@@ -158,4 +158,3 @@ class TestDisplay(base_classes.UnicodeTestData, unittest.TestCase):
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + b'       ')
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18), self.u_mixed[:-4].encode('utf8') + b'       ')
         tools.eq_(display.byte_string_textual_width_fill(self.utf8_mixed, 25, chop=18, prefix=self.utf8_spanish, suffix=self.utf8_spanish), self.utf8_spanish + self.u_mixed[:-4].encode('utf8') + self.utf8_spanish + b'       ')
-

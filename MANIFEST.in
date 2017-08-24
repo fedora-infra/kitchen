@@ -2,7 +2,8 @@ include COPYING COPYING.LESSER
 include *.rst
 include releaseutils.py
 recursive-include tests *.py *.po *.pot *.mo
-recursive-include docs *
+recursive-include kitchen2/docs *
+recursive-include kitchen3/docs *
 include po/*.pot
 include po/*.po
 include locale/*/*/*.mo

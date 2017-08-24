@@ -8,12 +8,12 @@
 # terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; either version 2.1 of the License, or (at your option)
 # any later version.
-# 
+#
 # kitchen is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public License
 # along with kitchen; if not, see <http://www.gnu.org/licenses/>
 #
@@ -444,7 +444,7 @@ class NewGNUTranslations(DummyTranslations, gettext.GNUTranslations):
     2) :class:`gettext.GNUTranslations` can return byte :class:`str` from
        :meth:`gettext.GNUTranslations.ugettext` and :class:`unicode`
        strings from the other :meth:`~gettext.GNUTranslations.gettext`
-       methods if the message being translated is the wrong type 
+       methods if the message being translated is the wrong type
 
     When byte :class:`str` are returned, the strings will be encoded
     according to this algorithm:
@@ -854,7 +854,7 @@ def easy_gettext_setup(domain, localedirs=tuple(), use_unicode=True):
         for plurals
 
     Setting up :mod:`gettext` can be a little tricky because of lack of
-    documentation.  This function will setup :mod:`gettext`  using the 
+    documentation.  This function will setup :mod:`gettext`  using the
     `Class-based API
     <http://docs.python.org/library/gettext.html#class-based-api>`_ for you.
     For the simple case, you can use the default arguments and call it like

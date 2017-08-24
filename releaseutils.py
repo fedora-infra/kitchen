@@ -64,7 +64,7 @@ def main():
         arg_values = {'domain': pot}
         for po_file in glob.glob(glob_pattern):
             file_pattern = os.path.basename(po_file)
-            lang = file_pattern.replace('.po','')
+            lang = file_pattern.replace('.po', '')
             os.makedirs(os.path.join('locale', lang, 'LC_MESSAGES'))
             arg_values['pofile'] = po_file
             arg_values['lang'] = lang
