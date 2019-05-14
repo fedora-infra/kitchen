@@ -1,20 +1,13 @@
 language: python
+# Required for py3.8 and up
+dist: xenial
 python:
- - "2.6"
  - "2.7"
- - "3.4"
- - "3.5"
- - "3.6"
- - "3.7-dev"
+ - "3.7"
+ - "3.8-dev"
 
 install: python setup.py develop
 script: ./runtests.sh
-
-notifications:
-    irc:
-        - "irc.freenode.net#threebean"
-    on_success: never
-    on_failure: always
 
 addons:
   # Install the portuguese language pack so that locale.getpreferredencoding()
