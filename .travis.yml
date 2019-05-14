@@ -1,12 +1,21 @@
 language: python
+# Required for py3.8 and up
+dist: xenial
 python:
- - "2.6"
  - "2.7"
- - "3.4"
+ - "3.7"
+ - "3.8-dev"
+
 install: python setup.py develop
 script: ./runtests.sh
-notifications:
-    irc:
-        - "irc.freenode.net#threebean"
-    on_success: never
-    on_failure: always
+
+addons:
+  # Install the portuguese language pack so that locale.getpreferredencoding()
+  # will use UTF8 for pt_BR.UTF8
+  apt:
+    packages:
+      - 'language-pack-pt'
+
+# Also generate the pt_BR locale for latin-1 encoding
+before_install:
+  - 'sudo locale-gen pt_BR'

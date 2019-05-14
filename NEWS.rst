@@ -8,6 +8,12 @@ NEWS
 :Version: 1.2.x
 
 -----
+1.2.6
+-----
+
+* Updated codepoint tables
+
+-----
 1.2.5
 -----
 
